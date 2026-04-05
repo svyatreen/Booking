@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { MapPin, Star, Heart } from "lucide-react";
 import { Hotel } from "@workspace/api-client-react/src/generated/api.schemas";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,7 @@ interface HotelCardProps {
 export function HotelCard({ hotel }: HotelCardProps) {
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const { data: favorites } = useGetFavorites({
     query: {
@@ -34,7 +35,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      toast.error("Please log in to save favorites");
+      setLocation("/login");
       return;
     }
 

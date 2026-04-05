@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { setAuthTokenGetter } from "@workspace/api-client-react/src/custom-fetch";
 import type { User } from "@workspace/api-client-react/src/generated/api.schemas";
 
 interface AuthContextType {
@@ -16,7 +17,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(() => {
+    const saved = localStorage.getItem("token");
+    if (saved) setAuthTokenGetter(() => saved);
+    return saved;
+  });
   const [user, setUser] = useState<User | null>(null);
   const queryClient = useQueryClient();
 
@@ -37,8 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
+      setAuthTokenGetter(() => token);
     } else {
       localStorage.removeItem("token");
+      setAuthTokenGetter(null);
     }
   }, [token]);
 
