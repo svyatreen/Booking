@@ -3,13 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Hotel Booking API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User profile operations
+  - name: hotels
+    description: Hotel operations
+  - name: rooms
+    description: Room operations
+  - name: bookings
+    description: Booking operations
+  - name: reviews
+    description: Review operations
+  - name: favorites
+    description: Favorites operations
+
 paths:
   /healthz:
     get:
@@ -24,7 +39,715 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Users
+  /users/me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me/bookings:
+    get:
+      operationId: getMyBookings
+      tags: [users]
+      summary: Get booking history for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of user bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingWithDetails"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Admin: Users
+  /admin/users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Hotels
+  /hotels:
+    get:
+      operationId: listHotels
+      tags: [hotels]
+      summary: List/search hotels
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minRating
+          in: query
+          schema:
+            type: number
+        - name: stars
+          in: query
+          schema:
+            type: integer
+        - name: amenities
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [price, rating, popularity]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        "200":
+          description: List of hotels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hotel"
+
+    post:
+      operationId: createHotel
+      tags: [hotels]
+      summary: Create a new hotel (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHotelBody"
+      responses:
+        "201":
+          description: Hotel created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hotel"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /hotels/stats:
+    get:
+      operationId: getHotelStats
+      tags: [hotels]
+      summary: Get hotel platform stats (featured cities, top picks)
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HotelStats"
+
+  /hotels/{id}:
+    get:
+      operationId: getHotel
+      tags: [hotels]
+      summary: Get a hotel by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hotel details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HotelWithRooms"
+        "404":
+          description: Hotel not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      operationId: updateHotel
+      tags: [hotels]
+      summary: Update a hotel (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHotelBody"
+      responses:
+        "200":
+          description: Updated hotel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hotel"
+        "404":
+          description: Hotel not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      operationId: deleteHotel
+      tags: [hotels]
+      summary: Delete a hotel (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Hotel deleted
+        "404":
+          description: Hotel not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /hotels/{id}/similar:
+    get:
+      operationId: getSimilarHotels
+      tags: [hotels]
+      summary: Get similar hotels
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Similar hotels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hotel"
+
+  # Rooms
+  /hotels/{hotelId}/rooms:
+    get:
+      operationId: getRoomsByHotel
+      tags: [rooms]
+      summary: Get all rooms for a hotel
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: checkIn
+          in: query
+          schema:
+            type: string
+        - name: checkOut
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of rooms with availability
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoomWithAvailability"
+
+    post:
+      operationId: createRoom
+      tags: [rooms]
+      summary: Add a room to a hotel (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoomBody"
+      responses:
+        "201":
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /rooms/{id}:
+    patch:
+      operationId: updateRoom
+      tags: [rooms]
+      summary: Update a room (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoomBody"
+      responses:
+        "200":
+          description: Updated room
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+    delete:
+      operationId: deleteRoom
+      tags: [rooms]
+      summary: Delete a room (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Room deleted
+
+  # Bookings
+  /bookings:
+    get:
+      operationId: listAllBookings
+      tags: [bookings]
+      summary: List all bookings (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: All bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingWithDetails"
+
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a new booking
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingBody"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Room not available or validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get a booking by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingWithDetails"
+        "404":
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}/cancel:
+    post:
+      operationId: cancelBooking
+      tags: [bookings]
+      summary: Cancel a booking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Cannot cancel this booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bookings/{id}/pay:
+    post:
+      operationId: payBooking
+      tags: [bookings]
+      summary: Process payment for a booking (fake)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayBookingBody"
+      responses:
+        "200":
+          description: Payment processed, booking confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Payment failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Reviews
+  /hotels/{hotelId}/reviews:
+    get:
+      operationId: getHotelReviews
+      tags: [reviews]
+      summary: Get reviews for a hotel
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewWithUser"
+
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Create a review for a hotel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewBody"
+      responses:
+        "201":
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewWithUser"
+        "400":
+          description: You must have a completed booking to review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /reviews/{id}:
+    delete:
+      operationId: deleteReview
+      tags: [reviews]
+      summary: Delete a review (admin or owner)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Review deleted
+
+  # Favorites
+  /favorites:
+    get:
+      operationId: getFavorites
+      tags: [favorites]
+      summary: Get user favorites
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of favorite hotels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hotel"
+
+  /favorites/{hotelId}:
+    post:
+      operationId: addFavorite
+      tags: [favorites]
+      summary: Add hotel to favorites
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Added to favorites
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Favorite"
+
+    delete:
+      operationId: removeFavorite
+      tags: [favorites]
+      summary: Remove hotel from favorites
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed from favorites
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +757,548 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    RegisterBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - name
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [USER, ADMIN]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - name
+        - role
+        - createdAt
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+
+    Hotel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        rating:
+          type: number
+        stars:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+        reviewCount:
+          type: integer
+        minPrice:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - city
+        - address
+        - rating
+        - stars
+        - amenities
+        - images
+        - reviewCount
+        - createdAt
+
+    HotelWithRooms:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        rating:
+          type: number
+        stars:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+        reviewCount:
+          type: integer
+        minPrice:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        rooms:
+          type: array
+          items:
+            $ref: "#/components/schemas/Room"
+      required:
+        - id
+        - name
+        - description
+        - city
+        - address
+        - rating
+        - stars
+        - amenities
+        - images
+        - reviewCount
+        - createdAt
+        - rooms
+
+    CreateHotelBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        stars:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - description
+        - city
+        - address
+        - stars
+
+    UpdateHotelBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        stars:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    HotelStats:
+      type: object
+      properties:
+        totalHotels:
+          type: integer
+        totalBookings:
+          type: integer
+        featuredCities:
+          type: array
+          items:
+            $ref: "#/components/schemas/CityCount"
+        topHotels:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hotel"
+      required:
+        - totalHotels
+        - totalBookings
+        - featuredCities
+        - topHotels
+
+    CityCount:
+      type: object
+      properties:
+        city:
+          type: string
+        count:
+          type: integer
+      required:
+        - city
+        - count
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        hotelId:
+          type: integer
+        type:
+          type: string
+          enum: [single, double, deluxe, suite]
+        price:
+          type: number
+        guests:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - hotelId
+        - type
+        - price
+        - guests
+        - description
+        - images
+        - createdAt
+
+    RoomWithAvailability:
+      type: object
+      properties:
+        id:
+          type: integer
+        hotelId:
+          type: integer
+        type:
+          type: string
+          enum: [single, double, deluxe, suite]
+        price:
+          type: number
+        guests:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        isAvailable:
+          type: boolean
+      required:
+        - id
+        - hotelId
+        - type
+        - price
+        - guests
+        - description
+        - images
+        - createdAt
+        - isAvailable
+
+    CreateRoomBody:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [single, double, deluxe, suite]
+        price:
+          type: number
+        guests:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+      required:
+        - type
+        - price
+        - guests
+        - description
+
+    UpdateRoomBody:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [single, double, deluxe, suite]
+        price:
+          type: number
+        guests:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        roomId:
+          type: integer
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        totalPrice:
+          type: number
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - roomId
+        - checkIn
+        - checkOut
+        - totalPrice
+        - status
+        - createdAt
+
+    BookingWithDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        roomId:
+          type: integer
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+        totalPrice:
+          type: number
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+        createdAt:
+          type: string
+          format: date-time
+        room:
+          $ref: "#/components/schemas/Room"
+        hotel:
+          $ref: "#/components/schemas/Hotel"
+      required:
+        - id
+        - userId
+        - roomId
+        - checkIn
+        - checkOut
+        - totalPrice
+        - status
+        - createdAt
+        - room
+        - hotel
+
+    CreateBookingBody:
+      type: object
+      properties:
+        roomId:
+          type: integer
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+      required:
+        - roomId
+        - checkIn
+        - checkOut
+
+    PayBookingBody:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+      required:
+        - cardNumber
+        - expiryDate
+        - cvv
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        hotelId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - hotelId
+        - rating
+        - comment
+        - createdAt
+
+    ReviewWithUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        hotelId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - id
+        - userId
+        - hotelId
+        - rating
+        - comment
+        - createdAt
+        - user
+
+    CreateReviewBody:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      required:
+        - rating
+        - comment
+
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        hotelId:
+          type: integer
+      required:
+        - id
+        - userId
+        - hotelId
