@@ -334,6 +334,30 @@ export const CreateRoomBody = zod.object({
 });
 
 /**
+ * @summary Get a single room by ID
+ */
+export const GetRoomParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetRoomQueryParams = zod.object({
+  checkIn: zod.coerce.string().optional(),
+  checkOut: zod.coerce.string().optional(),
+});
+
+export const GetRoomResponse = zod.object({
+  id: zod.number(),
+  hotelId: zod.number(),
+  type: zod.enum(["single", "double", "deluxe", "suite"]),
+  price: zod.number(),
+  guests: zod.number(),
+  description: zod.string(),
+  images: zod.array(zod.string()),
+  createdAt: zod.coerce.date(),
+  isAvailable: zod.boolean(),
+});
+
+/**
  * @summary Update a room (admin only)
  */
 export const UpdateRoomParams = zod.object({

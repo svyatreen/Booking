@@ -442,6 +442,36 @@ paths:
                 $ref: "#/components/schemas/Room"
 
   /rooms/{id}:
+    get:
+      operationId: getRoom
+      tags: [rooms]
+      summary: Get a single room by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: checkIn
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: checkOut
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Room details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomWithAvailability"
+        "404":
+          description: Room not found
+
     patch:
       operationId: updateRoom
       tags: [rooms]

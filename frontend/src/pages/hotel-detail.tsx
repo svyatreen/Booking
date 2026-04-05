@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useGetHotel, getGetHotelQueryKey, useGetRoomsByHotel, getGetRoomsByHotelQueryKey, useGetHotelReviews, getGetHotelReviewsQueryKey, useCreateBooking, useGetSimilarHotels, getGetSimilarHotelsQueryKey, useCreateReview } from "@/api";
 import { useParams, Link, useLocation } from "wouter";
-import { MapPin, Star, Wifi, Coffee, Dumbbell, Car, Utensils, Check, CalendarDays, Users, Heart } from "lucide-react";
+import { MapPin, Star, Wifi, Coffee, Dumbbell, Car, Utensils, Check, CalendarDays, Users, Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -353,34 +353,53 @@ export default function HotelDetail() {
                     <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                       {rooms.map(room => (
                         <div key={room.id} className={cn(
-                          "border rounded-xl p-4 transition-all",
-                          room.isAvailable ? "bg-background hover:border-primary/50" : "bg-muted/50 opacity-60"
+                          "border rounded-xl overflow-hidden transition-all",
+                          room.isAvailable ? "bg-background hover:border-primary/50 hover:shadow-md" : "bg-muted/50 opacity-60"
                         )}>
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-bold capitalize text-lg">{room.type} Room</h4>
-                            <div className="text-right">
-                              <span className="font-bold text-lg">${room.price * (nights || 1)}</span>
-                              {nights > 0 && <div className="text-xs text-muted-foreground">${room.price}/night</div>}
+                          {/* Room thumbnail */}
+                          {room.images?.[0] && (
+                            <div className="h-32 overflow-hidden">
+                              <img
+                                src={room.images[0]}
+                                alt={`${room.type} room`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-bold capitalize text-base">{room.type} Room</h4>
+                              <div className="text-right">
+                                <span className="font-bold">${room.price * (nights || 1)}</span>
+                                {nights > 0 && <div className="text-xs text-muted-foreground">${room.price}/night</div>}
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                              <Users className="h-3.5 w-3.5" />
+                              <span>Up to {room.guests} guests</span>
+                            </div>
+                            
+                            <p className="text-xs text-muted-foreground mb-4 line-clamp-2">
+                              {room.description}
+                            </p>
+                            
+                            <div className="flex gap-2">
+                              <Link href={`/hotels/${hotelId}/rooms/${room.id}`} className="flex-1">
+                                <Button variant="outline" className="w-full text-xs h-8 gap-1">
+                                  View Details <ArrowRight className="h-3 w-3" />
+                                </Button>
+                              </Link>
+                              <Button 
+                                className="flex-1 text-xs h-8"
+                                disabled={!room.isAvailable || !date.from || !date.to || createBooking.isPending}
+                                onClick={() => handleBookRoom(room.id)}
+                                variant={room.isAvailable ? "default" : "secondary"}
+                              >
+                                {createBooking.isPending ? "…" : room.isAvailable ? "Book Now" : "Unavailable"}
+                              </Button>
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                            <Users className="h-4 w-4" />
-                            <span>Up to {room.guests} guests</span>
-                          </div>
-                          
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                            {room.description}
-                          </p>
-                          
-                          <Button 
-                            className="w-full" 
-                            disabled={!room.isAvailable || !date.from || !date.to || createBooking.isPending}
-                            onClick={() => handleBookRoom(room.id)}
-                            variant={room.isAvailable ? "default" : "secondary"}
-                          >
-                            {createBooking.isPending ? "Processing..." : room.isAvailable ? "Book Now" : "Unavailable"}
-                          </Button>
                         </div>
                       ))}
                     </div>

@@ -26,6 +26,7 @@ import type {
   CreateRoomBody,
   ErrorResponse,
   Favorite,
+  GetRoomParams,
   GetRoomsByHotelParams,
   HealthStatus,
   Hotel,
@@ -1386,6 +1387,98 @@ export const useCreateRoom = <
 > => {
   return useMutation(getCreateRoomMutationOptions(options));
 };
+
+/**
+ * @summary Get a single room by ID
+ */
+export const getGetRoomUrl = (id: number, params?: GetRoomParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/rooms/${id}?${stringifiedParams}`
+    : `/api/rooms/${id}`;
+};
+
+export const getRoom = async (
+  id: number,
+  params?: GetRoomParams,
+  options?: RequestInit,
+): Promise<RoomWithAvailability> => {
+  return customFetch<RoomWithAvailability>(getGetRoomUrl(id, params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetRoomQueryKey = (id: number, params?: GetRoomParams) => {
+  return [`/api/rooms/${id}`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetRoomQueryOptions = <
+  TData = Awaited<ReturnType<typeof getRoom>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  params?: GetRoomParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getRoom>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetRoomQueryKey(id, params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getRoom>>> = ({
+    signal,
+  }) => getRoom(id, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getRoom>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetRoomQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getRoom>>
+>;
+export type GetRoomQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a single room by ID
+ */
+
+export function useGetRoom<
+  TData = Awaited<ReturnType<typeof getRoom>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  params?: GetRoomParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getRoom>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetRoomQueryOptions(id, params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * @summary Update a room (admin only)

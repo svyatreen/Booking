@@ -85,6 +85,45 @@ router.post("/hotels/:hotelId/rooms", requireAdmin, async (req, res): Promise<vo
   res.status(201).json(room);
 });
 
+router.get("/rooms/:id", async (req, res): Promise<void> => {
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid room ID" });
+    return;
+  }
+
+  const [room] = await db.select().from(roomsTable).where(eq(roomsTable.id, id));
+  if (!room) {
+    res.status(404).json({ error: "Room not found" });
+    return;
+  }
+
+  const { checkIn, checkOut } = req.query as { checkIn?: string; checkOut?: string };
+
+  if (!checkIn || !checkOut) {
+    res.json({ ...room, isAvailable: true });
+    return;
+  }
+
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
+
+  const overlapping = await db
+    .select()
+    .from(bookingsTable)
+    .where(
+      and(
+        eq(bookingsTable.roomId, room.id),
+        sql`${bookingsTable.status} != 'cancelled'`,
+        sql`${bookingsTable.checkIn} < ${checkOutDate.toISOString()}::timestamptz`,
+        sql`${bookingsTable.checkOut} > ${checkInDate.toISOString()}::timestamptz`
+      )
+    );
+
+  res.json({ ...room, isAvailable: overlapping.length === 0 });
+});
+
 router.patch("/rooms/:id", requireAdmin, async (req, res): Promise<void> => {
   const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateRoomParams.safeParse({ id: parseInt(rawId, 10) });

@@ -12,6 +12,7 @@ import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
 import Hotels from "@/pages/hotels";
 import HotelDetail from "@/pages/hotel-detail";
+import RoomDetail from "@/pages/room-detail";
 import Profile from "@/pages/profile";
 import BookingDetail from "@/pages/booking";
 import Admin from "@/pages/admin";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/hotels" component={Hotels} />
+      <Route path="/hotels/:hotelId/rooms/:roomId" component={RoomDetail} />
       <Route path="/hotels/:id" component={HotelDetail} />
       
       <Route path="/favorites">

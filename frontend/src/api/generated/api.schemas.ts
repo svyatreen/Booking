@@ -321,3 +321,8 @@ export type GetRoomsByHotelParams = {
   checkIn?: string;
   checkOut?: string;
 };
+
+export type GetRoomParams = {
+  checkIn?: string;
+  checkOut?: string;
+};

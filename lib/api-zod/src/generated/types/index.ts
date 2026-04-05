@@ -19,6 +19,7 @@ export * from "./createRoomBody";
 export * from "./createRoomBodyType";
 export * from "./errorResponse";
 export * from "./favorite";
+export * from "./getRoomParams";
 export * from "./getRoomsByHotelParams";
 export * from "./healthStatus";
 export * from "./hotel";
