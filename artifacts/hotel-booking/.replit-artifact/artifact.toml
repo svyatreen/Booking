@@ -15,11 +15,11 @@ paths = [ "/" ]
 localPort = 24960
 
 [services.development]
-run = "pnpm --filter @workspace/hotel-booking run dev"
+run = "pnpm --filter frontend run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/hotel-booking", "run", "build" ]
-publicDir = "artifacts/hotel-booking/dist/public"
+build = [ "pnpm", "--filter", "frontend", "run", "build" ]
+publicDir = "frontend/dist/public"
 serve = "static"
 
 [[services.production.rewrites]]
@@ -28,4 +28,3 @@ to = "/index.html"
 
 [services.env]
 PORT = "24960"
-BASE_PATH = "/"
