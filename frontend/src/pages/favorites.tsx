@@ -27,7 +27,7 @@ export default function Favorites() {
         ) : favorites?.length ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((favorite: any) => (
-              <HotelCard key={favorite.id} hotel={favorite.hotel} />
+              <HotelCard key={favorite.id} hotel={favorite} />
             ))}
           </div>
         ) : (

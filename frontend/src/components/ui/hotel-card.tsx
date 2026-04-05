@@ -25,7 +25,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
     }
   });
 
-  const isFavorite = favorites?.some(f => f.hotelId === hotel.id);
+  const isFavorite = favorites?.some((f: any) => (f.hotelId ?? f.id) === hotel.id);
 
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
