@@ -20,6 +20,7 @@ import Admin from "@/pages/admin";
 import About from "@/pages/about";
 import Press from "@/pages/press";
 import Blog from "@/pages/blog";
+import Careers from "@/pages/careers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/press" component={Press} />
       <Route path="/blog" component={Blog} />
+      <Route path="/careers" component={Careers} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/hotels" component={Hotels} />
