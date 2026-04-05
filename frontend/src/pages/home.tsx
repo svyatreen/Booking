@@ -35,7 +35,6 @@ export default function Home() {
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
           <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 container mx-auto px-4 text-center text-white mt-20">
