@@ -24,8 +24,8 @@ const hotelImages = {
     `https://images.unsplash.com/photo-1502602898657-3e91760cbb34?${W}`, // Paris at night
   ],
   "Hôtel Particulier Montmartre": [
-    `https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?${W}`, // boutique hotel courtyard
     `https://images.unsplash.com/photo-1543274189-f00657900c66?${W}`, // Montmartre Paris
+    `https://images.unsplash.com/photo-1502602898657-3e91760cbb34?${W}`, // Paris at night / rooftops
     `https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?${W}`, // chic hotel room
     `https://images.unsplash.com/photo-1563911302283-d2bc129e7570?${W}`, // garden pool / terrace
     `https://images.unsplash.com/photo-1499856871958-5b9627545d1a?${W}`, // Paris rooftop view
@@ -242,7 +242,7 @@ const hotelImages = {
   ],
   "The St. Regis New York": [
     `https://images.unsplash.com/photo-1496588152823-86ff7695e68f?${W}`, // NYC / Midtown Manhattan
-    `https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?${W}`, // NYC skyline at night
+    `https://images.unsplash.com/photo-1542314831-c6a4d1400850?${W}`, // grand luxury hotel exterior
     `https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?${W}`, // beaux-arts hotel suite
     `https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?${W}`, // luxury marble bathroom
     `https://images.unsplash.com/photo-1559508551-44bff1de756b?${W}`, // King Cole Bar
