@@ -28,9 +28,6 @@ export function Navbar() {
       <Link href="/hotels" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
         Find a Hotel
       </Link>
-      <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-        About Us
-      </Link>
       {isAuthenticated && (
         <Link href="/favorites" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
           Favorites
