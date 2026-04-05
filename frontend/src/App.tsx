@@ -17,6 +17,7 @@ import RoomDetail from "@/pages/room-detail";
 import Profile from "@/pages/profile";
 import BookingDetail from "@/pages/booking";
 import Admin from "@/pages/admin";
+import About from "@/pages/about";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/hotels" component={Hotels} />
