@@ -150,7 +150,7 @@ router.get("/hotels/stats", async (_req, res): Promise<void> => {
     .select()
     .from(hotelsTable)
     .orderBy(desc(hotelsTable.rating))
-    .limit(4);
+    .limit(12);
 
   const topHotelIds = topHotels.map((h) => h.id);
   const reviewCounts = topHotelIds.length > 0

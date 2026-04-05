@@ -148,7 +148,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {stats?.topHotels?.slice(0, 4).map((hotel) => (
+              {stats?.topHotels?.slice(0, 12).map((hotel) => (
                 <HotelCard key={hotel.id} hotel={hotel} />
               ))}
             </div>
