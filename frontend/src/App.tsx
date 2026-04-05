@@ -22,6 +22,7 @@ import Press from "@/pages/press";
 import Blog from "@/pages/blog";
 import Careers from "@/pages/careers";
 import HelpCenter from "@/pages/help-center";
+import Contact from "@/pages/contact";
 
 const queryClient = new QueryClient({
   defaultOptions: {
