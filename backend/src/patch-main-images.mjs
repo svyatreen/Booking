@@ -17,7 +17,7 @@ const patches = [
   { name: "Hôtel de Crillon",
     img0: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=85&w=1400" },
   { name: "Hôtel Particulier Montmartre",
-    img0: "https://images.unsplash.com/photo-1543274189-f00657900c66?auto=format&fit=crop&q=85&w=1400" },
+    img0: "https://images.unsplash.com/photo-1549638441-b787d2e11f14?auto=format&fit=crop&q=85&w=1400" },
   // London
   { name: "The Savoy",
     img0: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=85&w=1400" },
@@ -83,7 +83,7 @@ const patches = [
   { name: "The Plaza New York",
     img0: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=85&w=1400" },
   { name: "The St. Regis New York",
-    img0: "https://images.unsplash.com/photo-1499092346302-2a0cbc38abd7?auto=format&fit=crop&q=85&w=1400" },
+    img0: "https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&q=85&w=1400" },
   // Miami
   { name: "Faena Hotel Miami Beach",
     img0: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=85&w=1400" },
