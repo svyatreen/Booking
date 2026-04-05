@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
-import { Building2, Search, User, LogOut, Menu } from "lucide-react";
+import { Building2, User, LogOut, Menu, Sun, Moon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Navbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
 
   const handleLogout = () => {
@@ -53,6 +55,20 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="h-9 w-9"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+
           {!isAuthenticated ? (
             <div className="flex items-center gap-2">
               <Link href="/login">

@@ -29,12 +29,12 @@ export default function Home() {
       <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=2000"
+            src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000"
             alt="Luxury hotel view" 
             className="w-full h-full object-cover object-center"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-900/80 via-orange-800/60 to-yellow-700/50" />
+          <div className="absolute inset-0 bg-black/45" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         </div>
 
