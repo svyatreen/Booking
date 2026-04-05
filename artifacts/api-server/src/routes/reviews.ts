@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, reviewsTable, usersTable, bookingsTable, hotelsTable, roomsTable } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import {
   GetHotelReviewsParams,
@@ -74,7 +74,7 @@ router.post("/hotels/:hotelId/reviews", requireAuth, async (req, res): Promise<v
       and(
         eq(bookingsTable.userId, req.user!.userId),
         eq(bookingsTable.status, "confirmed"),
-        sql`${bookingsTable.room_id} = ANY(${sql.raw(`ARRAY[${roomIds.join(",")}]`)})`
+        inArray(bookingsTable.roomId, roomIds)
       )
     )
     .limit(1);

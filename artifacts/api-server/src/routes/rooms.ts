@@ -47,12 +47,8 @@ router.get("/hotels/:hotelId/rooms", async (req, res): Promise<void> => {
           and(
             eq(bookingsTable.roomId, room.id),
             sql`${bookingsTable.status} != 'cancelled'`,
-            or(
-              and(
-                sql`${bookingsTable.check_in} < ${checkOutDate.toISOString()}`,
-                sql`${bookingsTable.check_out} > ${checkInDate.toISOString()}`
-              )
-            )
+            sql`${bookingsTable.checkIn} < ${checkOutDate.toISOString()}::timestamptz`,
+            sql`${bookingsTable.checkOut} > ${checkInDate.toISOString()}::timestamptz`
           )
         );
 
