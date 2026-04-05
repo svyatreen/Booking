@@ -42,7 +42,10 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Support</h3>
             <ul className="mt-4 space-y-3">
-              {["Help Center", "Contact Us", "Cancellation Policy", "Safety"].map((item) => (
+              <li>
+                <Link href="/help-center" className="text-sm text-muted-foreground transition-colors hover:text-primary">Help Center</Link>
+              </li>
+              {["Contact Us", "Cancellation Policy", "Safety"].map((item) => (
                 <li key={item}>
                   <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">{item}</a>
                 </li>
