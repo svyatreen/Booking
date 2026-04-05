@@ -28,7 +28,10 @@ export function Footer() {
               <li>
                 <Link href="/about" className="text-sm text-muted-foreground transition-colors hover:text-primary">About Us</Link>
               </li>
-              {["Careers", "Press", "Blog"].map((item) => (
+              <li>
+                <Link href="/press" className="text-sm text-muted-foreground transition-colors hover:text-primary">Press</Link>
+              </li>
+              {["Careers", "Blog"].map((item) => (
                 <li key={item}>
                   <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">{item}</a>
                 </li>
