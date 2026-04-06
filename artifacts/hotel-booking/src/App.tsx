@@ -15,6 +15,7 @@ import HotelDetail from "@/pages/hotel-detail";
 import Profile from "@/pages/profile";
 import BookingDetail from "@/pages/booking";
 import Admin from "@/pages/admin";
+import Contact from "@/pages/contact";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +34,8 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/hotels" component={Hotels} />
       <Route path="/hotels/:id" component={HotelDetail} />
-      
+      <Route path="/contact" component={Contact} />
+
       <Route path="/favorites">
         <ProtectedRoute>
           <Favorites />
