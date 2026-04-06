@@ -66,7 +66,7 @@ export function Footer() {
                 <Link href="/terms-of-service" className="text-sm text-muted-foreground transition-colors hover:text-primary">Terms of Service</Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">Cookie Policy</a>
+                <Link href="/cookie-policy" className="text-sm text-muted-foreground transition-colors hover:text-primary">Cookie Policy</Link>
               </li>
               <li>
                 <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">Accessibility</a>
