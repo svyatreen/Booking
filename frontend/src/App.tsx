@@ -24,6 +24,7 @@ import Careers from "@/pages/careers";
 import HelpCenter from "@/pages/help-center";
 import Contact from "@/pages/contact";
 import CancellationPolicy from "@/pages/cancellation-policy";
+import Safety from "@/pages/safety";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/help-center" component={HelpCenter} />
       <Route path="/contact" component={Contact} />
       <Route path="/cancellation-policy" component={CancellationPolicy} />
+      <Route path="/safety" component={Safety} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/hotels" component={Hotels} />

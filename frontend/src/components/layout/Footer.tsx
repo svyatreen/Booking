@@ -52,7 +52,7 @@ export function Footer() {
                 <Link href="/cancellation-policy" className="text-sm text-muted-foreground transition-colors hover:text-primary">Cancellation Policy</Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">Safety</a>
+                <Link href="/safety" className="text-sm text-muted-foreground transition-colors hover:text-primary">Safety</Link>
               </li>
             </ul>
           </div>
