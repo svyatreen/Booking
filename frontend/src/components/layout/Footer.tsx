@@ -69,7 +69,7 @@ export function Footer() {
                 <Link href="/cookie-policy" className="text-sm text-muted-foreground transition-colors hover:text-primary">Cookie Policy</Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-primary">Accessibility</a>
+                <Link href="/accessibility" className="text-sm text-muted-foreground transition-colors hover:text-primary">Accessibility</Link>
               </li>
             </ul>
           </div>
