@@ -88,7 +88,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
             </h3>
             <div className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-md">
               <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-              <span className="text-sm font-medium">{hotel.rating.toFixed(1)}</span>
+              <span className="text-sm font-medium">{hotel.stars}</span>
             </div>
           </div>
           
