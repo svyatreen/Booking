@@ -3,13 +3,6 @@ import { db, usersTable, bookingsTable, roomsTable, hotelsTable } from "../db";
 import { eq, sql, inArray } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import { UpdateMeBody } from "../zod";
-import bcrypt from "bcryptjs";
-import { z } from "zod/v4";
-
-const ChangePasswordBody = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z.string().min(6, "New password must be at least 6 characters"),
-});
 
 const router: IRouter = Router();
 
@@ -101,31 +94,6 @@ router.get("/users/me/bookings", requireAuth, async (req, res): Promise<void> =>
   });
 
   res.json(result);
-});
-
-router.post("/users/me/password", requireAuth, async (req, res): Promise<void> => {
-  const parsed = ChangePasswordBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid input" });
-    return;
-  }
-
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.user!.userId));
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
-
-  const isMatch = await bcrypt.compare(parsed.data.currentPassword, user.password);
-  if (!isMatch) {
-    res.status(400).json({ error: "Current password is incorrect" });
-    return;
-  }
-
-  const hashed = await bcrypt.hash(parsed.data.newPassword, 10);
-  await db.update(usersTable).set({ password: hashed }).where(eq(usersTable.id, req.user!.userId));
-
-  res.json({ message: "Password updated successfully" });
 });
 
 router.get("/admin/users", requireAdmin, async (_req, res): Promise<void> => {
