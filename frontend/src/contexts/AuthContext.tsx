@@ -23,9 +23,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return saved;
   });
   const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(!localStorage.getItem("token"));
   const queryClient = useQueryClient();
 
-  const { data: meData, isLoading } = useGetMe({
+  const { data: meData, isLoading, isError } = useGetMe({
     query: {
       enabled: !!token,
       queryKey: getGetMeQueryKey(),
@@ -36,8 +37,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (meData) {
       setUser(meData);
+      setIsInitialized(true);
     }
   }, [meData]);
+
+  useEffect(() => {
+    if (isError) {
+      setIsInitialized(true);
+    }
+  }, [isError]);
+
+  useEffect(() => {
+    if (!token) {
+      setIsInitialized(true);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (token) {
@@ -52,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
+    setIsInitialized(true);
   };
 
   const logout = () => {
@@ -69,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAuthenticated: !!user,
         isAdmin: user?.role === "ADMIN",
-        isLoading,
+        isLoading: !isInitialized,
       }}
     >
       {children}
