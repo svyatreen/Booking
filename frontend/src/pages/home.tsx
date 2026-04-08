@@ -106,25 +106,35 @@ export default function Home() {
             <Button variant="outline" onClick={() => setLocation('/hotels')}>View all cities</Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {stats?.featuredCities?.slice(0, 3).map((city, i) => (
-              <div 
-                key={city.city} 
-                className="group relative h-80 rounded-2xl overflow-hidden cursor-pointer"
-                onClick={() => setLocation(`/hotels?city=${encodeURIComponent(city.city)}`)}
-              >
-                <img 
-                  src={`https://images.unsplash.com/photo-${i === 0 ? '1499856871958-5b9627545d1a' : i === 1 ? '1522083111336-66bf96287792' : '1513635269975-59663e0ac1ad'}?auto=format&fit=crop&q=80&w=800`}
-                  alt={city.city}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-6 left-6 text-white">
-                  <h3 className="text-2xl font-serif font-bold mb-1">{city.city}</h3>
-                  <p className="text-white/80">{city.count} properties</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { city: "Paris",  img: "1499856871958-5b9627545d1a" },
+              { city: "Tokyo",  img: "1540959733332-eab4deabeeaf" },
+              { city: "Bali",   img: "1537996194471-e657df975ab4" },
+              { city: "London", img: "1513635269975-59663e0ac1ad" },
+            ].map(({ city, img }) => {
+              const count = stats?.featuredCities?.find(c => c.city === city)?.count;
+              return (
+                <div
+                  key={city}
+                  className="group relative h-72 rounded-2xl overflow-hidden cursor-pointer"
+                  onClick={() => setLocation(`/hotels?city=${encodeURIComponent(city)}`)}
+                >
+                  <img
+                    src={`https://images.unsplash.com/photo-${img}?auto=format&fit=crop&q=80&w=800`}
+                    alt={city}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute bottom-5 left-5 text-white">
+                    <h3 className="text-xl font-serif font-bold mb-0.5">{city}</h3>
+                    {count !== undefined && (
+                      <p className="text-white/80 text-sm">{count} properties</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

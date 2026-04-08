@@ -72,7 +72,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
               className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white text-foreground"
               onClick={toggleFavorite}
             >
-              <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : ""}`} />
+              <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-gray-800 stroke-2"}`} />
             </Button>
           </div>
           {hotel.stars >= 4 && (
