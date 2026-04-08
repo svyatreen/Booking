@@ -3,13 +3,13 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Cookie, X } from "lucide-react";
 
-const STORAGE_KEY = "staylux_cookie_consent";
+const SESSION_KEY = "staylux_cookie_consent_session";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = sessionStorage.getItem(SESSION_KEY);
     if (!stored) {
       const timer = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(timer);
@@ -17,12 +17,12 @@ export function CookieConsent() {
   }, []);
 
   function acceptAll() {
-    localStorage.setItem(STORAGE_KEY, "accepted");
+    sessionStorage.setItem(SESSION_KEY, "accepted");
     setVisible(false);
   }
 
   function declineNonEssential() {
-    localStorage.setItem(STORAGE_KEY, "declined");
+    sessionStorage.setItem(SESSION_KEY, "declined");
     setVisible(false);
   }
 
@@ -58,7 +58,6 @@ export function CookieConsent() {
                 <Link
                   href="/cookie-policy"
                   className="text-blue-600 dark:text-blue-400 hover:underline"
-                  onClick={declineNonEssential}
                 >
                   Политика использования cookie
                 </Link>
