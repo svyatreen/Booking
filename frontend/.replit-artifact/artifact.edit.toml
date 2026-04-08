@@ -1,0 +1,29 @@
+kind = "web"
+  previewPath = "/"
+  title = "StayLux Hotel Booking"
+  version = "1.0.0"
+  id = "staylux-frontend-main"
+
+  [[services]]
+  localPort = 24960
+  name = "Frontend"
+  paths = ["/"]
+
+  [services.development]
+  run = "pnpm --filter frontend run dev"
+
+  [services.production]
+
+  [services.production.build]
+  args = ["pnpm", "--filter", "frontend", "run", "build"]
+
+  [services.production.build.env]
+  NODE_ENV = "production"
+
+  [services.production.run]
+  args = ["node", "scripts/serve.mjs"]
+
+  [services.production.run.env]
+  PORT = "24960"
+  NODE_ENV = "production"
+  
