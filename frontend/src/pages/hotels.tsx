@@ -26,8 +26,8 @@ export default function Hotels() {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const debouncedPriceRange = useDebounce(priceRange, 500);
   
-  const [minRating, setMinRating] = useState<number | undefined>();
-  const [stars, setStars] = useState<number | undefined>();
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
+  const [selectedStars, setSelectedStars] = useState<number[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   
   const [sortBy, setSortBy] = useState<"price" | "rating" | "popularity">("popularity");
@@ -35,13 +35,14 @@ export default function Hotels() {
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  const { data: hotels, isLoading } = useListHotels(
+  const apiMinRating = selectedRatings.length ? Math.min(...selectedRatings) : undefined;
+
+  const { data: rawHotels, isLoading } = useListHotels(
     {
       search: debouncedSearch || undefined,
       minPrice: debouncedPriceRange[0],
       maxPrice: debouncedPriceRange[1] === 1000 ? undefined : debouncedPriceRange[1],
-      minRating: minRating,
-      stars: stars,
+      minRating: apiMinRating,
       amenities: selectedAmenities.length ? selectedAmenities.join(",") : undefined,
       sortBy,
       sortOrder,
@@ -52,8 +53,7 @@ export default function Hotels() {
           search: debouncedSearch || undefined,
           minPrice: debouncedPriceRange[0],
           maxPrice: debouncedPriceRange[1] === 1000 ? undefined : debouncedPriceRange[1],
-          minRating,
-          stars,
+          minRating: apiMinRating,
           amenities: selectedAmenities.length ? selectedAmenities.join(",") : undefined,
           sortBy,
           sortOrder,
@@ -62,23 +62,40 @@ export default function Hotels() {
     }
   );
 
+  const hotels = rawHotels?.filter(h =>
+    (selectedStars.length === 0 || selectedStars.includes(h.stars)) &&
+    (selectedRatings.length === 0 || selectedRatings.some(r => h.rating >= r))
+  );
+
   const toggleAmenity = (amenity: string) => {
-    setSelectedAmenities(prev => 
+    setSelectedAmenities(prev =>
       prev.includes(amenity) ? prev.filter(a => a !== amenity) : [...prev, amenity]
+    );
+  };
+
+  const toggleStar = (star: number) => {
+    setSelectedStars(prev =>
+      prev.includes(star) ? prev.filter(s => s !== star) : [...prev, star]
+    );
+  };
+
+  const toggleRating = (rating: number) => {
+    setSelectedRatings(prev =>
+      prev.includes(rating) ? prev.filter(r => r !== rating) : [...prev, rating]
     );
   };
 
   const clearFilters = () => {
     setSearch("");
     setPriceRange([0, 1000]);
-    setMinRating(undefined);
-    setStars(undefined);
+    setSelectedRatings([]);
+    setSelectedStars([]);
     setSelectedAmenities([]);
     setSortBy("popularity");
     setSortOrder("desc");
   };
 
-  const activeFiltersCount = (search ? 1 : 0) + (priceRange[0] > 0 || priceRange[1] < 1000 ? 1 : 0) + (minRating ? 1 : 0) + (stars ? 1 : 0) + selectedAmenities.length;
+  const activeFiltersCount = (search ? 1 : 0) + (priceRange[0] > 0 || priceRange[1] < 1000 ? 1 : 0) + selectedRatings.length + selectedStars.length + selectedAmenities.length;
 
   return (
     <Layout>
@@ -159,10 +176,10 @@ export default function Hotels() {
               <div className="space-y-2">
                 {[5, 4, 3].map(star => (
                   <div key={star} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`star-${star}`} 
-                      checked={stars === star}
-                      onCheckedChange={(checked) => setStars(checked ? star : undefined)}
+                    <Checkbox
+                      id={`star-${star}`}
+                      checked={selectedStars.includes(star)}
+                      onCheckedChange={() => toggleStar(star)}
                     />
                     <label htmlFor={`star-${star}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center">
                       {star} Stars
@@ -177,10 +194,10 @@ export default function Hotels() {
               <div className="space-y-2">
                 {[4.5, 4.0, 3.5].map(rating => (
                   <div key={rating} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`rating-${rating}`} 
-                      checked={minRating === rating}
-                      onCheckedChange={(checked) => setMinRating(checked ? rating : undefined)}
+                    <Checkbox
+                      id={`rating-${rating}`}
+                      checked={selectedRatings.includes(rating)}
+                      onCheckedChange={() => toggleRating(rating)}
                     />
                     <label htmlFor={`rating-${rating}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center">
                       {rating}+ Excellent
