@@ -31,12 +31,12 @@ name = "Start application"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=8080 pnpm --filter backend run dev & PORT=24960 pnpm --filter frontend run dev"
-waitForPort = 24960
+args = "PORT=8080 pnpm --filter backend run dev"
+waitForPort = 8080
 
 [agent]
 stack = "PNPM_WORKSPACE"
