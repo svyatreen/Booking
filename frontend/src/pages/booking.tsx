@@ -167,8 +167,13 @@ export default function BookingDetail() {
                 <p className="text-muted-foreground leading-relaxed">
                   Free cancellation up to 48 hours before check-in. Cancellations made within 48 hours of check-in will be subject to a one-night fee. If you fail to check in (no-show), you will be charged the full amount of your reservation.
                 </p>
+                {booking.status === 'confirmed' && (
+                  <p className="mt-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
+                    This booking has already been paid. Cancellation may result in a partial or full refund depending on the timing.
+                  </p>
+                )}
               </CardContent>
-              {booking.status === 'pending' && (
+              {(booking.status === 'pending' || booking.status === 'confirmed') && (
                 <CardFooter className="bg-secondary/30 border-t flex justify-end p-4">
                   <Button variant="destructive" onClick={handleCancel} disabled={cancelBooking.isPending}>
                     {cancelBooking.isPending ? "Cancelling..." : "Cancel Reservation"}

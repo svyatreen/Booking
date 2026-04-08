@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGetMyBookings, getGetMyBookingsQueryKey, useUpdateMe } from "@/api";
+import { useGetMyBookings, getGetMyBookingsQueryKey, useUpdateMe, getGetMeQueryKey } from "@/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -12,28 +12,49 @@ import { MapPin, Calendar, CreditCard, Building2, User, Mail, Shield } from "luc
 import { format, formatDistanceToNow } from "date-fns";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Profile() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const updateMe = useUpdateMe();
   
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+    }
+  }, [user]);
+
   const { data: bookings, isLoading } = useGetMyBookings({
     query: { queryKey: getGetMyBookingsQueryKey() }
   });
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMe.mutate({
-      data: { name }
-    }, {
-      onSuccess: () => {
-        toast.success("Profile updated successfully");
-      },
-      onError: () => {
-        toast.error("Failed to update profile");
+    const updates: { name?: string; email?: string } = {};
+    if (name !== user?.name) updates.name = name;
+    if (email !== user?.email) updates.email = email;
+
+    if (Object.keys(updates).length === 0) {
+      toast.info("No changes to save.");
+      return;
+    }
+
+    updateMe.mutate(
+      { data: updates },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+          toast.success("Profile updated successfully");
+        },
+        onError: () => {
+          toast.error("Failed to update profile");
+        },
       }
-    });
+    );
   };
 
   const getStatusColor = (status: string) => {
@@ -172,7 +193,7 @@ export default function Profile() {
             <Card>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Update your personal details here.</CardDescription>
+                <CardDescription>Update your name and email address below.</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-md">
@@ -185,6 +206,7 @@ export default function Profile() {
                         value={name} 
                         onChange={(e) => setName(e.target.value)} 
                         className="pl-10"
+                        placeholder="Your full name"
                       />
                     </div>
                   </div>
@@ -194,12 +216,13 @@ export default function Profile() {
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
                         id="email" 
-                        value={user?.email || ""} 
-                        disabled 
-                        className="pl-10 bg-muted/50 text-muted-foreground"
+                        type="email"
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10"
+                        placeholder="your@email.com"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
                   </div>
                   <Button type="submit" disabled={updateMe.isPending}>
                     {updateMe.isPending ? "Saving..." : "Save Changes"}
