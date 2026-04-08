@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { CookieConsent } from "@/components/CookieConsent";
 
 import Home from "@/pages/home";
 import Login from "@/pages/login";
@@ -100,6 +101,7 @@ function App() {
               <Router />
             </WouterRouter>
             <Toaster />
+            <CookieConsent />
           </AuthProvider>
         </ThemeProvider>
       </TooltipProvider>
