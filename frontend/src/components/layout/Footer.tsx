@@ -13,7 +13,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Destinations</h3>
             <ul className="mt-4 space-y-3">
-              {["Paris", "New York", "Tokyo", "London", "Bali", "Barcelona"].map((city) => (
+              {["Paris", "Tokyo", "Bali", "London"].map((city) => (
                 <li key={city}>
                   <Link href={`/hotels?city=${city}`} className="text-sm text-muted-foreground transition-colors hover:text-primary">
                     {city}
