@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { useLocation, useSearch } from "wouter";
 import { useListHotels, getListHotelsQueryKey } from "@/api";
 import { Layout } from "@/components/layout/Layout";
 import { HotelCard } from "@/components/ui/hotel-card";
@@ -18,10 +18,16 @@ const AMENITIES_LIST = [
 
 export default function Hotels() {
   const [location] = useLocation();
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  const [search, setSearch] = useState(urlParams.get("city") || "");
+  const searchString = useSearch();
+
+  const cityFromUrl = new URLSearchParams(searchString).get("city") || "";
+
+  const [search, setSearch] = useState(cityFromUrl);
   const debouncedSearch = useDebounce(search, 500);
+
+  useEffect(() => {
+    setSearch(cityFromUrl);
+  }, [searchString]);
   
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const debouncedPriceRange = useDebounce(priceRange, 500);
