@@ -1,6 +1,6 @@
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Layout } from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   MapPin,
   Clock,
@@ -14,43 +14,55 @@ import {
   ChevronUp,
   Search,
   Users,
-} from "lucide-react";
-import { useState } from "react";
+} from 'lucide-react';
+import { useState } from 'react';
 
 const perks = [
   {
     icon: Plane,
-    title: "Travel Stipend",
-    description: "€3,000 per year to stay at hotels in our collection — because you can't curate what you haven't experienced.",
+    title: 'Travel Stipend',
+    description:
+      "€3,000 per year to stay at hotels in our collection — because you can't curate what you haven't experienced.",
   },
   {
     icon: Globe2,
-    title: "Remote-First",
-    description: "Work from wherever you do your best thinking. We have team members across 12 countries and four time zones.",
+    title: 'Remote-First',
+    description:
+      'Work from wherever you do your best thinking. We have team members across 12 countries and four time zones.',
   },
   {
     icon: TrendingUp,
-    title: "Growth & Learning",
-    description: "€1,500 annual budget for courses, conferences, and books. We invest in your development as much as you do.",
+    title: 'Growth & Learning',
+    description:
+      '€1,500 annual budget for courses, conferences, and books. We invest in your development as much as you do.',
   },
   {
     icon: HeartHandshake,
-    title: "Generous Leave",
-    description: "35 days of paid leave per year — including your birthday off, no questions asked.",
+    title: 'Generous Leave',
+    description:
+      '35 days of paid leave per year — including your birthday off, no questions asked.',
   },
   {
     icon: Sparkles,
-    title: "Equity for Everyone",
-    description: "All full-time employees receive stock options. When StayLux grows, everyone benefits.",
+    title: 'Equity for Everyone',
+    description:
+      'All full-time employees receive stock options. When Selora grows, everyone benefits.',
   },
   {
     icon: Users,
-    title: "Diverse & Inclusive",
-    description: "Our team spans 18 nationalities and speaks 24 languages. Different perspectives make us stronger.",
+    title: 'Diverse & Inclusive',
+    description:
+      'Our team spans 18 nationalities and speaks 24 languages. Different perspectives make us stronger.',
   },
 ];
 
-type Department = "All" | "Curation" | "Engineering" | "Design" | "Marketing" | "Operations";
+type Department =
+  | 'All'
+  | 'Curation'
+  | 'Engineering'
+  | 'Design'
+  | 'Marketing'
+  | 'Operations';
 
 const openings: {
   title: string;
@@ -61,109 +73,120 @@ const openings: {
   requirements: string[];
 }[] = [
   {
-    title: "Senior Hotel Curator — Asia Pacific",
-    department: "Curation",
-    location: "Remote (APAC)",
-    type: "Full-time",
+    title: 'Senior Hotel Curator — Asia Pacific',
+    department: 'Curation',
+    location: 'Remote (APAC)',
+    type: 'Full-time',
     description:
       "You'll scout, evaluate, and onboard new properties across Southeast and East Asia. Expect frequent travel, deep relationships with GMs, and the satisfaction of finding hidden gems before anyone else does.",
     requirements: [
-      "5+ years in luxury hospitality (hotel management, travel media, or similar)",
-      "Fluency in English + one Asian language",
-      "Willingness to travel up to 50% of the time",
-      "Sharp eye for authentic luxury vs. superficial opulence",
+      '5+ years in luxury hospitality (hotel management, travel media, or similar)',
+      'Fluency in English + one Asian language',
+      'Willingness to travel up to 50% of the time',
+      'Sharp eye for authentic luxury vs. superficial opulence',
     ],
   },
   {
-    title: "Full-Stack Engineer (React / Node)",
-    department: "Engineering",
-    location: "Remote (Global)",
-    type: "Full-time",
+    title: 'Full-Stack Engineer (React / Node)',
+    department: 'Engineering',
+    location: 'Remote (Global)',
+    type: 'Full-time',
     description:
       "Join the team building the platform that thousands of travellers trust to plan their most important trips. You'll work on search, personalisation, booking flows, and the internal tools our curation team relies on.",
     requirements: [
-      "3+ years with React and TypeScript",
-      "Solid Node.js / Express experience",
-      "Comfort with PostgreSQL and RESTful API design",
-      "Appreciation for clean, maintainable code",
+      '3+ years with React and TypeScript',
+      'Solid Node.js / Express experience',
+      'Comfort with PostgreSQL and RESTful API design',
+      'Appreciation for clean, maintainable code',
     ],
   },
   {
-    title: "Lead Product Designer",
-    department: "Design",
-    location: "Paris or Remote",
-    type: "Full-time",
+    title: 'Lead Product Designer',
+    department: 'Design',
+    location: 'Paris or Remote',
+    type: 'Full-time',
     description:
-      "Own the end-to-end design of StayLux — from first impression to post-checkout. You'll define our design language, lead user research, and work shoulder-to-shoulder with engineering to ship beautiful, functional experiences.",
+      "Own the end-to-end design of Selora — from first impression to post-checkout. You'll define our design language, lead user research, and work shoulder-to-shoulder with engineering to ship beautiful, functional experiences.",
     requirements: [
-      "Portfolio showing strong interaction and visual design",
-      "Experience with Figma and modern design systems",
-      "User research and usability testing experience",
-      "Luxury or travel category experience is a bonus",
+      'Portfolio showing strong interaction and visual design',
+      'Experience with Figma and modern design systems',
+      'User research and usability testing experience',
+      'Luxury or travel category experience is a bonus',
     ],
   },
   {
-    title: "Content & SEO Strategist",
-    department: "Marketing",
-    location: "Remote (EU)",
-    type: "Full-time",
+    title: 'Content & SEO Strategist',
+    department: 'Marketing',
+    location: 'Remote (EU)',
+    type: 'Full-time',
     description:
-      "You'll own our editorial calendar, grow organic traffic, and ensure every word on StayLux reflects our voice — authoritative, warm, and never stuffy. Our blog reaches 200k monthly readers and we want to double that.",
+      "You'll own our editorial calendar, grow organic traffic, and ensure every word on Selora reflects our voice — authoritative, warm, and never stuffy. Our blog reaches 200k monthly readers and we want to double that.",
     requirements: [
-      "Proven track record growing organic search traffic",
-      "Exceptional writing and editing in English",
-      "Experience with content strategy for travel or lifestyle brands",
-      "Familiarity with SEO tools (Ahrefs, Semrush, etc.)",
+      'Proven track record growing organic search traffic',
+      'Exceptional writing and editing in English',
+      'Experience with content strategy for travel or lifestyle brands',
+      'Familiarity with SEO tools (Ahrefs, Semrush, etc.)',
     ],
   },
   {
-    title: "Hotel Partnerships Manager",
-    department: "Operations",
-    location: "London or Remote",
-    type: "Full-time",
+    title: 'Hotel Partnerships Manager',
+    department: 'Operations',
+    location: 'London or Remote',
+    type: 'Full-time',
     description:
       "You'll manage relationships with 40+ hotel partners — negotiating rates, resolving issues, and ensuring every property in our collection continues to meet our standards. You're the bridge between hoteliers and our guests.",
     requirements: [
-      "3+ years in hotel partnerships, revenue management, or OTA relations",
-      "Strong negotiation and relationship-building skills",
-      "Data-comfortable — you can analyse booking performance and spot trends",
-      "European language skills are a strong plus",
+      '3+ years in hotel partnerships, revenue management, or OTA relations',
+      'Strong negotiation and relationship-building skills',
+      'Data-comfortable — you can analyse booking performance and spot trends',
+      'European language skills are a strong plus',
     ],
   },
   {
-    title: "Junior Curator (Internship)",
-    department: "Curation",
-    location: "Paris (Hybrid)",
-    type: "Internship · 6 months",
+    title: 'Junior Curator (Internship)',
+    department: 'Curation',
+    location: 'Paris (Hybrid)',
+    type: 'Internship · 6 months',
     description:
       "A rare opportunity to learn hotel curation from the inside. You'll assist senior curators, conduct desk research on new markets, write property briefs, and occasionally join inspection trips.",
     requirements: [
-      "Passion for travel and luxury hospitality",
-      "Strong research and writing skills in English",
-      "Based in or able to relocate to Paris for the duration",
-      "Currently enrolled in a relevant degree programme",
+      'Passion for travel and luxury hospitality',
+      'Strong research and writing skills in English',
+      'Based in or able to relocate to Paris for the duration',
+      'Currently enrolled in a relevant degree programme',
     ],
   },
 ];
 
 const deptColors: Record<Department, string> = {
-  All: "",
-  Curation: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  Engineering: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  Design: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
-  Marketing: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
-  Operations: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  All: '',
+  Curation:
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  Engineering:
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  Design:
+    'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  Marketing: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+  Operations:
+    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
 };
 
-const departments: Department[] = ["All", "Curation", "Engineering", "Design", "Marketing", "Operations"];
+const departments: Department[] = [
+  'All',
+  'Curation',
+  'Engineering',
+  'Design',
+  'Marketing',
+  'Operations',
+];
 
 export default function Careers() {
-  const [activedept, setActivedept] = useState<Department>("All");
-  const [search, setSearch] = useState("");
+  const [activedept, setActivedept] = useState<Department>('All');
+  const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = openings.filter((job) => {
-    const matchDept = activedept === "All" || job.department === activedept;
+    const matchDept = activedept === 'All' || job.department === activedept;
     const matchSearch =
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.department.toLowerCase().includes(search.toLowerCase()) ||
@@ -192,7 +215,8 @@ export default function Careers() {
             Build the Future of Luxury Travel
           </h1>
           <p className="text-lg text-white/85 leading-relaxed max-w-2xl mx-auto">
-            We're a small, ambitious team obsessed with making exceptional hotel stays accessible to every discerning traveller. Come help us do it.
+            We're a small, ambitious team obsessed with making exceptional hotel
+            stays accessible to every discerning traveller. Come help us do it.
           </p>
         </div>
       </section>
@@ -202,14 +226,16 @@ export default function Careers() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: "42", label: "Team Members" },
-              { value: "18", label: "Nationalities" },
-              { value: "12", label: "Countries" },
-              { value: "4.9★", label: "Glassdoor Rating" },
+              { value: '42', label: 'Team Members' },
+              { value: '18', label: 'Nationalities' },
+              { value: '12', label: 'Countries' },
+              { value: '4.9★', label: 'Glassdoor Rating' },
             ].map(({ value, label }) => (
               <div key={label}>
                 <p className="font-serif text-4xl font-bold">{value}</p>
-                <p className="text-sm font-medium opacity-75 uppercase tracking-wide mt-1">{label}</p>
+                <p className="text-sm font-medium opacity-75 uppercase tracking-wide mt-1">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
@@ -220,10 +246,15 @@ export default function Careers() {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-14">
-            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">Why StayLux</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Life at StayLux</h2>
+            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
+              Why Selora
+            </p>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">
+              Life at Selora
+            </h2>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-lg">
-              We believe the people who build the best travel platform deserve the best experience too.
+              We believe the people who build the best travel platform deserve
+              the best experience too.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -235,8 +266,12 @@ export default function Careers() {
                 <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">{title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+                <h3 className="font-semibold text-foreground text-base mb-2">
+                  {title}
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {description}
+                </p>
               </div>
             ))}
           </div>
@@ -278,8 +313,12 @@ export default function Careers() {
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
-            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">Now Hiring</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">Open Positions</h2>
+            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
+              Now Hiring
+            </p>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">
+              Open Positions
+            </h2>
           </div>
 
           {/* Filter row */}
@@ -291,8 +330,8 @@ export default function Careers() {
                   onClick={() => setActivedept(dept)}
                   className={`text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all ${
                     activedept === dept
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-primary"
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-primary'
                   }`}
                 >
                   {dept}
@@ -314,8 +353,17 @@ export default function Careers() {
           {filtered.length === 0 ? (
             <div className="text-center py-16">
               <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-30" />
-              <p className="text-muted-foreground text-lg">No positions match your search.</p>
-              <Button variant="ghost" className="mt-4" onClick={() => { setSearch(""); setActivedept("All"); }}>
+              <p className="text-muted-foreground text-lg">
+                No positions match your search.
+              </p>
+              <Button
+                variant="ghost"
+                className="mt-4"
+                onClick={() => {
+                  setSearch('');
+                  setActivedept('All');
+                }}
+              >
                 Clear filters
               </Button>
             </div>
@@ -346,7 +394,9 @@ export default function Careers() {
                             <MapPin className="h-3 w-3" /> {job.location}
                           </span>
                         </div>
-                        <h3 className="font-semibold text-foreground text-base leading-snug">{job.title}</h3>
+                        <h3 className="font-semibold text-foreground text-base leading-snug">
+                          {job.title}
+                        </h3>
                       </div>
                       <div className="flex-shrink-0 mt-1">
                         {isOpen ? (
@@ -359,17 +409,26 @@ export default function Careers() {
 
                     {isOpen && (
                       <div className="px-6 pb-6 border-t border-border/50 pt-5">
-                        <p className="text-muted-foreground text-sm leading-relaxed mb-5">{job.description}</p>
-                        <h4 className="text-sm font-semibold text-foreground mb-3">What we're looking for:</h4>
+                        <p className="text-muted-foreground text-sm leading-relaxed mb-5">
+                          {job.description}
+                        </p>
+                        <h4 className="text-sm font-semibold text-foreground mb-3">
+                          What we're looking for:
+                        </h4>
                         <ul className="space-y-2 mb-6">
                           {job.requirements.map((req) => (
-                            <li key={req} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <li
+                              key={req}
+                              className="flex items-start gap-2 text-sm text-muted-foreground"
+                            >
                               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                               {req}
                             </li>
                           ))}
                         </ul>
-                        <Button className="rounded-full px-7">Apply for this role</Button>
+                        <Button className="rounded-full px-7">
+                          Apply for this role
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -391,7 +450,9 @@ export default function Careers() {
               Don't See Your Role?
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
-              We're always interested in exceptional people, even when we don't have a specific opening. Send us your CV and tell us how you'd contribute to StayLux.
+              We're always interested in exceptional people, even when we don't
+              have a specific opening. Send us your CV and tell us how you'd
+              contribute to Selora.
             </p>
             <Button size="lg" className="rounded-full px-10 text-base">
               Send an Open Application

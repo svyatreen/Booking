@@ -1,21 +1,28 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useRegister } from "@workspace/api-client-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { Link, useLocation } from 'wouter';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useRegister } from '@workspace/api-client-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Card, CardContent } from '@/components/ui/card';
+import { Building2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export default function Register() {
@@ -26,9 +33,9 @@ export default function Register() {
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
+      name: '',
+      email: '',
+      password: '',
     },
   });
 
@@ -38,13 +45,15 @@ export default function Register() {
       {
         onSuccess: (data) => {
           setAuth(data.token, data.user);
-          toast.success("Account created successfully!");
-          setLocation("/");
+          toast.success('Account created successfully!');
+          setLocation('/');
         },
         onError: (error) => {
-          toast.error(error?.error || "Failed to create account. Please try again.");
+          toast.error(
+            error?.error || 'Failed to create account. Please try again.',
+          );
         },
-      }
+      },
     );
   };
 
@@ -53,14 +62,19 @@ export default function Register() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <Link href="/" className="flex items-center space-x-2 mb-6">
           <Building2 className="h-8 w-8 text-primary" />
-          <span className="font-serif text-3xl font-bold tracking-tight text-primary">StayLux</span>
+          <span className="font-serif text-3xl font-bold tracking-tight text-primary">
+            Selora
+          </span>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-serif font-bold tracking-tight text-foreground">
           Create an account
         </h2>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          Or{" "}
-          <Link href="/login" className="font-medium text-primary hover:text-primary/80">
+          Or{' '}
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:text-primary/80"
+          >
             sign in to your existing account
           </Link>
         </p>
@@ -70,7 +84,10 @@ export default function Register() {
         <Card>
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -106,15 +123,25 @@ export default function Register() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
-                  {registerMutation.isPending ? "Creating account..." : "Sign up"}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={registerMutation.isPending}
+                >
+                  {registerMutation.isPending
+                    ? 'Creating account...'
+                    : 'Sign up'}
                 </Button>
               </form>
             </Form>

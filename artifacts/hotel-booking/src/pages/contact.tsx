@@ -1,8 +1,8 @@
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Link } from "wouter";
+import { Layout } from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { Link } from 'wouter';
 import {
   Mail,
   Phone,
@@ -14,61 +14,63 @@ import {
   HelpCircle,
   Building2,
   Globe2,
-} from "lucide-react";
+} from 'lucide-react';
 
 const topics = [
-  "Booking enquiry",
-  "Payment issue",
-  "Cancellation request",
-  "Existing reservation",
-  "Room upgrade request",
-  "Corporate / group booking",
-  "Partnership enquiry",
-  "Press & media",
-  "Technical issue",
-  "Other",
+  'Booking enquiry',
+  'Payment issue',
+  'Cancellation request',
+  'Existing reservation',
+  'Room upgrade request',
+  'Corporate / group booking',
+  'Partnership enquiry',
+  'Press & media',
+  'Technical issue',
+  'Other',
 ];
 
 const offices = [
   {
-    city: "Paris",
-    flag: "🇫🇷",
-    address: "14 Rue du Faubourg Saint-Honoré, 75008 Paris, France",
-    phone: "+33 1 23 45 67 89",
-    email: "paris@staylux.com",
-    hours: "Mon – Fri, 09:00 – 18:00 CET",
+    city: 'Paris',
+    flag: '🇫🇷',
+    address: '14 Rue du Faubourg Saint-Honoré, 75008 Paris, France',
+    phone: '+33 1 23 45 67 89',
+    email: 'paris@selora.com',
+    hours: 'Mon – Fri, 09:00 – 18:00 CET',
   },
   {
-    city: "London",
-    flag: "🇬🇧",
-    address: "42 Berkeley Square, Mayfair, London W1J 5AW, UK",
-    phone: "+44 20 7946 0123",
-    email: "london@staylux.com",
-    hours: "Mon – Fri, 09:00 – 18:00 GMT",
+    city: 'London',
+    flag: '🇬🇧',
+    address: '42 Berkeley Square, Mayfair, London W1J 5AW, UK',
+    phone: '+44 20 7946 0123',
+    email: 'london@selora.com',
+    hours: 'Mon – Fri, 09:00 – 18:00 GMT',
   },
   {
-    city: "New York",
-    flag: "🇺🇸",
-    address: "350 Fifth Avenue, Suite 4100, New York, NY 10118, USA",
-    phone: "+1 212 555 0147",
-    email: "newyork@staylux.com",
-    hours: "Mon – Fri, 09:00 – 18:00 EST",
+    city: 'New York',
+    flag: '🇺🇸',
+    address: '350 Fifth Avenue, Suite 4100, New York, NY 10118, USA',
+    phone: '+1 212 555 0147',
+    email: 'newyork@selora.com',
+    hours: 'Mon – Fri, 09:00 – 18:00 EST',
   },
 ];
 
 export default function Contact() {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    topic: "",
-    bookingRef: "",
-    message: "",
+    name: '',
+    email: '',
+    topic: '',
+    bookingRef: '',
+    message: '',
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -104,7 +106,8 @@ export default function Contact() {
             Contact Us
           </h1>
           <p className="text-lg text-white/85 leading-relaxed">
-            We'd love to hear from you. Our team is here to help with anything you need.
+            We'd love to hear from you. Our team is here to help with anything
+            you need.
           </p>
         </div>
       </section>
@@ -123,8 +126,12 @@ export default function Contact() {
                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 Available now
               </div>
-              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">Instant help from a specialist.</p>
-              <Button size="sm" className="w-full rounded-lg">Start Chat</Button>
+              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                Instant help from a specialist.
+              </p>
+              <Button size="sm" className="w-full rounded-lg">
+                Start Chat
+              </Button>
             </div>
 
             {/* Email */}
@@ -137,8 +144,12 @@ export default function Contact() {
                 <Clock className="h-3.5 w-3.5" />
                 Reply within 4 hours
               </div>
-              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">support@staylux.com</p>
-              <Button size="sm" variant="outline" className="w-full rounded-lg">Send Email</Button>
+              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                support@selora.com
+              </p>
+              <Button size="sm" variant="outline" className="w-full rounded-lg">
+                Send Email
+              </Button>
             </div>
 
             {/* Phone */}
@@ -151,8 +162,12 @@ export default function Contact() {
                 <Clock className="h-3.5 w-3.5" />
                 08:00 – 22:00 CET
               </div>
-              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">+33 1 23 45 67 89</p>
-              <Button size="sm" variant="outline" className="w-full rounded-lg">Call Now</Button>
+              <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                +33 1 23 45 67 89
+              </p>
+              <Button size="sm" variant="outline" className="w-full rounded-lg">
+                Call Now
+              </Button>
             </div>
           </div>
         </div>
@@ -162,15 +177,18 @@ export default function Contact() {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid lg:grid-cols-5 gap-14 items-start">
-
             {/* Left — Info */}
             <div className="lg:col-span-2">
-              <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">Write to Us</p>
+              <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
+                Write to Us
+              </p>
               <h2 className="font-serif text-4xl font-bold text-foreground mb-5 leading-tight">
                 Send Us a Message
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-8">
-                Fill in the form and our team will get back to you within a few hours. For urgent booking matters, we recommend calling or using live chat.
+                Fill in the form and our team will get back to you within a few
+                hours. For urgent booking matters, we recommend calling or using
+                live chat.
               </p>
 
               <div className="space-y-5">
@@ -179,8 +197,14 @@ export default function Contact() {
                     <Clock className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground text-sm">Response Time</p>
-                    <p className="text-muted-foreground text-sm">General enquiries: within 4 hours<br />Urgent bookings: within 1 hour</p>
+                    <p className="font-medium text-foreground text-sm">
+                      Response Time
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      General enquiries: within 4 hours
+                      <br />
+                      Urgent bookings: within 1 hour
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
@@ -188,8 +212,12 @@ export default function Contact() {
                     <Globe2 className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground text-sm">Languages</p>
-                    <p className="text-muted-foreground text-sm">English, French, Spanish, Italian, German, Japanese</p>
+                    <p className="font-medium text-foreground text-sm">
+                      Languages
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      English, French, Spanish, Italian, German, Japanese
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
@@ -197,7 +225,9 @@ export default function Contact() {
                     <HelpCircle className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground text-sm">Before You Write</p>
+                    <p className="font-medium text-foreground text-sm">
+                      Before You Write
+                    </p>
                     <p className="text-muted-foreground text-sm">
                       Check our Help Center — most answers are already there.
                     </p>
@@ -211,14 +241,33 @@ export default function Contact() {
               {submitted ? (
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-10 text-center">
                   <CheckCircle2 className="h-14 w-14 text-green-500 mx-auto mb-5" />
-                  <h3 className="font-serif text-2xl font-bold text-foreground mb-3">Message Sent!</h3>
+                  <h3 className="font-serif text-2xl font-bold text-foreground mb-3">
+                    Message Sent!
+                  </h3>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    Thank you, <span className="font-medium text-foreground">{form.name}</span>. We've received your message and will reply to <span className="font-medium text-foreground">{form.email}</span> within 4 hours.
+                    Thank you,{' '}
+                    <span className="font-medium text-foreground">
+                      {form.name}
+                    </span>
+                    . We've received your message and will reply to{' '}
+                    <span className="font-medium text-foreground">
+                      {form.email}
+                    </span>{' '}
+                    within 4 hours.
                   </p>
                   <Button
                     variant="outline"
                     className="rounded-full px-8"
-                    onClick={() => { setSubmitted(false); setForm({ name: "", email: "", topic: "", bookingRef: "", message: "" }); }}
+                    onClick={() => {
+                      setSubmitted(false);
+                      setForm({
+                        name: '',
+                        email: '',
+                        topic: '',
+                        bookingRef: '',
+                        message: '',
+                      });
+                    }}
                   >
                     Send Another Message
                   </Button>
@@ -244,7 +293,8 @@ export default function Contact() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Email Address <span className="text-destructive">*</span>
+                        Email Address{' '}
+                        <span className="text-destructive">*</span>
                       </label>
                       <Input
                         name="email"
@@ -271,14 +321,19 @@ export default function Contact() {
                       >
                         <option value="">Select a topic…</option>
                         {topics.map((t) => (
-                          <option key={t} value={t}>{t}</option>
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
                         Booking Reference
-                        <span className="text-muted-foreground font-normal"> (optional)</span>
+                        <span className="text-muted-foreground font-normal">
+                          {' '}
+                          (optional)
+                        </span>
                       </label>
                       <Input
                         name="bookingRef"
@@ -307,7 +362,8 @@ export default function Contact() {
 
                   <div className="flex items-center justify-between pt-1">
                     <p className="text-xs text-muted-foreground">
-                      Fields marked <span className="text-destructive">*</span> are required.
+                      Fields marked <span className="text-destructive">*</span>{' '}
+                      are required.
                     </p>
                     <Button
                       type="submit"
@@ -338,8 +394,12 @@ export default function Contact() {
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-12">
-            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">Our Offices</p>
-            <h2 className="font-serif text-4xl font-bold text-foreground">Find Us Around the World</h2>
+            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
+              Our Offices
+            </p>
+            <h2 className="font-serif text-4xl font-bold text-foreground">
+              Find Us Around the World
+            </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6">
             {offices.map(({ city, flag, address, phone, email, hours }) => (
@@ -350,7 +410,9 @@ export default function Contact() {
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-2xl">{flag}</span>
                   <div>
-                    <p className="font-semibold text-foreground text-base">{city}</p>
+                    <p className="font-semibold text-foreground text-base">
+                      {city}
+                    </p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <Building2 className="h-3 w-3" /> Regional Office
                     </p>
@@ -389,7 +451,8 @@ export default function Contact() {
               Ready for an Extraordinary Stay?
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Browse our curated collection of 43+ luxury hotels across 30+ countries — and find your perfect match today.
+              Browse our curated collection of 43+ luxury hotels across 30+
+              countries — and find your perfect match today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/hotels">
@@ -398,8 +461,12 @@ export default function Contact() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="lg" variant="outline" className="rounded-full px-10 text-base">
-                  Join StayLux
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full px-10 text-base"
+                >
+                  Join Selora
                 </Button>
               </Link>
             </div>

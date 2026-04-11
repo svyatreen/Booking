@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Cookie, X } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Link } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { Cookie, X } from 'lucide-react';
 
-const SESSION_KEY = "staylux_cookie_consent_session";
+const SESSION_KEY = 'selora_cookie_consent_session';
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -17,12 +17,12 @@ export function CookieConsent() {
   }, []);
 
   function acceptAll() {
-    sessionStorage.setItem(SESSION_KEY, "accepted");
+    sessionStorage.setItem(SESSION_KEY, 'accepted');
     setVisible(false);
   }
 
   function declineNonEssential() {
-    sessionStorage.setItem(SESSION_KEY, "declined");
+    sessionStorage.setItem(SESSION_KEY, 'declined');
     setVisible(false);
   }
 
@@ -52,9 +52,9 @@ export function CookieConsent() {
               </div>
 
               <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                Мы используем файлы cookie для улучшения вашего опыта, анализа трафика и
-                персонализации контента. Нажимая «Принять все», вы соглашаетесь на
-                использование всех файлов cookie.{" "}
+                Мы используем файлы cookie для улучшения вашего опыта, анализа
+                трафика и персонализации контента. Нажимая «Принять все», вы
+                соглашаетесь на использование всех файлов cookie.{' '}
                 <Link
                   href="/cookie-policy"
                   className="text-blue-600 dark:text-blue-400 hover:underline"

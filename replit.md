@@ -1,4 +1,4 @@
-# StayLux Hotel Booking App
+# Selora Hotel Booking App
 
 ## Overview
 

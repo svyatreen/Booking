@@ -1,16 +1,16 @@
-import { Link, useLocation } from "wouter";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Building2, Search, User, LogOut, Menu } from "lucide-react";
+import { Link, useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Building2, Search, User, LogOut, Menu } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 export function Navbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
@@ -18,21 +18,30 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
-    setLocation("/");
+    setLocation('/');
   };
 
   const NavLinks = () => (
     <>
-      <Link href="/hotels" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+      <Link
+        href="/hotels"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
         Find a Hotel
       </Link>
       {isAuthenticated && (
-        <Link href="/favorites" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+        <Link
+          href="/favorites"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
           Favorites
         </Link>
       )}
       {isAdmin && (
-        <Link href="/admin" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+        <Link
+          href="/admin"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
           Admin Dashboard
         </Link>
       )}
@@ -45,7 +54,9 @@ export function Navbar() {
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
             <Building2 className="h-6 w-6 text-primary" />
-            <span className="font-serif text-xl font-bold tracking-tight text-primary">StayLux</span>
+            <span className="font-serif text-xl font-bold tracking-tight text-primary">
+              Selora
+            </span>
           </Link>
           <nav className="hidden md:flex gap-6">
             <NavLinks />
@@ -56,7 +67,9 @@ export function Navbar() {
           {!isAuthenticated ? (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex">Log in</Button>
+                <Button variant="ghost" className="hidden sm:inline-flex">
+                  Log in
+                </Button>
               </Link>
               <Link href="/register">
                 <Button>Sign up</Button>
@@ -65,7 +78,10 @@ export function Navbar() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-9 w-9 rounded-full"
+                >
                   <Avatar className="h-9 w-9">
                     <AvatarFallback className="bg-primary/10 text-primary">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
@@ -84,13 +100,19 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex w-full cursor-pointer items-center">
+                  <Link
+                    href="/profile"
+                    className="flex w-full cursor-pointer items-center"
+                  >
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile & Bookings</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={handleLogout}>
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                  onClick={handleLogout}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

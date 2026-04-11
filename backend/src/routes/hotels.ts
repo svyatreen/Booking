@@ -1,7 +1,24 @@
-import { Router, type IRouter } from "express";
-import { db, hotelsTable, roomsTable, bookingsTable, reviewsTable } from "../db";
-import { eq, like, or, and, gte, lte, sql, desc, asc, inArray } from "drizzle-orm";
-import { requireAdmin } from "../middlewares/requireAuth";
+import { Router, type IRouter } from 'express';
+import {
+  db,
+  hotelsTable,
+  roomsTable,
+  bookingsTable,
+  reviewsTable,
+} from '../db';
+import {
+  eq,
+  like,
+  or,
+  and,
+  gte,
+  lte,
+  sql,
+  desc,
+  asc,
+  inArray,
+} from 'drizzle-orm';
+import { requireAdmin } from '../middlewares/requireAuth';
 import {
   ListHotelsQueryParams,
   CreateHotelBody,
@@ -10,11 +27,15 @@ import {
   UpdateHotelBody,
   DeleteHotelParams,
   GetSimilarHotelsParams,
-} from "../zod";
+} from '../zod';
 
 const router: IRouter = Router();
 
-function buildHotelWithMeta(hotel: typeof hotelsTable.$inferSelect, reviewCount: number, minPrice: number | null) {
+function buildHotelWithMeta(
+  hotel: typeof hotelsTable.$inferSelect,
+  reviewCount: number,
+  minPrice: number | null,
+) {
   return {
     id: hotel.id,
     name: hotel.name,
@@ -31,7 +52,7 @@ function buildHotelWithMeta(hotel: typeof hotelsTable.$inferSelect, reviewCount:
   };
 }
 
-router.get("/hotels", async (req, res): Promise<void> => {
+router.get('/hotels', async (req, res): Promise<void> => {
   const query = ListHotelsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -49,8 +70,8 @@ router.get("/hotels", async (req, res): Promise<void> => {
       or(
         like(hotelsTable.name, `%${search}%`),
         like(hotelsTable.city, `%${search}%`),
-        like(hotelsTable.description, `%${search}%`)
-      )
+        like(hotelsTable.description, `%${search}%`),
+      ),
     );
   }
 
@@ -71,7 +92,6 @@ router.get("/hotels", async (req, res): Promise<void> => {
     .from(hotelsTable)
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-  // Compute review counts and min prices
   const hotelIds = hotels.map((h) => h.id);
 
   if (hotelIds.length === 0) {
@@ -101,40 +121,50 @@ router.get("/hotels", async (req, res): Promise<void> => {
   const priceMap = new Map(roomPrices.map((r) => [r.hotelId, r.minPrice]));
 
   let result = hotels.map((h) =>
-    buildHotelWithMeta(h, reviewMap.get(h.id) ?? 0, priceMap.get(h.id) ?? null)
+    buildHotelWithMeta(h, reviewMap.get(h.id) ?? 0, priceMap.get(h.id) ?? null),
   );
 
   // Filter by price range
   if (minPrice != null) {
-    result = result.filter((h) => h.minPrice == null || h.minPrice >= Number(minPrice));
+    result = result.filter(
+      (h) => h.minPrice == null || h.minPrice >= Number(minPrice),
+    );
   }
   if (maxPrice != null) {
-    result = result.filter((h) => h.minPrice == null || h.minPrice <= Number(maxPrice));
+    result = result.filter(
+      (h) => h.minPrice == null || h.minPrice <= Number(maxPrice),
+    );
   }
 
   // Sorting
-  if (sortBy === "price") {
+  if (sortBy === 'price') {
     result.sort((a, b) => {
       const ap = a.minPrice ?? Infinity;
       const bp = b.minPrice ?? Infinity;
-      return sortOrder === "desc" ? bp - ap : ap - bp;
+      return sortOrder === 'desc' ? bp - ap : ap - bp;
     });
-  } else if (sortBy === "rating") {
+  } else if (sortBy === 'rating') {
     result.sort((a, b) =>
-      sortOrder === "desc" ? b.rating - a.rating : a.rating - b.rating
+      sortOrder === 'desc' ? b.rating - a.rating : a.rating - b.rating,
     );
-  } else if (sortBy === "popularity") {
+  } else if (sortBy === 'popularity') {
     result.sort((a, b) =>
-      sortOrder === "desc" ? b.reviewCount - a.reviewCount : a.reviewCount - b.reviewCount
+      sortOrder === 'desc'
+        ? b.reviewCount - a.reviewCount
+        : a.reviewCount - b.reviewCount,
     );
   }
 
   res.json(result);
 });
 
-router.get("/hotels/stats", async (_req, res): Promise<void> => {
-  const [totalHotelsRow] = await db.select({ count: sql<number>`count(*)::int` }).from(hotelsTable);
-  const [totalBookingsRow] = await db.select({ count: sql<number>`count(*)::int` }).from(bookingsTable);
+router.get('/hotels/stats', async (_req, res): Promise<void> => {
+  const [totalHotelsRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(hotelsTable);
+  const [totalBookingsRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(bookingsTable);
 
   const cityCounts = await db
     .select({
@@ -153,21 +183,29 @@ router.get("/hotels/stats", async (_req, res): Promise<void> => {
     .limit(12);
 
   const topHotelIds = topHotels.map((h) => h.id);
-  const reviewCounts = topHotelIds.length > 0
-    ? await db
-        .select({ hotelId: reviewsTable.hotelId, count: sql<number>`count(*)::int` })
-        .from(reviewsTable)
-        .where(inArray(reviewsTable.hotelId, topHotelIds))
-        .groupBy(reviewsTable.hotelId)
-    : [];
+  const reviewCounts =
+    topHotelIds.length > 0
+      ? await db
+          .select({
+            hotelId: reviewsTable.hotelId,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(reviewsTable)
+          .where(inArray(reviewsTable.hotelId, topHotelIds))
+          .groupBy(reviewsTable.hotelId)
+      : [];
 
-  const roomPrices = topHotelIds.length > 0
-    ? await db
-        .select({ hotelId: roomsTable.hotelId, minPrice: sql<number>`min(${roomsTable.price})::float` })
-        .from(roomsTable)
-        .where(inArray(roomsTable.hotelId, topHotelIds))
-        .groupBy(roomsTable.hotelId)
-    : [];
+  const roomPrices =
+    topHotelIds.length > 0
+      ? await db
+          .select({
+            hotelId: roomsTable.hotelId,
+            minPrice: sql<number>`min(${roomsTable.price})::float`,
+          })
+          .from(roomsTable)
+          .where(inArray(roomsTable.hotelId, topHotelIds))
+          .groupBy(roomsTable.hotelId)
+      : [];
 
   const reviewMap = new Map(reviewCounts.map((r) => [r.hotelId, r.count]));
   const priceMap = new Map(roomPrices.map((r) => [r.hotelId, r.minPrice]));
@@ -177,12 +215,16 @@ router.get("/hotels/stats", async (_req, res): Promise<void> => {
     totalBookings: totalBookingsRow.count,
     featuredCities: cityCounts,
     topHotels: topHotels.map((h) =>
-      buildHotelWithMeta(h, reviewMap.get(h.id) ?? 0, priceMap.get(h.id) ?? null)
+      buildHotelWithMeta(
+        h,
+        reviewMap.get(h.id) ?? 0,
+        priceMap.get(h.id) ?? null,
+      ),
     ),
   });
 });
 
-router.post("/hotels", requireAdmin, async (req, res): Promise<void> => {
+router.post('/hotels', requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateHotelBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -201,7 +243,7 @@ router.post("/hotels", requireAdmin, async (req, res): Promise<void> => {
   res.status(201).json(buildHotelWithMeta(hotel, 0, null));
 });
 
-router.get("/hotels/:id", async (req, res): Promise<void> => {
+router.get('/hotels/:id', async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetHotelParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -209,13 +251,19 @@ router.get("/hotels/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const [hotel] = await db.select().from(hotelsTable).where(eq(hotelsTable.id, params.data.id));
+  const [hotel] = await db
+    .select()
+    .from(hotelsTable)
+    .where(eq(hotelsTable.id, params.data.id));
   if (!hotel) {
-    res.status(404).json({ error: "Hotel not found" });
+    res.status(404).json({ error: 'Hotel not found' });
     return;
   }
 
-  const rooms = await db.select().from(roomsTable).where(eq(roomsTable.hotelId, hotel.id));
+  const rooms = await db
+    .select()
+    .from(roomsTable)
+    .where(eq(roomsTable.hotelId, hotel.id));
   const [reviewRow] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(reviewsTable)
@@ -226,12 +274,16 @@ router.get("/hotels/:id", async (req, res): Promise<void> => {
     .where(eq(roomsTable.hotelId, hotel.id));
 
   res.json({
-    ...buildHotelWithMeta(hotel, reviewRow?.count ?? 0, priceRow?.minPrice ?? null),
+    ...buildHotelWithMeta(
+      hotel,
+      reviewRow?.count ?? 0,
+      priceRow?.minPrice ?? null,
+    ),
     rooms,
   });
 });
 
-router.patch("/hotels/:id", requireAdmin, async (req, res): Promise<void> => {
+router.patch('/hotels/:id', requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = UpdateHotelParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -252,14 +304,14 @@ router.patch("/hotels/:id", requireAdmin, async (req, res): Promise<void> => {
     .returning();
 
   if (!hotel) {
-    res.status(404).json({ error: "Hotel not found" });
+    res.status(404).json({ error: 'Hotel not found' });
     return;
   }
 
   res.json(buildHotelWithMeta(hotel, 0, null));
 });
 
-router.delete("/hotels/:id", requireAdmin, async (req, res): Promise<void> => {
+router.delete('/hotels/:id', requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = DeleteHotelParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -267,16 +319,19 @@ router.delete("/hotels/:id", requireAdmin, async (req, res): Promise<void> => {
     return;
   }
 
-  const [hotel] = await db.delete(hotelsTable).where(eq(hotelsTable.id, params.data.id)).returning();
+  const [hotel] = await db
+    .delete(hotelsTable)
+    .where(eq(hotelsTable.id, params.data.id))
+    .returning();
   if (!hotel) {
-    res.status(404).json({ error: "Hotel not found" });
+    res.status(404).json({ error: 'Hotel not found' });
     return;
   }
 
   res.sendStatus(204);
 });
 
-router.get("/hotels/:id/similar", async (req, res): Promise<void> => {
+router.get('/hotels/:id/similar', async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetSimilarHotelsParams.safeParse({ id: parseInt(raw, 10) });
   if (!params.success) {
@@ -284,7 +339,10 @@ router.get("/hotels/:id/similar", async (req, res): Promise<void> => {
     return;
   }
 
-  const [hotel] = await db.select().from(hotelsTable).where(eq(hotelsTable.id, params.data.id));
+  const [hotel] = await db
+    .select()
+    .from(hotelsTable)
+    .where(eq(hotelsTable.id, params.data.id));
   if (!hotel) {
     res.json([]);
     return;
@@ -296,33 +354,47 @@ router.get("/hotels/:id/similar", async (req, res): Promise<void> => {
     .where(
       and(
         eq(hotelsTable.city, hotel.city),
-        sql`${hotelsTable.id} != ${params.data.id}`
-      )
+        sql`${hotelsTable.id} != ${params.data.id}`,
+      ),
     )
     .limit(4);
 
   const similarIds = similar.map((h) => h.id);
-  const reviewCounts = similarIds.length > 0
-    ? await db
-        .select({ hotelId: reviewsTable.hotelId, count: sql<number>`count(*)::int` })
-        .from(reviewsTable)
-        .where(inArray(reviewsTable.hotelId, similarIds))
-        .groupBy(reviewsTable.hotelId)
-    : [];
+  const reviewCounts =
+    similarIds.length > 0
+      ? await db
+          .select({
+            hotelId: reviewsTable.hotelId,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(reviewsTable)
+          .where(inArray(reviewsTable.hotelId, similarIds))
+          .groupBy(reviewsTable.hotelId)
+      : [];
 
-  const roomPrices = similarIds.length > 0
-    ? await db
-        .select({ hotelId: roomsTable.hotelId, minPrice: sql<number>`min(${roomsTable.price})::float` })
-        .from(roomsTable)
-        .where(inArray(roomsTable.hotelId, similarIds))
-        .groupBy(roomsTable.hotelId)
-    : [];
+  const roomPrices =
+    similarIds.length > 0
+      ? await db
+          .select({
+            hotelId: roomsTable.hotelId,
+            minPrice: sql<number>`min(${roomsTable.price})::float`,
+          })
+          .from(roomsTable)
+          .where(inArray(roomsTable.hotelId, similarIds))
+          .groupBy(roomsTable.hotelId)
+      : [];
 
   const reviewMap = new Map(reviewCounts.map((r) => [r.hotelId, r.count]));
   const priceMap = new Map(roomPrices.map((r) => [r.hotelId, r.minPrice]));
 
   res.json(
-    similar.map((h) => buildHotelWithMeta(h, reviewMap.get(h.id) ?? 0, priceMap.get(h.id) ?? null))
+    similar.map((h) =>
+      buildHotelWithMeta(
+        h,
+        reviewMap.get(h.id) ?? 0,
+        priceMap.get(h.id) ?? null,
+      ),
+    ),
   );
 });
 
