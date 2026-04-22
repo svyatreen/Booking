@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { useGetHotel, getGetHotelQueryKey, useGetRoomsByHotel, getGetRoomsByHotelQueryKey, useGetHotelReviews, getGetHotelReviewsQueryKey, useCreateBooking, useGetSimilarHotels, getGetSimilarHotelsQueryKey, useCreateReview } from "@/api";
 import { useParams, Link, useLocation } from "wouter";
@@ -50,6 +51,7 @@ export default function HotelDetail() {
     query: { enabled: !!hotelId, queryKey: getGetSimilarHotelsQueryKey(hotelId) }
   });
 
+  const queryClient = useQueryClient();
   const createBooking = useCreateBooking();
   const createReview = useCreateReview();
   const [reviewRating, setReviewRating] = useState(5);
@@ -92,6 +94,7 @@ export default function HotelDetail() {
     if (!reviewComment.trim()) return;
     
     createReview.mutate({
+      hotelId,
       data: {
         rating: reviewRating,
         comment: reviewComment,
@@ -101,9 +104,10 @@ export default function HotelDetail() {
         toast.success("Review submitted successfully");
         setReviewComment("");
         setReviewRating(5);
-        // Should invalidate query, but no helper for path param only, rely on user refresh or query cache
+        queryClient.invalidateQueries({ queryKey: getGetHotelReviewsQueryKey(hotelId) });
+        queryClient.invalidateQueries({ queryKey: getGetHotelQueryKey(hotelId) });
       },
-      onError: (error) => {
+      onError: (error: any) => {
         toast.error(error?.error || "Failed to submit review");
       }
     });
