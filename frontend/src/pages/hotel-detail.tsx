@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePopover } from "@/components/ui/date-range-popover";
-import { format, addDays } from "date-fns";
+import { format, addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -25,8 +25,8 @@ export default function HotelDetail() {
   const { isAuthenticated } = useAuth();
   
   const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: new Date(),
-    to: addDays(new Date(), 3),
+    from: startOfDay(new Date()),
+    to: startOfDay(addDays(new Date(), 3)),
   });
 
   const { data: hotel, isLoading: isLoadingHotel } = useGetHotel(hotelId, {
@@ -150,7 +150,7 @@ export default function HotelDetail() {
     return <Check className="h-5 w-5" />;
   };
 
-  const nights = date.from && date.to ? Math.ceil((date.to.getTime() - date.from.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+  const nights = date.from && date.to ? differenceInCalendarDays(date.to, date.from) : 0;
 
   return (
     <Layout>

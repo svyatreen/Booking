@@ -7,7 +7,7 @@ import {
   useGetRoomsByHotel, getGetRoomsByHotelQueryKey,
   useCreateBooking,
 } from "@/api";
-import { format, addDays, differenceInDays } from "date-fns";
+import { format, addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Star, Users, BedDouble, Bath, Maximize2, Wifi, Coffee,
@@ -121,8 +121,8 @@ export default function RoomDetail() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: new Date(),
-    to: addDays(new Date(), 3),
+    from: startOfDay(new Date()),
+    to: startOfDay(addDays(new Date(), 3)),
   });
 
   useEffect(() => { window.scrollTo(0, 0); }, [roomId]);
@@ -145,7 +145,7 @@ export default function RoomDetail() {
   });
 
   const createBooking = useCreateBooking();
-  const nights = date.from && date.to ? differenceInDays(date.to, date.from) : 0;
+  const nights = date.from && date.to ? differenceInCalendarDays(date.to, date.from) : 0;
 
   const handleBook = () => {
     if (!isAuthenticated) {

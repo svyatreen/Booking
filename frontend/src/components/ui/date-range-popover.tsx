@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInCalendarDays, startOfDay } from "date-fns";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,7 +17,18 @@ interface DateRangePopoverProps {
 
 export function DateRangePopover({ value, onChange, triggerClassName, align = "center" }: DateRangePopoverProps) {
   const [open, setOpen] = useState(false);
-  const nights = value.from && value.to ? differenceInDays(value.to, value.from) : 0;
+  const nights = value.from && value.to ? differenceInCalendarDays(value.to, value.from) : 0;
+
+  const handleSelect = (v: any) => {
+    if (!v) {
+      onChange({ from: undefined, to: undefined });
+      return;
+    }
+    onChange({
+      from: v.from ? startOfDay(v.from) : undefined,
+      to: v.to ? startOfDay(v.to) : undefined,
+    });
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,7 +80,7 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
           mode="range"
           defaultMonth={value.from}
           selected={value as any}
-          onSelect={(v: any) => onChange(v ?? { from: undefined, to: undefined })}
+          onSelect={handleSelect}
           numberOfMonths={2}
           showOutsideDays={false}
           weekStartsOn={1}
