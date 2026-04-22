@@ -42,24 +42,24 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 rounded-2xl shadow-xl border-border" align={align}>
-        <div className="p-5 border-b bg-secondary/30 rounded-t-2xl">
-          <div className="grid grid-cols-2 gap-4 text-sm">
+      <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-border" align={align}>
+        <div className="p-7 border-b bg-secondary/30 rounded-t-2xl">
+          <div className="grid grid-cols-2 gap-6 text-sm">
             <div>
-              <p className="text-muted-foreground uppercase text-[10px] tracking-wider mb-1">Check-in</p>
-              <p className="font-semibold text-base">
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Check-in</p>
+              <p className="font-semibold text-lg">
                 {value.from ? format(value.from, "EEE, LLL dd") : "Select date"}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground uppercase text-[10px] tracking-wider mb-1">Check-out</p>
-              <p className="font-semibold text-base">
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Check-out</p>
+              <p className="font-semibold text-lg">
                 {value.to ? format(value.to, "EEE, LLL dd") : "Select date"}
               </p>
             </div>
           </div>
           {nights > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-3">
               {nights} night{nights > 1 ? "s" : ""} stay
             </p>
           )}
@@ -74,17 +74,17 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
           showOutsideDays={false}
           weekStartsOn={1}
           disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-          className="[--cell-size:3.25rem] p-5"
+          className="[--cell-size:4rem] p-7 gap-6 [&_.rdp-months]:gap-10 [&_button]:text-base [&_.rdp-weekday]:text-sm [&_.rdp-caption_label]:text-lg [&_.rdp-month_caption]:mb-2"
         />
-        <div className="flex items-center justify-between gap-2 p-3 border-t bg-secondary/20 rounded-b-2xl">
+        <div className="flex items-center justify-between gap-2 p-5 border-t bg-secondary/20 rounded-b-2xl">
           <Button
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={() => onChange({ from: undefined, to: undefined })}
           >
             Clear
           </Button>
-          <Button size="sm" onClick={() => setOpen(false)}>
+          <Button size="lg" onClick={() => setOpen(false)}>
             Close
           </Button>
         </div>
