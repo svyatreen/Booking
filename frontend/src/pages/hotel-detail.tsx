@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { useGetHotel, getGetHotelQueryKey, useGetRoomsByHotel, getGetRoomsByHotelQueryKey, useGetHotelReviews, getGetHotelReviewsQueryKey, useCreateBooking, useGetSimilarHotels, getGetSimilarHotelsQueryKey, useCreateReview } from "@/api";
 import { useParams, Link, useLocation } from "wouter";
@@ -40,7 +40,11 @@ export default function HotelDetail() {
     checkIn: checkInStr,
     checkOut: checkOutStr,
   }, {
-    query: { enabled: !!hotelId, queryKey: getGetRoomsByHotelQueryKey(hotelId, { checkIn: checkInStr, checkOut: checkOutStr }) }
+    query: {
+      enabled: !!hotelId,
+      queryKey: getGetRoomsByHotelQueryKey(hotelId, { checkIn: checkInStr, checkOut: checkOutStr }),
+      placeholderData: keepPreviousData,
+    }
   });
 
   const { data: reviews } = useGetHotelReviews(hotelId, {

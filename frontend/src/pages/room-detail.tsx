@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { keepPreviousData } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import {
@@ -133,7 +134,13 @@ export default function RoomDetail() {
   const { data: room, isLoading: isLoadingRoom } = useGetRoom(
     rId,
     { checkIn: checkInStr, checkOut: checkOutStr },
-    { query: { enabled: !!rId, queryKey: getGetRoomQueryKey(rId, { checkIn: checkInStr, checkOut: checkOutStr }) } }
+    {
+      query: {
+        enabled: !!rId,
+        queryKey: getGetRoomQueryKey(rId, { checkIn: checkInStr, checkOut: checkOutStr }),
+        placeholderData: keepPreviousData,
+      },
+    }
   );
 
   const { data: hotel, isLoading: isLoadingHotel } = useGetHotel(hId, {
