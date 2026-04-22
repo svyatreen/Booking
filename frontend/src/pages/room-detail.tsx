@@ -17,8 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DateRangePopover } from "@/components/ui/date-range-popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -403,35 +402,7 @@ export default function RoomDetail() {
                 {/* Date Picker */}
                 <div>
                   <p className="text-sm font-semibold mb-2">Select Dates</p>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal h-12 bg-background",
-                          !date.from && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarDays className="mr-2 h-4 w-4 text-primary" />
-                        {date.from ? (
-                          date.to ? (
-                            <>{format(date.from, "MMM dd")} — {format(date.to, "MMM dd, yyyy")}</>
-                          ) : format(date.from, "MMM dd, yyyy")
-                        ) : "Pick your dates"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="center">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={date?.from}
-                        selected={date as any}
-                        onSelect={setDate as any}
-                        numberOfMonths={1}
-                        disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DateRangePopover value={date} onChange={setDate} />
                 </div>
 
                 {/* Price Breakdown */}
