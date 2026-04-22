@@ -190,19 +190,29 @@ export default function BookingDetail() {
                 <CardTitle>Price Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>${booking.room?.price} × {nights} nights</span>
-                  <span>${(booking.room?.price || 0) * nights}</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Taxes & Fees (10%)</span>
-                  <span>${((booking.room?.price || 0) * nights * 0.1).toFixed(2)}</span>
-                </div>
-                <Separator className="my-2" />
-                <div className="flex justify-between font-bold text-lg text-foreground">
-                  <span>Total</span>
-                  <span className="text-primary">${booking.totalPrice}</span>
-                </div>
+                {(() => {
+                  const pricePerNight = booking.room?.price || 0;
+                  const subtotal = pricePerNight * nights;
+                  const taxes = subtotal * 0.1;
+                  const grandTotal = subtotal + taxes;
+                  return (
+                    <>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>${pricePerNight} × {nights} night{nights !== 1 ? 's' : ''}</span>
+                        <span>${subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Taxes & Fees (10%)</span>
+                        <span>${taxes.toFixed(2)}</span>
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex justify-between font-bold text-lg text-foreground">
+                        <span>Total</span>
+                        <span className="text-primary">${grandTotal.toFixed(2)}</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
 
@@ -249,7 +259,7 @@ export default function BookingDetail() {
                       </div>
                     </div>
                     <Button type="submit" className="w-full mt-6 h-12 text-lg" disabled={payBooking.isPending}>
-                      {payBooking.isPending ? "Processing..." : `Pay $${booking.totalPrice}`}
+                      {payBooking.isPending ? "Processing..." : `Pay $${(((booking.room?.price || 0) * nights) * 1.1).toFixed(2)}`}
                     </Button>
                   </form>
                 </CardContent>
