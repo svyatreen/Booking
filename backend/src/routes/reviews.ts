@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db, reviewsTable, usersTable, bookingsTable, hotelsTable, roomsTable } from "../db";
-import { eq, and, sql, inArray } from "drizzle-orm";
+import { db, reviewsTable, usersTable, hotelsTable } from "../db";
+import { eq, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import {
   GetHotelReviewsParams,
@@ -52,35 +52,6 @@ router.post("/hotels/:hotelId/reviews", requireAuth, async (req, res): Promise<v
   const parsed = CreateReviewBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  // Check if user has a confirmed booking at this hotel
-  const rooms = await db
-    .select({ id: roomsTable.id })
-    .from(roomsTable)
-    .where(eq(roomsTable.hotelId, params.data.hotelId));
-
-  const roomIds = rooms.map((r) => r.id);
-  if (roomIds.length === 0) {
-    res.status(400).json({ error: "You must have a completed booking to leave a review" });
-    return;
-  }
-
-  const confirmedBooking = await db
-    .select()
-    .from(bookingsTable)
-    .where(
-      and(
-        eq(bookingsTable.userId, req.user!.userId),
-        eq(bookingsTable.status, "confirmed"),
-        inArray(bookingsTable.roomId, roomIds)
-      )
-    )
-    .limit(1);
-
-  if (confirmedBooking.length === 0) {
-    res.status(400).json({ error: "You must have a confirmed booking to leave a review" });
     return;
   }
 
