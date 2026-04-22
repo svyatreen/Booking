@@ -16,9 +16,9 @@ import { Search, Filter, X } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 
 const AMENITIES_LIST = [
-  "WiFi", "Free WiFi", "Pool", "Indoor Pool", "Spa", "Gym", "Sauna", "Hot Tub",
-  "Restaurant", "Bar", "Breakfast", "All-Inclusive", "Room Service",
-  "Parking", "Free Parking", "Airport Shuttle", "24-hour Reception", "Concierge", "Laundry",
+  "WiFi", "Pool", "Indoor Pool", "Spa", "Gym", "Sauna", "Hot Tub",
+  "Restaurant", "Bar", "Room Service",
+  "Parking", "Airport Shuttle", "24-hour Reception", "Concierge", "Laundry",
   "Beach Access", "Garden", "Terrace", "Balcony", "Sea View",
   "Family Rooms", "Kids Club", "Babysitting", "Pet Friendly",
   "Wheelchair Access", "Elevator", "Air Conditioning", "Non-Smoking",
@@ -29,14 +29,20 @@ const PROPERTY_TYPES = ["Hotel", "Resort", "Villa", "Apartment", "Boutique", "Ho
 
 const MEAL_PLANS: Array<{ label: string; match: string[] }> = [
   { label: "Breakfast included", match: ["Breakfast"] },
-  { label: "All-inclusive", match: ["All-Inclusive"] },
+  { label: "Half board", match: ["Half Board", "Half-Board"] },
+  { label: "Full board", match: ["Full Board", "Full-Board"] },
+  { label: "All-inclusive", match: ["All-Inclusive", "All Inclusive"] },
   { label: "Room service", match: ["Room Service"] },
   { label: "Restaurant on-site", match: ["Restaurant"] },
+  { label: "Bar / Lounge", match: ["Bar", "Lounge"] },
+  { label: "Vegetarian options", match: ["Vegetarian"] },
+  { label: "Special diet menus", match: ["Special Diet", "Gluten-Free"] },
+  { label: "Kids' meals", match: ["Kids Meal", "Children's Menu"] },
 ];
 
 const POPULAR_FACILITIES: Array<{ label: string; match: string[] }> = [
-  { label: "Free WiFi", match: ["WiFi", "Free WiFi"] },
-  { label: "Free parking", match: ["Free Parking", "Parking"] },
+  { label: "WiFi", match: ["WiFi"] },
+  { label: "Parking", match: ["Parking"] },
   { label: "Swimming pool", match: ["Pool", "Indoor Pool"] },
   { label: "Spa & wellness", match: ["Spa", "Sauna", "Hot Tub"] },
   { label: "Fitness center", match: ["Gym"] },
@@ -55,13 +61,6 @@ const ROOM_FEATURES: Array<{ label: string; match: string[] }> = [
 const ACCESSIBILITY: Array<{ label: string; match: string[] }> = [
   { label: "Wheelchair accessible", match: ["Wheelchair Access"] },
   { label: "Elevator", match: ["Elevator"] },
-];
-
-const REVIEW_BUCKETS = [
-  { label: "Wonderful 9+", min: 4.5 },
-  { label: "Very good 8+", min: 4.0 },
-  { label: "Good 7+", min: 3.5 },
-  { label: "Pleasant 6+", min: 3.0 },
 ];
 
 const DISTANCE_OPTIONS = [
@@ -111,11 +110,7 @@ export default function Hotels() {
   const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
   const debouncedPrice = useDebounce(priceRange, 400);
 
-  const [reviewRange, setReviewRange] = useState<number[]>([0, 5]);
-  const [minReviewCount, setMinReviewCount] = useState<number>(0);
-
   const [stars, setStars] = useState<number[]>([]);
-  const [reviewBuckets, setReviewBuckets] = useState<number[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
@@ -124,7 +119,6 @@ export default function Hotels() {
   const [roomFeatures, setRoomFeatures] = useState<string[]>([]);
   const [accessibility, setAccessibility] = useState<string[]>([]);
   const [maxDistance, setMaxDistance] = useState<number | undefined>();
-  const [amenitySearch, setAmenitySearch] = useState("");
 
   const [sortBy, setSortBy] = useState<"price" | "rating" | "popularity">("popularity");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -164,12 +158,6 @@ export default function Hotels() {
       }
       if (stars.length && !stars.includes(h.stars)) return false;
       if (cities.length && !cities.includes(h.city)) return false;
-      if (h.rating < reviewRange[0] || h.rating > reviewRange[1]) return false;
-      if (reviewBuckets.length) {
-        const minReq = Math.min(...reviewBuckets);
-        if (h.rating < minReq) return false;
-      }
-      if ((h.reviewCount ?? 0) < minReviewCount) return false;
       if (propertyTypes.length && !propertyTypes.includes(inferPropertyType(h.name))) return false;
       if (selectedAmenities.length && !selectedAmenities.every((a) => hotelHasAny(h.amenities, [a]))) return false;
       if (popularFacilities.length) {
@@ -203,16 +191,13 @@ export default function Hotels() {
       if (maxDistance != null && pseudoDistance(h.id) > maxDistance) return false;
       return true;
     });
-  }, [rawHotels, debouncedPrice, stars, cities, reviewRange, reviewBuckets, minReviewCount,
+  }, [rawHotels, debouncedPrice, stars, cities,
       propertyTypes, selectedAmenities, popularFacilities, mealPlans, roomFeatures, accessibility, maxDistance]);
 
   const clearFilters = () => {
     setSearch("");
     setPriceRange([0, 1000]);
-    setReviewRange([0, 5]);
-    setMinReviewCount(0);
     setStars([]);
-    setReviewBuckets([]);
     setPropertyTypes([]);
     setCities([]);
     setSelectedAmenities([]);
@@ -221,7 +206,6 @@ export default function Hotels() {
     setRoomFeatures([]);
     setAccessibility([]);
     setMaxDistance(undefined);
-    setAmenitySearch("");
     setSortBy("popularity");
     setSortOrder("desc");
   };
@@ -229,15 +213,9 @@ export default function Hotels() {
   const activeFiltersCount =
     (search ? 1 : 0) +
     (priceRange[0] > 0 || priceRange[1] < 1000 ? 1 : 0) +
-    (reviewRange[0] > 0 || reviewRange[1] < 5 ? 1 : 0) +
-    (minReviewCount > 0 ? 1 : 0) +
-    stars.length + reviewBuckets.length + propertyTypes.length + cities.length +
+    stars.length + propertyTypes.length + cities.length +
     selectedAmenities.length + popularFacilities.length + mealPlans.length +
     roomFeatures.length + accessibility.length + (maxDistance != null ? 1 : 0);
-
-  const visibleAmenities = AMENITIES_LIST.filter((a) =>
-    a.toLowerCase().includes(amenitySearch.toLowerCase())
-  );
 
   return (
     <Layout>
@@ -312,7 +290,7 @@ export default function Hotels() {
               <ScrollArea className="lg:h-[calc(100vh-12rem)]">
                 <Accordion
                   type="multiple"
-                  defaultValue={["price", "popular", "stars", "review", "amenities"]}
+                  defaultValue={["price", "popular", "stars", "amenities"]}
                   className="px-4"
                 >
                   {/* Price */}
@@ -371,51 +349,6 @@ export default function Hotels() {
                             <span className="text-sm">{s} star{s > 1 ? "s" : ""}</span>
                           </label>
                         ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Review score */}
-                  <AccordionItem value="review">
-                    <AccordionTrigger className="text-sm font-semibold">Guest review score</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 pt-1">
-                        {REVIEW_BUCKETS.map((r) => (
-                          <label key={r.label} className="flex items-center gap-2 cursor-pointer">
-                            <Checkbox
-                              checked={reviewBuckets.includes(r.min)}
-                              onCheckedChange={() => setReviewBuckets((p) => toggleArr(p, r.min))}
-                            />
-                            <span className="text-sm">{r.label}</span>
-                          </label>
-                        ))}
-                        <div className="pt-3">
-                          <Label className="text-xs text-muted-foreground">Score range</Label>
-                          <div className="px-1 pt-3">
-                            <Slider
-                              min={0}
-                              max={5}
-                              step={0.1}
-                              value={reviewRange}
-                              onValueChange={setReviewRange}
-                              className="mb-2"
-                            />
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>{reviewRange[0].toFixed(1)}</span>
-                              <span>{reviewRange[1].toFixed(1)}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="pt-3">
-                          <Label className="text-xs text-muted-foreground">Minimum number of reviews</Label>
-                          <Input
-                            type="number"
-                            min={0}
-                            value={minReviewCount}
-                            onChange={(e) => setMinReviewCount(Number(e.target.value) || 0)}
-                            className="h-8 mt-1"
-                          />
-                        </div>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -534,27 +467,16 @@ export default function Hotels() {
                   <AccordionItem value="amenities" className="border-b-0">
                     <AccordionTrigger className="text-sm font-semibold">All amenities</AccordionTrigger>
                     <AccordionContent>
-                      <div className="pt-1 space-y-2">
-                        <Input
-                          placeholder="Search amenities..."
-                          value={amenitySearch}
-                          onChange={(e) => setAmenitySearch(e.target.value)}
-                          className="h-8 text-sm"
-                        />
-                        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                          {visibleAmenities.map((a) => (
-                            <label key={a} className="flex items-center gap-2 cursor-pointer">
-                              <Checkbox
-                                checked={selectedAmenities.includes(a)}
-                                onCheckedChange={() => setSelectedAmenities((p) => toggleArr(p, a))}
-                              />
-                              <span className="text-sm">{a}</span>
-                            </label>
-                          ))}
-                          {!visibleAmenities.length && (
-                            <p className="text-xs text-muted-foreground">No matches</p>
-                          )}
-                        </div>
+                      <div className="pt-1 space-y-2 max-h-64 overflow-y-auto pr-1">
+                        {AMENITIES_LIST.map((a) => (
+                          <label key={a} className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={selectedAmenities.includes(a)}
+                              onCheckedChange={() => setSelectedAmenities((p) => toggleArr(p, a))}
+                            />
+                            <span className="text-sm">{a}</span>
+                          </label>
+                        ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
