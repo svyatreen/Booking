@@ -342,16 +342,57 @@ export default function HotelDetail() {
                         )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="center">
+                    <PopoverContent className="w-auto p-0 rounded-2xl shadow-xl border-border" align="center">
+                      <div className="p-4 border-b bg-secondary/30 rounded-t-2xl">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-muted-foreground uppercase text-[10px] tracking-wider mb-1">Check-in</p>
+                            <p className="font-medium">{date?.from ? format(date.from, "EEE, LLL dd") : "Select date"}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground uppercase text-[10px] tracking-wider mb-1">Check-out</p>
+                            <p className="font-medium">{date?.to ? format(date.to, "EEE, LLL dd") : "Select date"}</p>
+                          </div>
+                        </div>
+                        {nights > 0 && (
+                          <p className="text-xs text-muted-foreground mt-2">{nights} night{nights > 1 ? 's' : ''} stay</p>
+                        )}
+                      </div>
                       <Calendar
                         initialFocus
                         mode="range"
                         defaultMonth={date?.from}
                         selected={date as any}
                         onSelect={setDate as any}
-                        numberOfMonths={1}
+                        numberOfMonths={2}
                         disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
+                        className="[--cell-size:2.75rem] p-4"
                       />
+                      <div className="flex items-center justify-between p-3 border-t bg-secondary/20 rounded-b-2xl">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDate({ from: undefined, to: undefined })}
+                        >
+                          Clear
+                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDate({ from: new Date(), to: addDays(new Date(), 2) })}
+                          >
+                            Weekend
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDate({ from: new Date(), to: addDays(new Date(), 7) })}
+                          >
+                            1 week
+                          </Button>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
