@@ -7,6 +7,7 @@ import roomsRouter from "./rooms";
 import bookingsRouter from "./bookings";
 import reviewsRouter from "./reviews";
 import favoritesRouter from "./favorites";
+import recentlyViewedRouter from "./recently-viewed";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(roomsRouter);
 router.use(bookingsRouter);
 router.use(reviewsRouter);
 router.use(favoritesRouter);
+router.use(recentlyViewedRouter);
 
 export default router;

@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { HotelCard } from "@/components/ui/hotel-card";
 import { Textarea } from "@/components/ui/textarea";
+import { customFetch } from "@/api/custom-fetch";
 
 export default function HotelDetail() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +61,19 @@ export default function HotelDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (isAuthenticated && hotelId) {
+      customFetch(`/api/recently-viewed/${hotelId}`, {
+        method: "POST",
+        credentials: "include",
+      })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/recently-viewed"] });
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated, hotelId, queryClient]);
 
   const handleBookRoom = (roomId: number) => {
     if (!isAuthenticated) {

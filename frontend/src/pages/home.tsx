@@ -6,12 +6,39 @@ import { Search, MapPin, CalendarDays, Users } from "lucide-react";
 import { useGetHotelStats, getGetHotelStatsQueryKey } from "@/api";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { customFetch } from "@/api/custom-fetch";
+import { useAuth } from "@/contexts/AuthContext";
+import { Clock } from "lucide-react";
+
+type RecentHotel = {
+  id: number;
+  name: string;
+  description: string;
+  city: string;
+  address: string;
+  rating: number;
+  stars: number;
+  amenities: string[];
+  images: string[];
+  reviewCount: number;
+  minPrice: number | null;
+  createdAt: string;
+  viewedAt: string;
+};
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const { isAuthenticated } = useAuth();
   const { data: stats, isLoading } = useGetHotelStats({
     query: { queryKey: getGetHotelStatsQueryKey() }
+  });
+
+  const { data: recentlyViewed } = useQuery<RecentHotel[]>({
+    queryKey: ["/api/recently-viewed"],
+    queryFn: () => customFetch<RecentHotel[]>("/api/recently-viewed", { credentials: "include" }),
+    enabled: isAuthenticated,
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -94,6 +121,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recently Viewed */}
+      {isAuthenticated && recentlyViewed && recentlyViewed.length > 0 && (
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="h-6 w-6 text-primary" />
+                  <h2 className="text-3xl font-serif font-bold">Recently Viewed</h2>
+                </div>
+                <p className="text-muted-foreground">Pick up where you left off</p>
+              </div>
+              <Button variant="outline" onClick={() => setLocation('/hotels')}>Browse all hotels</Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recentlyViewed.slice(0, 4).map((hotel) => (
+                <HotelCard key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Featured Destinations */}
       <section className="py-20 bg-secondary/30">
