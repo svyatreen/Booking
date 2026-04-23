@@ -123,7 +123,7 @@ export default function RoomDetail() {
   const [activeImage, setActiveImage] = useState(0);
   const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: startOfDay(new Date()),
-    to: startOfDay(addDays(new Date(), 3)),
+    to: undefined,
   });
 
   useEffect(() => { window.scrollTo(0, 0); }, [roomId]);
