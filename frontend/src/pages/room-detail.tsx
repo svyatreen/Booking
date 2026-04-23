@@ -121,10 +121,7 @@ export default function RoomDetail() {
   const rId = parseInt(roomId, 10);
 
   const [activeImage, setActiveImage] = useState(0);
-  const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: startOfDay(new Date()),
-    to: undefined,
-  });
+  const [date, setDate] = useStayDates();
 
   useEffect(() => { window.scrollTo(0, 0); }, [roomId]);
 

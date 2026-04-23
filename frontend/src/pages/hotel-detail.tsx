@@ -13,6 +13,7 @@ import { DateRangePopover } from "@/components/ui/date-range-popover";
 import { format, addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStayDates } from "@/hooks/use-stay-dates";
 import { toast } from "sonner";
 import { HotelCard } from "@/components/ui/hotel-card";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,10 +25,7 @@ export default function HotelDetail() {
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   
-  const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: startOfDay(new Date()),
-    to: undefined,
-  });
+  const [date, setDate] = useStayDates();
 
   const { data: hotel, isLoading: isLoadingHotel } = useGetHotel(hotelId, {
     query: { enabled: !!hotelId, queryKey: getGetHotelQueryKey(hotelId) }
