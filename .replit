@@ -35,7 +35,8 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo 'Artifacts run via their own workflows.'"
+args = "PORT=8080 pnpm --filter backend run dev"
+waitForPort = 8080
 
 [agent]
 stack = "PNPM_WORKSPACE"
