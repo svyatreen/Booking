@@ -133,7 +133,7 @@ router.get("/users/me/stats", requireAuth, async (req, res): Promise<void> => {
   const [{ totalBookings, totalSpent, citiesCount }] = await db
     .select({
       totalBookings: sql<number>`count(*)::int`,
-      totalSpent: sql<number>`coalesce(sum(case when ${bookingsTable.status} != 'cancelled' then ${bookingsTable.totalPrice} else 0 end), 0)::int`,
+      totalSpent: sql<number>`coalesce(sum(case when ${bookingsTable.status} = 'confirmed' then ${bookingsTable.totalPrice} else 0 end), 0)::int`,
       citiesCount: sql<number>`count(distinct ${hotelsTable.city})::int`,
     })
     .from(bookingsTable)
