@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { DateRangePopover } from "@/components/ui/date-range-popover";
 import { useAuth } from "@/contexts/AuthContext";
+import { useStayDates } from "@/hooks/use-stay-dates";
 import { toast } from "sonner";
 
 const ROOM_TYPE_INFO: Record<string, {
