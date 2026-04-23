@@ -247,14 +247,17 @@ export default function Profile() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setTimeout(() => {
-        logout();
-        navigate("/login");
-      }, 800);
+      setPwSubmitting(false);
+      logout();
+      navigate("/login");
+      return;
     } catch (err: any) {
-      const msg = err?.payload?.error || err?.message || "Failed to change password";
+      const msg =
+        err?.data?.error ||
+        err?.payload?.error ||
+        err?.message ||
+        "Failed to change password";
       toast.error(msg);
-    } finally {
       setPwSubmitting(false);
     }
   };
@@ -311,8 +314,8 @@ export default function Profile() {
                 {user?.avatarUrl ? (
                   <AvatarImage src={user.avatarUrl} alt={user.name} />
                 ) : null}
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  <User className="h-12 w-12" strokeWidth={1.75} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-serif font-bold">
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <button
@@ -525,8 +528,8 @@ export default function Profile() {
                     {user?.avatarUrl ? (
                       <AvatarImage src={user.avatarUrl} alt={user?.name} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      <User className="h-9 w-9" strokeWidth={1.75} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-2xl font-serif font-bold">
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-wrap gap-2">

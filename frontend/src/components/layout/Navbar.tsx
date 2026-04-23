@@ -98,11 +98,14 @@ export function Navbar() {
                   variant="ghost"
                   className="relative h-9 w-9 rounded-full"
                 >
-                  <Avatar className="h-9 w-9">
+                  <Avatar
+                    key={user?.avatarUrl || 'no-avatar-nav'}
+                    className="h-9 w-9"
+                  >
                     {user?.avatarUrl ? (
                       <AvatarImage src={user.avatarUrl} alt={user.name} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-serif font-bold">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
