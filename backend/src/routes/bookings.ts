@@ -1,14 +1,44 @@
 import { Router, type IRouter } from "express";
-import { db, bookingsTable, roomsTable, hotelsTable, usersTable } from "../db";
+import { db, bookingsTable, roomsTable, hotelsTable, usersTable, paymentMethodsTable } from "../db";
 import { eq, and, or, sql, inArray } from "drizzle-orm";
+import { z } from "zod";
 import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import {
   CreateBookingBody,
   GetBookingParams,
   CancelBookingParams,
   PayBookingParams,
-  PayBookingBody,
 } from "../zod";
+
+const PayBookingExtendedBody = z.object({
+  savedCardId: z.number().int().positive().optional(),
+  cardNumber: z.string().optional(),
+  expiryDate: z.string().optional(),
+  cvv: z.string().optional(),
+  cardholderName: z.string().optional(),
+  saveCard: z.boolean().optional(),
+});
+
+function detectBrand(cardNumber: string): string {
+  const n = cardNumber.replace(/\D/g, "");
+  if (/^4/.test(n)) return "Visa";
+  if (/^(5[1-5]|2[2-7])/.test(n)) return "Mastercard";
+  if (/^3[47]/.test(n)) return "Amex";
+  if (/^6(?:011|5)/.test(n)) return "Discover";
+  if (/^(?:2131|1800|35)/.test(n)) return "JCB";
+  if (/^3(?:0[0-5]|[68])/.test(n)) return "Diners";
+  return "Card";
+}
+
+function parseExpiry(s: string): { expMonth: number; expYear: number } | null {
+  const m = s.replace(/\s/g, "").match(/^(\d{2})\/(\d{2,4})$/);
+  if (!m) return null;
+  const expMonth = parseInt(m[1], 10);
+  let expYear = parseInt(m[2], 10);
+  if (expYear < 100) expYear += 2000;
+  if (expMonth < 1 || expMonth > 12) return null;
+  return { expMonth, expYear };
+}
 
 const router: IRouter = Router();
 
@@ -180,7 +210,7 @@ router.post("/bookings/:id/pay", requireAuth, async (req, res): Promise<void> =>
     return;
   }
 
-  const parsed = PayBookingBody.safeParse(req.body);
+  const parsed = PayBookingExtendedBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -204,6 +234,48 @@ router.post("/bookings/:id/pay", requireAuth, async (req, res): Promise<void> =>
   if (booking.status !== "pending") {
     res.status(400).json({ error: "Booking cannot be paid in its current state" });
     return;
+  }
+
+  const { savedCardId, cardNumber, expiryDate, cvv, cardholderName, saveCard } = parsed.data;
+
+  if (savedCardId) {
+    const [card] = await db
+      .select()
+      .from(paymentMethodsTable)
+      .where(and(eq(paymentMethodsTable.id, savedCardId), eq(paymentMethodsTable.userId, req.user!.userId)));
+    if (!card) {
+      res.status(400).json({ error: "Saved card not found" });
+      return;
+    }
+  } else {
+    if (!cardNumber || !expiryDate || !cvv || !cardholderName) {
+      res.status(400).json({ error: "Card details are required" });
+      return;
+    }
+    const exp = parseExpiry(expiryDate);
+    const digits = cardNumber.replace(/\D/g, "");
+    if (!exp || digits.length < 12) {
+      res.status(400).json({ error: "Invalid card details" });
+      return;
+    }
+    if (saveCard) {
+      const last4 = digits.slice(-4);
+      const brand = detectBrand(digits);
+      const existing = await db
+        .select({ id: paymentMethodsTable.id })
+        .from(paymentMethodsTable)
+        .where(eq(paymentMethodsTable.userId, req.user!.userId));
+      const isDefault = existing.length === 0;
+      await db.insert(paymentMethodsTable).values({
+        userId: req.user!.userId,
+        brand,
+        last4,
+        expMonth: exp.expMonth,
+        expYear: exp.expYear,
+        cardholderName: cardholderName.trim(),
+        isDefault,
+      });
+    }
   }
 
   const [updated] = await db

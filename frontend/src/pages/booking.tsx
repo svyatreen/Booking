@@ -1,27 +1,23 @@
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import { useGetBooking, getGetBookingQueryKey, usePayBooking, useCancelBooking } from "@/api";
+import { usePaymentMethods } from "@/api/payment-methods";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { CardForm, emptyCardForm, type CardFormValue } from "@/components/payment/CardForm";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { CreditCard, CalendarDays, MapPin, CheckCircle2, AlertCircle, Building2, Users } from "lucide-react";
+import { CreditCard, CalendarDays, MapPin, CheckCircle2, AlertCircle, Building2, Users, Plus, Check } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+
+const NEW_CARD = "__new__";
 
 export default function BookingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -29,35 +25,57 @@ export default function BookingDetail() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [cardForm, setCardForm] = useState<CardFormValue>(emptyCardForm);
+  const [selectedCardId, setSelectedCardId] = useState<string>(NEW_CARD);
 
   const { data: booking, isLoading } = useGetBooking(bookingId, {
     query: { enabled: !!bookingId, queryKey: getGetBookingQueryKey(bookingId) }
   });
+  const { data: savedCards = [] } = usePaymentMethods(!!booking && booking.status === "pending");
+
+  // Auto-select default saved card on initial load
+  useEffect(() => {
+    if (savedCards.length > 0 && selectedCardId === NEW_CARD) {
+      const def = savedCards.find((c) => c.isDefault) ?? savedCards[0];
+      setSelectedCardId(String(def.id));
+    }
+  }, [savedCards.length]);
 
   const payBooking = usePayBooking();
   const cancelBooking = useCancelBooking();
 
+  const usingSavedCard = selectedCardId !== NEW_CARD;
+
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cardNumber || !expiryDate || !cvv) {
-      toast.error("Please fill in all payment fields");
-      return;
+
+    let payload: any;
+    if (usingSavedCard) {
+      payload = { savedCardId: parseInt(selectedCardId, 10) };
+    } else {
+      if (!cardForm.cardholderName.trim() || !cardForm.cardNumber || !cardForm.expiryDate || !cardForm.cvv) {
+        toast.error("Please fill in all card details");
+        return;
+      }
+      payload = {
+        cardNumber: cardForm.cardNumber,
+        expiryDate: cardForm.expiryDate,
+        cvv: cardForm.cvv,
+        cardholderName: cardForm.cardholderName,
+        saveCard: cardForm.saveCard,
+      };
     }
 
-    payBooking.mutate({
-      id: bookingId,
-      data: { cardNumber, expiryDate, cvv }
-    }, {
+    payBooking.mutate({ id: bookingId, data: payload as any }, {
       onSuccess: () => {
         toast.success("Payment successful! Your booking is confirmed.");
         queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
+        queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+        setCardForm(emptyCardForm);
       },
-      onError: (error) => {
-        toast.error(error?.error || "Payment failed. Please try again.");
+      onError: (error: any) => {
+        toast.error(error?.payload?.error || error?.error || "Payment failed. Please try again.");
       }
     });
   };
@@ -69,8 +87,8 @@ export default function BookingDetail() {
         queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
         setCancelOpen(false);
       },
-      onError: (error) => {
-        toast.error(error?.error || "Failed to cancel booking.");
+      onError: (error: any) => {
+        toast.error(error?.payload?.error || error?.error || "Failed to cancel booking.");
         setCancelOpen(false);
       }
     });
@@ -93,6 +111,7 @@ export default function BookingDetail() {
   }
 
   const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
+  const grandTotal = useMemo(() => ((booking.room?.price || 0) * nights) * 1.1, [booking, nights]);
 
   return (
     <Layout>
@@ -107,8 +126,8 @@ export default function BookingDetail() {
               </h1>
               <p className="text-muted-foreground mt-1">Created on {format(new Date(booking.createdAt), 'MMMM dd, yyyy')}</p>
             </div>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-sm px-4 py-1.5 uppercase tracking-wider font-semibold ${
                 booking.status === 'confirmed' ? 'bg-green-500/10 text-green-700 border-green-200' :
                 booking.status === 'cancelled' ? 'bg-red-500/10 text-red-700 border-red-200' :
@@ -123,14 +142,13 @@ export default function BookingDetail() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           {/* Booking Details */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="overflow-hidden border-border/50">
               <div className="h-48 md:h-64 relative">
-                <img 
-                  src={booking.hotel?.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"} 
-                  alt={booking.hotel?.name} 
+                <img
+                  src={booking.hotel?.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"}
+                  alt={booking.hotel?.name}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -205,7 +223,6 @@ export default function BookingDetail() {
                   const pricePerNight = booking.room?.price || 0;
                   const subtotal = pricePerNight * nights;
                   const taxes = subtotal * 0.1;
-                  const grandTotal = subtotal + taxes;
                   return (
                     <>
                       <div className="flex justify-between text-muted-foreground">
@@ -238,39 +255,63 @@ export default function BookingDetail() {
                 </CardHeader>
                 <CardContent className="pt-6">
                   <form onSubmit={handlePayment} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="cardNumber">Card Number</Label>
-                      <Input 
-                        id="cardNumber" 
-                        placeholder="0000 0000 0000 0000" 
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    {savedCards.length > 0 && (
                       <div className="space-y-2">
-                        <Label htmlFor="expiry">Expiry (MM/YY)</Label>
-                        <Input 
-                          id="expiry" 
-                          placeholder="MM/YY" 
-                          value={expiryDate}
-                          onChange={(e) => setExpiryDate(e.target.value)}
-                        />
+                        <div className="text-sm font-medium text-foreground">Choose payment method</div>
+                        <div className="space-y-2">
+                          {savedCards.map((card) => {
+                            const isSel = selectedCardId === String(card.id);
+                            return (
+                              <button
+                                type="button"
+                                key={card.id}
+                                onClick={() => setSelectedCardId(String(card.id))}
+                                className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
+                                  isSel ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-border hover:border-primary/40"
+                                }`}
+                              >
+                                <div className="h-9 w-12 rounded-md bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                                  {card.brand.toUpperCase().slice(0, 4)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-semibold truncate">
+                                    {card.brand} •••• {card.last4}
+                                    {card.isDefault && <span className="ml-2 text-[10px] font-medium text-primary uppercase tracking-wider">Default</span>}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {card.cardholderName} · Exp {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}
+                                  </div>
+                                </div>
+                                {isSel && <Check className="h-4 w-4 text-primary shrink-0" />}
+                              </button>
+                            );
+                          })}
+
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCardId(NEW_CARD)}
+                            className={`w-full text-left rounded-lg border border-dashed p-3 flex items-center gap-3 transition-all ${
+                              selectedCardId === NEW_CARD ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-border hover:border-primary/40"
+                            }`}
+                          >
+                            <div className="h-9 w-12 rounded-md bg-secondary flex items-center justify-center">
+                              <Plus className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <div className="flex-1 text-sm font-medium">Use new card</div>
+                            {selectedCardId === NEW_CARD && <Check className="h-4 w-4 text-primary" />}
+                          </button>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input 
-                          id="cvv" 
-                          placeholder="123" 
-                          type="password"
-                          maxLength={4}
-                          value={cvv}
-                          onChange={(e) => setCvv(e.target.value)}
-                        />
+                    )}
+
+                    {!usingSavedCard && (
+                      <div className="pt-2">
+                        <CardForm value={cardForm} onChange={setCardForm} showSaveOption />
                       </div>
-                    </div>
-                    <Button type="submit" className="w-full mt-6 h-12 text-lg" disabled={payBooking.isPending}>
-                      {payBooking.isPending ? "Processing..." : `Pay $${(((booking.room?.price || 0) * nights) * 1.1).toFixed(2)}`}
+                    )}
+
+                    <Button type="submit" className="w-full mt-4 h-12 text-lg" disabled={payBooking.isPending}>
+                      {payBooking.isPending ? "Processing..." : `Pay $${grandTotal.toFixed(2)}`}
                     </Button>
                   </form>
                 </CardContent>

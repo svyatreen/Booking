@@ -8,6 +8,13 @@ import {
   getGetMeQueryKey,
 } from "@/api";
 import { customFetch } from "@/api/custom-fetch";
+import {
+  usePaymentMethods,
+  useCreatePaymentMethod,
+  useDeletePaymentMethod,
+  useSetDefaultPaymentMethod,
+} from "@/api/payment-methods";
+import { CardForm, emptyCardForm, type CardFormValue } from "@/components/payment/CardForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -45,6 +52,10 @@ import {
   DollarSign,
   Compass,
   CalendarCheck,
+  CreditCard,
+  Star,
+  Plus,
+  X,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { Link, useLocation } from "wouter";
@@ -637,6 +648,8 @@ export default function Profile() {
             </Card>
 
 
+            <PaymentMethodsCard />
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -780,5 +793,152 @@ export default function Profile() {
         </Tabs>
       </div>
     </Layout>
+  );
+}
+
+function PaymentMethodsCard() {
+  const { data: cards = [], isLoading } = usePaymentMethods(true);
+  const createCard = useCreatePaymentMethod();
+  const deleteCard = useDeletePaymentMethod();
+  const setDefault = useSetDefaultPaymentMethod();
+
+  const [showAdd, setShowAdd] = useState(false);
+  const [form, setForm] = useState<CardFormValue>(emptyCardForm);
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.cardholderName.trim() || !form.cardNumber || !form.expiryDate || !form.cvv) {
+      toast.error("Please fill in all card details");
+      return;
+    }
+    createCard.mutate(
+      {
+        cardNumber: form.cardNumber,
+        expiryDate: form.expiryDate,
+        cvv: form.cvv,
+        cardholderName: form.cardholderName,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Card added");
+          setForm(emptyCardForm);
+          setShowAdd(false);
+        },
+        onError: (err: any) => {
+          toast.error(err?.payload?.error || err?.error || "Failed to add card");
+        },
+      }
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CreditCard className="h-5 w-5" /> Payment Methods
+        </CardTitle>
+        <CardDescription>
+          Cards you save here are kept securely on your account and can be used to pay for any future booking.
+          Only the last 4 digits and expiry are stored — never the full number or CVV.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="h-20 bg-muted animate-pulse rounded-lg" />
+        ) : cards.length === 0 ? (
+          <div className="text-sm text-muted-foreground border border-dashed rounded-lg p-6 text-center">
+            You don't have any saved cards yet.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="flex items-center gap-4 border rounded-lg p-3"
+              >
+                <div className="h-10 w-14 rounded-md bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                  {card.brand.toUpperCase().slice(0, 4)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold flex items-center gap-2">
+                    <span>{card.brand} •••• {card.last4}</span>
+                    {card.isDefault && (
+                      <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                        <Star className="h-3 w-3 mr-1 fill-current" /> Default
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {card.cardholderName} · Exp {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  {!card.isDefault && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDefault.mutate(card.id, {
+                        onSuccess: () => toast.success("Default card updated"),
+                        onError: () => toast.error("Failed to set default"),
+                      })}
+                      disabled={setDefault.isPending}
+                    >
+                      Set default
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => {
+                      if (confirm("Remove this card from your account?")) {
+                        deleteCard.mutate(card.id, {
+                          onSuccess: () => toast.success("Card removed"),
+                          onError: () => toast.error("Failed to remove card"),
+                        });
+                      }
+                    }}
+                    disabled={deleteCard.isPending}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showAdd ? (
+          <form onSubmit={handleAdd} className="space-y-4 border rounded-lg p-4 bg-secondary/20">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold">Add a new card</h4>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => { setShowAdd(false); setForm(emptyCardForm); }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <CardForm value={form} onChange={setForm} />
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setForm(emptyCardForm); }}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createCard.isPending}>
+                {createCard.isPending ? "Saving..." : "Save Card"}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => setShowAdd(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add new card
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

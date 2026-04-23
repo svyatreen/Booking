@@ -49,6 +49,7 @@ backend/           Express API server
 - **Hotels**: Search/filter by city, price, rating, stars, amenities. Sort by price/rating/popularity
 - **Rooms**: View by hotel, check availability for date ranges
 - **Bookings**: Create bookings, check availability, payment (fake), cancel
+- **Payment Methods**: Save cards (last4 + brand + cardholder + expiry only — no PAN/CVV stored), set default, delete, reuse on checkout. Stored in `payment_methods` table (cascades on user delete)
 - **Reviews**: Leave reviews (must have confirmed booking), view hotel reviews
 - **Favorites**: Save/unsave hotels
 - **Admin**: CRUD hotels/rooms, view users, manage bookings

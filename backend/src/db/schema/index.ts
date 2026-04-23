@@ -5,3 +5,4 @@ export * from "./bookings";
 export * from "./reviews";
 export * from "./favorites";
 export * from "./recently-viewed";
+export * from "./payment-methods";

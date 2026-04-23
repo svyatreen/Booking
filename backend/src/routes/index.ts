@@ -8,6 +8,7 @@ import bookingsRouter from "./bookings";
 import reviewsRouter from "./reviews";
 import favoritesRouter from "./favorites";
 import recentlyViewedRouter from "./recently-viewed";
+import paymentMethodsRouter from "./payment-methods";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(bookingsRouter);
 router.use(reviewsRouter);
 router.use(favoritesRouter);
 router.use(recentlyViewedRouter);
+router.use(paymentMethodsRouter);
 
 export default router;
