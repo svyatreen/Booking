@@ -445,7 +445,7 @@ export default function Profile() {
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
-                              ${booking.totalPrice}
+                              ${(Number(booking.totalPrice) * 1.1).toFixed(2)}
                             </div>
                             <div className="text-sm text-muted-foreground capitalize">
                               {booking.room?.type} Room
