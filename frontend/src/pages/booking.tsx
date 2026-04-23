@@ -8,6 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CreditCard, CalendarDays, MapPin, CheckCircle2, AlertCircle, Building2, Users } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { toast } from "sonner";
@@ -22,6 +32,7 @@ export default function BookingDetail() {
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const { data: booking, isLoading } = useGetBooking(bookingId, {
     query: { enabled: !!bookingId, queryKey: getGetBookingQueryKey(bookingId) }
@@ -52,17 +63,17 @@ export default function BookingDetail() {
   };
 
   const handleCancel = () => {
-    if (confirm("Are you sure you want to cancel this booking?")) {
-      cancelBooking.mutate({ id: bookingId }, {
-        onSuccess: () => {
-          toast.success("Booking cancelled successfully.");
-          queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
-        },
-        onError: (error) => {
-          toast.error(error?.error || "Failed to cancel booking.");
-        }
-      });
-    }
+    cancelBooking.mutate({ id: bookingId }, {
+      onSuccess: () => {
+        toast.success("Booking cancelled successfully.");
+        queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
+        setCancelOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error?.error || "Failed to cancel booking.");
+        setCancelOpen(false);
+      }
+    });
   };
 
   if (isLoading || !booking) {
@@ -175,7 +186,7 @@ export default function BookingDetail() {
               </CardContent>
               {(booking.status === 'pending' || booking.status === 'confirmed') && (
                 <CardFooter className="bg-secondary/30 border-t flex justify-end p-4">
-                  <Button variant="destructive" onClick={handleCancel} disabled={cancelBooking.isPending}>
+                  <Button variant="destructive" onClick={() => setCancelOpen(true)} disabled={cancelBooking.isPending}>
                     {cancelBooking.isPending ? "Cancelling..." : "Cancel Reservation"}
                   </Button>
                 </CardFooter>
@@ -281,6 +292,28 @@ export default function BookingDetail() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this reservation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Your booking will be cancelled and the room will be released.
+              {booking.status === 'confirmed' && ' Refund eligibility depends on our cancellation policy.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelBooking.isPending}>Keep reservation</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleCancel(); }}
+              disabled={cancelBooking.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelBooking.isPending ? "Cancelling..." : "Yes, cancel booking"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }
