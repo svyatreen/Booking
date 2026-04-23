@@ -36,6 +36,9 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       email: user.email,
       name: user.name,
       role: user.role,
+      phone: user.phone,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
       createdAt: user.createdAt,
     },
   });
@@ -71,6 +74,9 @@ router.post("/auth/login", async (req, res): Promise<void> => {
       email: user.email,
       name: user.name,
       role: user.role,
+      phone: user.phone,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
       createdAt: user.createdAt,
     },
   });

@@ -304,12 +304,15 @@ export default function Profile() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <div className="relative group">
-              <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
+              <Avatar
+                key={user?.avatarUrl || "no-avatar-hero"}
+                className="h-28 w-28 border-4 border-background shadow-lg"
+              >
                 {user?.avatarUrl ? (
                   <AvatarImage src={user.avatarUrl} alt={user.name} />
                 ) : null}
-                <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-serif font-bold">
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  <User className="h-12 w-12" strokeWidth={1.75} />
                 </AvatarFallback>
               </Avatar>
               <button
@@ -384,10 +387,9 @@ export default function Profile() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs defaultValue="bookings" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-xl mb-8">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mb-8">
             <TabsTrigger value="bookings">My Bookings</TabsTrigger>
             <TabsTrigger value="settings">Account Settings</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -516,12 +518,15 @@ export default function Profile() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-6">
-                  <Avatar className="h-20 w-20">
+                  <Avatar
+                    key={user?.avatarUrl || "no-avatar-card"}
+                    className="h-20 w-20"
+                  >
                     {user?.avatarUrl ? (
                       <AvatarImage src={user.avatarUrl} alt={user?.name} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary text-2xl font-serif font-bold">
-                      {user?.name?.charAt(0).toUpperCase() || "U"}
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      <User className="h-9 w-9" strokeWidth={1.75} />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-wrap gap-2">
@@ -627,9 +632,8 @@ export default function Profile() {
                 </form>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="security" className="space-y-6">
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

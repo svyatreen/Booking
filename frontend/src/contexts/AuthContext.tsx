@@ -64,12 +64,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const login = (newToken: string, newUser: User) => {
+    localStorage.setItem("token", newToken);
+    setAuthTokenGetter(() => newToken);
     setToken(newToken);
     setUser(newUser);
     setIsInitialized(true);
+    queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
+    setAuthTokenGetter(null);
     setToken(null);
     setUser(null);
     queryClient.clear();
