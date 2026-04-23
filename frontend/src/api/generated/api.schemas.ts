@@ -37,6 +37,12 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  bio?: string | null;
   createdAt: string;
 }
 
@@ -48,6 +54,12 @@ export interface AuthResponse {
 export interface UpdateUserBody {
   name?: string;
   email?: string;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  avatarUrl?: string | null;
+  /** @nullable */
+  bio?: string | null;
 }
 
 export interface Hotel {
