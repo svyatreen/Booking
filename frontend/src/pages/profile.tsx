@@ -825,7 +825,7 @@ function PaymentMethodsCard() {
           setShowAdd(false);
         },
         onError: (err: any) => {
-          toast.error(err?.payload?.error || err?.error || "Failed to add card");
+          toast.error(err?.data?.error || err?.message || "Failed to add card");
         },
       }
     );

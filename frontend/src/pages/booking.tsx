@@ -75,7 +75,7 @@ export default function BookingDetail() {
         setCardForm(emptyCardForm);
       },
       onError: (error: any) => {
-        toast.error(error?.payload?.error || error?.error || "Payment failed. Please try again.");
+        toast.error(error?.data?.error || error?.message || "Payment failed. Please try again.");
       }
     });
   };
@@ -88,11 +88,19 @@ export default function BookingDetail() {
         setCancelOpen(false);
       },
       onError: (error: any) => {
-        toast.error(error?.payload?.error || error?.error || "Failed to cancel booking.");
+        toast.error(error?.data?.error || error?.message || "Failed to cancel booking.");
         setCancelOpen(false);
       }
     });
   };
+
+  const nights = booking
+    ? differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn))
+    : 0;
+  const grandTotal = useMemo(
+    () => ((booking?.room?.price || 0) * nights) * 1.1,
+    [booking, nights]
+  );
 
   if (isLoading || !booking) {
     return (
@@ -109,9 +117,6 @@ export default function BookingDetail() {
       </Layout>
     );
   }
-
-  const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
-  const grandTotal = useMemo(() => ((booking.room?.price || 0) * nights) * 1.1, [booking, nights]);
 
   return (
     <Layout>
