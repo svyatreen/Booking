@@ -409,7 +409,7 @@ export default function RoomDetail() {
                 {/* Date Picker */}
                 <div>
                   <p className="text-sm font-semibold mb-2">Select Dates</p>
-                  <DateRangePopover value={date} onChange={setDate} />
+                  <DateRangePopover value={date} onChange={setDate} pricePerNight={room.price} />
                 </div>
 
                 {/* Price Breakdown */}

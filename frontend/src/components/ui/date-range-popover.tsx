@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 export type DateRange = { from: Date | undefined; to: Date | undefined };
 
@@ -13,9 +14,11 @@ interface DateRangePopoverProps {
   onChange: (range: DateRange) => void;
   triggerClassName?: string;
   align?: "start" | "center" | "end";
+  pricePerNight?: number;
 }
 
-export function DateRangePopover({ value, onChange, triggerClassName, align = "center" }: DateRangePopoverProps) {
+export function DateRangePopover({ value, onChange, triggerClassName, align = "center", pricePerNight }: DateRangePopoverProps) {
+  const { formatPrice } = useCurrency();
   const [open, setOpen] = useState(false);
   const nights = value.from && value.to ? differenceInCalendarDays(value.to, value.from) : 0;
 
@@ -70,9 +73,16 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
             </div>
           </div>
           {nights > 0 && (
-            <p className="text-sm text-muted-foreground mt-3">
-              {nights} night{nights > 1 ? "s" : ""} stay
-            </p>
+            <div className="flex items-center justify-between mt-3 text-sm">
+              <span className="text-muted-foreground">
+                {nights} night{nights > 1 ? "s" : ""} stay
+              </span>
+              {typeof pricePerNight === "number" && (
+                <span className="font-semibold text-foreground">
+                  {formatPrice(pricePerNight * nights)}
+                </span>
+              )}
+            </div>
           )}
         </div>
         <Calendar
