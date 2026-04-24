@@ -145,7 +145,7 @@ export default function BookingDetail() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Booking Details */}
           <div className="lg:col-span-2 space-y-6">
@@ -279,10 +279,10 @@ export default function BookingDetail() {
                                   {card.brand.toUpperCase().slice(0, 4)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-semibold flex flex-wrap items-center gap-x-2 gap-y-1">
-                                    <span className="truncate">{card.brand} •••• {card.last4}</span>
+                                  <div className="text-sm font-semibold whitespace-nowrap">
+                                    {card.brand} •••• {card.last4}
                                     {card.isDefault && (
-                                      <span className="shrink-0 text-[10px] font-medium text-primary uppercase tracking-wider border border-primary/40 rounded px-1.5 py-0.5">
+                                      <span className="ml-2 text-[10px] font-medium text-primary uppercase tracking-wider">
                                         Default
                                       </span>
                                     )}
