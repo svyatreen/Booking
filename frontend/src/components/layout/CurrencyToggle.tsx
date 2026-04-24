@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Check, Coins, Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { CURRENCIES, useCurrency } from "@/contexts/CurrencyContext";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +44,6 @@ export function CurrencyToggle() {
           className="h-9 gap-1.5 px-2.5 font-medium"
           aria-label="Change currency"
         >
-          <Coins className="h-4 w-4" />
           <span className="hidden sm:inline">{currency.code}</span>
           <span className="text-muted-foreground hidden md:inline">{currency.symbol}</span>
         </Button>
