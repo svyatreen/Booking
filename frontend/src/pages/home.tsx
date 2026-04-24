@@ -78,7 +78,7 @@ export default function Home() {
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input 
                   placeholder="Where are you going?" 
-                  className="pl-10 h-12 bg-white text-foreground text-lg border-none"
+                  className="pl-10 h-12 bg-white text-neutral-900 placeholder:text-neutral-500 text-lg border-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
