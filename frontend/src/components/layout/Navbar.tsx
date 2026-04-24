@@ -28,14 +28,14 @@ export function Navbar() {
     <>
       <Link
         href="/hotels"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         Find a Hotel
       </Link>
       {isAuthenticated && (
         <Link
           href="/favorites"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
         >
           Favorites
         </Link>
@@ -43,7 +43,7 @@ export function Navbar() {
       {isAdmin && (
         <Link
           href="/admin"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
         >
           Admin Dashboard
         </Link>
@@ -53,11 +53,11 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="font-serif text-xl font-bold tracking-tight text-primary">
+            <Building2 className="h-7 w-7 text-primary" />
+            <span className="font-serif text-2xl font-bold tracking-tight text-primary">
               Selora
             </span>
           </Link>
@@ -73,24 +73,24 @@ export function Navbar() {
             size="icon"
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="h-9 w-9"
+            className="h-10 w-10"
           >
             {theme === 'dark' ? (
-              <Sun className="h-4 w-4" />
+              <Sun className="h-5 w-5" />
             ) : (
-              <Moon className="h-4 w-4" />
+              <Moon className="h-5 w-5" />
             )}
           </Button>
 
           {!isAuthenticated ? (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex">
+                <Button variant="ghost" size="lg" className="hidden sm:inline-flex text-base">
                   Log in
                 </Button>
               </Link>
               <Link href="/register">
-                <Button>Sign up</Button>
+                <Button size="lg" className="text-base">Sign up</Button>
               </Link>
             </div>
           ) : (
@@ -98,16 +98,16 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full"
+                  className="relative h-11 w-11 rounded-full"
                 >
                   <Avatar
                     key={user?.avatarUrl || 'no-avatar-nav'}
-                    className="h-9 w-9"
+                    className="h-11 w-11"
                   >
                     {user?.avatarUrl ? (
                       <AvatarImage src={user.avatarUrl} alt={user.name} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-serif font-bold">
+                    <AvatarFallback className="bg-primary/10 text-primary text-base font-serif font-bold">
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -146,8 +146,8 @@ export function Navbar() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="md:hidden h-10 w-10">
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>

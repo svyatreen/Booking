@@ -8,17 +8,17 @@ export function Footer() {
     <footer className="border-t bg-background">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main footer links */}
-        <div className="grid grid-cols-2 gap-8 py-10 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-base font-semibold uppercase tracking-wider text-foreground">
               Destinations
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3">
               {['Paris', 'Tokyo', 'Bali', 'London'].map((city) => (
                 <li key={city}>
                   <Link
                     href={`/hotels?city=${city}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    className="text-base text-muted-foreground transition-colors hover:text-primary"
                   >
                     {city}
                   </Link>
@@ -27,14 +27,14 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-base font-semibold uppercase tracking-wider text-foreground">
               Company
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3">
               <li>
                 <Link
                   href="/about"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   About Us
                 </Link>
@@ -42,7 +42,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/press"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Press
                 </Link>
@@ -50,7 +50,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Blog
                 </Link>
@@ -58,7 +58,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/careers"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Careers
                 </Link>
@@ -66,14 +66,14 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-base font-semibold uppercase tracking-wider text-foreground">
               Support
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3">
               <li>
                 <Link
                   href="/help-center"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Help Center
                 </Link>
@@ -81,7 +81,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Contact Us
                 </Link>
@@ -89,7 +89,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/cancellation-policy"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Cancellation Policy
                 </Link>
@@ -97,7 +97,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/safety"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Safety
                 </Link>
@@ -105,14 +105,14 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-base font-semibold uppercase tracking-wider text-foreground">
               Legal
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-5 space-y-3">
               <li>
                 <Link
                   href="/privacy-policy"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Privacy Policy
                 </Link>
@@ -120,7 +120,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms-of-service"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Terms of Service
                 </Link>
@@ -128,7 +128,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/cookie-policy"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Cookie Policy
                 </Link>
@@ -136,7 +136,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/accessibility"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="text-base text-muted-foreground transition-colors hover:text-primary"
                 >
                   Accessibility
                 </Link>
@@ -146,49 +146,49 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center gap-4 border-t py-6 sm:flex-row sm:justify-between">
+        <div className="flex flex-col items-center gap-4 border-t py-8 sm:flex-row sm:justify-between">
           {/* Left — copyright */}
-          <p className="text-sm text-muted-foreground order-2 sm:order-1">
+          <p className="text-base text-muted-foreground order-2 sm:order-1">
             &copy; {new Date().getFullYear()} Selora. All rights reserved.
           </p>
 
           {/* Center — logo */}
           <Link href="/" className="flex items-center gap-2 order-1 sm:order-2">
-            <Building2 className="h-5 w-5 text-primary" />
-            <span className="font-serif text-lg font-bold text-primary">
+            <Building2 className="h-6 w-6 text-primary" />
+            <span className="font-serif text-xl font-bold text-primary">
               Selora
             </span>
           </Link>
 
           {/* Right — social icons */}
-          <div className="flex items-center gap-4 order-3">
+          <div className="flex items-center gap-5 order-3">
             <a
               href="#"
               aria-label="Facebook"
               className="text-muted-foreground transition-colors hover:text-primary"
             >
-              <FaFacebook className="h-5 w-5" />
+              <FaFacebook className="h-6 w-6" />
             </a>
             <a
               href="#"
               aria-label="Instagram"
               className="text-muted-foreground transition-colors hover:text-primary"
             >
-              <FaInstagram className="h-5 w-5" />
+              <FaInstagram className="h-6 w-6" />
             </a>
             <a
               href="#"
               aria-label="Telegram"
               className="text-muted-foreground transition-colors hover:text-primary"
             >
-              <FaTelegram className="h-5 w-5" />
+              <FaTelegram className="h-6 w-6" />
             </a>
             <a
               href="#"
               aria-label="X (Twitter)"
               className="text-muted-foreground transition-colors hover:text-primary"
             >
-              <FaXTwitter className="h-5 w-5" />
+              <FaXTwitter className="h-6 w-6" />
             </a>
           </div>
         </div>

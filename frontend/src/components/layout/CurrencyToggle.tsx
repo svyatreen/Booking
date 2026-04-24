@@ -41,7 +41,7 @@ export function CurrencyToggle() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 gap-1.5 px-2.5 font-medium"
+          className="h-10 gap-1.5 px-3 font-medium text-base"
           aria-label="Change currency"
         >
           <span className="hidden sm:inline">{currency.code}</span>
