@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import { useGetBooking, getGetBookingQueryKey, usePayBooking, useCancelBooking } from "@/api";
 import { usePaymentMethods } from "@/api/payment-methods";
+import { buildCardColorMap } from "@/lib/card-colors";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ export default function BookingDetail() {
     query: { enabled: !!bookingId, queryKey: getGetBookingQueryKey(bookingId) }
   });
   const { data: savedCards = [] } = usePaymentMethods(!!booking && booking.status === "pending");
+  const cardColorMap = buildCardColorMap(savedCards);
 
   // Auto-select default saved card on initial load
   useEffect(() => {
@@ -277,7 +279,7 @@ export default function BookingDetail() {
                                   isSel ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-border hover:border-primary/40"
                                 }`}
                               >
-                                <div className="h-9 w-12 rounded-md bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                                <div className={`h-9 w-12 rounded-md text-[10px] font-bold flex items-center justify-center shadow-sm ${cardColorMap[card.id]}`}>
                                   {card.brand.toUpperCase().slice(0, 4)}
                                 </div>
                                 <div className="flex-1 min-w-0">
