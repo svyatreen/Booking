@@ -16,6 +16,7 @@ import { CreditCard, CalendarDays, MapPin, CheckCircle2, AlertCircle, Building2,
 import { format, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const NEW_CARD = "__new__";
 
@@ -24,6 +25,7 @@ export default function BookingDetail() {
   const bookingId = parseInt(id, 10);
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const { formatPrice } = useCurrency();
 
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cardForm, setCardForm] = useState<CardFormValue>(emptyCardForm);
@@ -231,17 +233,17 @@ export default function BookingDetail() {
                   return (
                     <>
                       <div className="flex justify-between text-muted-foreground">
-                        <span>${pricePerNight} × {nights} night{nights !== 1 ? 's' : ''}</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>{formatPrice(pricePerNight)} × {nights} night{nights !== 1 ? 's' : ''}</span>
+                        <span>{formatPrice(subtotal)}</span>
                       </div>
                       <div className="flex justify-between text-muted-foreground">
                         <span>Taxes & Fees (10%)</span>
-                        <span>${taxes.toFixed(2)}</span>
+                        <span>{formatPrice(taxes)}</span>
                       </div>
                       <Separator className="my-2" />
                       <div className="flex justify-between font-bold text-lg text-foreground">
                         <span>Total</span>
-                        <span className="text-primary">${grandTotal.toFixed(2)}</span>
+                        <span className="text-primary">{formatPrice(grandTotal)}</span>
                       </div>
                     </>
                   );
@@ -320,7 +322,7 @@ export default function BookingDetail() {
                     )}
 
                     <Button type="submit" className="w-full mt-4 h-12 text-lg" disabled={payBooking.isPending}>
-                      {payBooking.isPending ? "Processing..." : `Pay $${grandTotal.toFixed(2)}`}
+                      {payBooking.isPending ? "Processing..." : `Pay ${formatPrice(grandTotal)}`}
                     </Button>
                   </form>
                 </CardContent>

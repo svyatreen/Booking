@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useAddFavorite, useRemoveFavorite, useGetFavorites, getGetFavoritesQueryKey } from "@/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ interface HotelCardProps {
 
 export function HotelCard({ hotel }: HotelCardProps) {
   const { isAuthenticated } = useAuth();
+  const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   
@@ -101,7 +103,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Starting from</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold">${hotel.minPrice || 0}</span>
+                <span className="text-lg font-bold">{formatPrice(hotel.minPrice || 0)}</span>
                 <span className="text-sm text-muted-foreground">/night</span>
               </div>
             </div>

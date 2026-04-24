@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import {
   useGetMyBookings,
   getGetMyBookingsQueryKey,
@@ -105,6 +106,7 @@ interface UserStats {
 
 export default function Profile() {
   const { user, logout } = useAuth();
+  const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
@@ -387,7 +389,7 @@ export default function Profile() {
                 </div>
                 <div className="bg-background rounded-lg p-3 border text-center">
                   <DollarSign className="h-4 w-4 text-primary mx-auto mb-1" />
-                  <div className="text-xl font-bold">${stats?.totalSpent ?? 0}</div>
+                  <div className="text-xl font-bold">{formatPrice(Number(stats?.totalSpent ?? 0), { decimals: 0 })}</div>
                   <div className="text-xs text-muted-foreground">Spent</div>
                 </div>
                 <div className="bg-background rounded-lg p-3 border text-center">
@@ -458,7 +460,7 @@ export default function Profile() {
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-primary">
-                              ${(Number(booking.totalPrice) * 1.1).toFixed(2)}
+                              {formatPrice(Number(booking.totalPrice) * 1.1)}
                             </div>
                             <div className="text-sm text-muted-foreground capitalize">
                               {booking.room?.type} Room

@@ -13,6 +13,7 @@ import { DateRangePopover } from "@/components/ui/date-range-popover";
 import { format, addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useStayDates } from "@/hooks/use-stay-dates";
 import { toast } from "sonner";
 import { HotelCard } from "@/components/ui/hotel-card";
@@ -24,6 +25,7 @@ export default function HotelDetail() {
   const hotelId = parseInt(id, 10);
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { formatPrice } = useCurrency();
   
   const [date, setDate] = useStayDates();
 
@@ -183,7 +185,7 @@ export default function HotelDetail() {
             <div className="flex flex-col items-end gap-3 bg-secondary/50 p-4 rounded-xl border border-border">
               <div className="text-sm text-muted-foreground">Starting from</div>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold">${hotel.minPrice || 0}</span>
+                <span className="text-3xl font-bold">{formatPrice(hotel.minPrice || 0)}</span>
                 <span className="text-muted-foreground">/night</span>
               </div>
             </div>
@@ -354,8 +356,8 @@ export default function HotelDetail() {
                             <div className="flex justify-between items-start mb-2">
                               <h4 className="font-bold capitalize text-base">{room.type} Room</h4>
                               <div className="text-right">
-                                <span className="font-bold">${room.price * (nights || 1)}</span>
-                                {nights > 0 && <div className="text-xs text-muted-foreground">${room.price}/night</div>}
+                                <span className="font-bold">{formatPrice(room.price * (nights || 1))}</span>
+                                {nights > 0 && <div className="text-xs text-muted-foreground">{formatPrice(room.price)}/night</div>}
                               </div>
                             </div>
                             

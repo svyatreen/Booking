@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Building2, User, LogOut, Menu, Sun, Moon } from 'lucide-react';
+import { CurrencyToggle } from '@/components/layout/CurrencyToggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,7 +66,8 @@ export function Navbar() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <CurrencyToggle />
           <Button
             variant="ghost"
             size="icon"

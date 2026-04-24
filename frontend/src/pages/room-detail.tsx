@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { DateRangePopover } from "@/components/ui/date-range-popover";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useStayDates } from "@/hooks/use-stay-dates";
 import { toast } from "sonner";
 
@@ -118,6 +119,7 @@ export default function RoomDetail() {
   const { hotelId, roomId } = useParams<{ hotelId: string; roomId: string }>();
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { formatPrice } = useCurrency();
   const hId = parseInt(hotelId, 10);
   const rId = parseInt(roomId, 10);
 
@@ -233,7 +235,7 @@ export default function RoomDetail() {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-sm text-muted-foreground">Per night from</span>
-            <span className="text-4xl font-bold text-primary">${room.price}</span>
+            <span className="text-4xl font-bold text-primary">{formatPrice(room.price)}</span>
           </div>
         </div>
 
@@ -388,7 +390,7 @@ export default function RoomDetail() {
               <div className="bg-primary p-6 text-white">
                 <div className="text-sm opacity-80 mb-1">Starting from</div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold">${room.price}</span>
+                  <span className="text-4xl font-bold">{formatPrice(room.price)}</span>
                   <span className="opacity-80">/ night</span>
                 </div>
                 {!room.isAvailable && (
@@ -414,17 +416,17 @@ export default function RoomDetail() {
                 {nights > 0 && (
                   <div className="bg-secondary/30 rounded-xl p-4 space-y-2">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>${room.price} × {nights} night{nights !== 1 ? "s" : ""}</span>
-                      <span>${totalPrice}</span>
+                      <span>{formatPrice(room.price)} × {nights} night{nights !== 1 ? "s" : ""}</span>
+                      <span>{formatPrice(totalPrice)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Taxes & Fees (10%)</span>
-                      <span>${taxes.toFixed(2)}</span>
+                      <span>{formatPrice(taxes)}</span>
                     </div>
                     <Separator className="my-1" />
                     <div className="flex justify-between font-bold">
                       <span>Total</span>
-                      <span className="text-primary">${(totalPrice + taxes).toFixed(2)}</span>
+                      <span className="text-primary">{formatPrice(totalPrice + taxes)}</span>
                     </div>
                   </div>
                 )}
@@ -439,7 +441,7 @@ export default function RoomDetail() {
                     : !date.from || !date.to
                     ? "Select dates to book"
                     : room.isAvailable
-                    ? `Reserve — $${(totalPrice + taxes).toFixed(2)}`
+                    ? `Reserve — ${formatPrice(totalPrice + taxes)}`
                     : "Not Available"}
                 </Button>
 
@@ -482,7 +484,7 @@ export default function RoomDetail() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-lg">${r.price}</p>
+                            <p className="font-bold text-lg">{formatPrice(r.price)}</p>
                             <p className="text-xs text-muted-foreground">/ night</p>
                           </div>
                         </div>

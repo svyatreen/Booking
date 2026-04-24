@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, X } from "lucide-react";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useDebounce } from "@/hooks/use-debounce";
 
 const AMENITIES_LIST = [
@@ -98,6 +99,7 @@ function toggleArr<T>(arr: T[], value: T): T[] {
 }
 
 export default function Hotels() {
+  const { formatPrice } = useCurrency();
   const searchString = useSearch();
   const cityFromUrl = new URLSearchParams(searchString).get("city") || "";
 
@@ -307,9 +309,9 @@ export default function Hotels() {
                           className="mb-4"
                         />
                         <div className="flex items-center justify-between text-sm text-muted-foreground">
-                          <span>${priceRange[0]}</span>
+                          <span>{formatPrice(priceRange[0], { decimals: 0 })}</span>
                           <span>
-                            ${priceRange[1]}
+                            {formatPrice(priceRange[1], { decimals: 0 })}
                             {priceRange[1] === 1000 ? "+" : ""}
                           </span>
                         </div>

@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, CalendarDays, DollarSign, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 export default function Admin() {
+  const { formatPrice } = useCurrency();
   const { data: hotels, isLoading: isLoadingHotels } = useListHotels({}, {
     query: { queryKey: getListHotelsQueryKey({}) }
   });
@@ -45,7 +47,7 @@ export default function Admin() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{formatPrice(totalRevenue, { decimals: 0 })}</div>
               <p className="text-xs text-muted-foreground mt-1">From confirmed bookings</p>
             </CardContent>
           </Card>
@@ -122,7 +124,7 @@ export default function Admin() {
                           </TableCell>
                           <TableCell>{hotel.city}</TableCell>
                           <TableCell>{hotel.rating.toFixed(1)} ({hotel.reviewCount})</TableCell>
-                          <TableCell>${hotel.minPrice || 0}</TableCell>
+                          <TableCell>{formatPrice(hotel.minPrice || 0)}</TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm">Edit</Button>
                           </TableCell>
@@ -165,7 +167,7 @@ export default function Admin() {
                               {format(new Date(booking.checkIn), 'MMM d')} - {format(new Date(booking.checkOut), 'MMM d, yyyy')}
                             </span>
                           </TableCell>
-                          <TableCell className="font-semibold">${booking.totalPrice}</TableCell>
+                          <TableCell className="font-semibold">{formatPrice(booking.totalPrice)}</TableCell>
                           <TableCell>
                             <Badge variant={
                               booking.status === 'confirmed' ? 'default' : 

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { CookieConsent } from "@/components/CookieConsent";
 
@@ -98,15 +99,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <ThemeProvider>
-          <AuthProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <ScrollToTop />
-              <Router />
-            </WouterRouter>
-            <Toaster />
-            <SonnerToaster />
-            <CookieConsent />
-          </AuthProvider>
+          <CurrencyProvider>
+            <AuthProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <ScrollToTop />
+                <Router />
+              </WouterRouter>
+              <Toaster />
+              <SonnerToaster />
+              <CookieConsent />
+            </AuthProvider>
+          </CurrencyProvider>
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
