@@ -800,6 +800,28 @@ export default function Profile() {
   );
 }
 
+const CARD_BADGE_PALETTE = [
+  "bg-orange-500 text-white dark:bg-orange-500/90",
+  "bg-rose-500 text-white dark:bg-rose-500/90",
+  "bg-amber-500 text-white dark:bg-amber-500/90",
+  "bg-emerald-500 text-white dark:bg-emerald-500/90",
+  "bg-sky-500 text-white dark:bg-sky-500/90",
+  "bg-violet-500 text-white dark:bg-violet-500/90",
+  "bg-fuchsia-500 text-white dark:bg-fuchsia-500/90",
+  "bg-teal-500 text-white dark:bg-teal-500/90",
+  "bg-indigo-500 text-white dark:bg-indigo-500/90",
+  "bg-pink-500 text-white dark:bg-pink-500/90",
+];
+
+function getCardBadgeColor(card: { id: number; brand: string; last4: string }) {
+  const seed = `${card.brand}-${card.last4}-${card.id}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return CARD_BADGE_PALETTE[Math.abs(hash) % CARD_BADGE_PALETTE.length];
+}
+
 function PaymentMethodsCard() {
   const { data: cards = [], isLoading } = usePaymentMethods(true);
   const createCard = useCreatePaymentMethod();
@@ -875,7 +897,7 @@ function PaymentMethodsCard() {
                 key={card.id}
                 className="flex items-center gap-4 border rounded-lg p-3"
               >
-                <div className="h-10 w-14 rounded-md bg-foreground text-background text-[10px] font-bold flex items-center justify-center">
+                <div className={`h-10 w-14 rounded-md text-[10px] font-bold flex items-center justify-center shadow-sm ${getCardBadgeColor(card)}`}>
                   {card.brand.toUpperCase().slice(0, 4)}
                 </div>
                 <div className="flex-1 min-w-0">

@@ -14,19 +14,7 @@ interface HotelCardProps {
   hotel: Hotel;
 }
 
-const FAVORITE_PALETTE = [
-  { bg: "bg-orange-100/90 dark:bg-orange-500/20 hover:bg-orange-100 dark:hover:bg-orange-500/30", icon: "text-orange-600 dark:text-orange-300" },
-  { bg: "bg-rose-100/90 dark:bg-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/30", icon: "text-rose-600 dark:text-rose-300" },
-  { bg: "bg-amber-100/90 dark:bg-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/30", icon: "text-amber-600 dark:text-amber-300" },
-  { bg: "bg-emerald-100/90 dark:bg-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/30", icon: "text-emerald-600 dark:text-emerald-300" },
-  { bg: "bg-sky-100/90 dark:bg-sky-500/20 hover:bg-sky-100 dark:hover:bg-sky-500/30", icon: "text-sky-600 dark:text-sky-300" },
-  { bg: "bg-violet-100/90 dark:bg-violet-500/20 hover:bg-violet-100 dark:hover:bg-violet-500/30", icon: "text-violet-600 dark:text-violet-300" },
-  { bg: "bg-fuchsia-100/90 dark:bg-fuchsia-500/20 hover:bg-fuchsia-100 dark:hover:bg-fuchsia-500/30", icon: "text-fuchsia-600 dark:text-fuchsia-300" },
-  { bg: "bg-teal-100/90 dark:bg-teal-500/20 hover:bg-teal-100 dark:hover:bg-teal-500/30", icon: "text-teal-600 dark:text-teal-300" },
-];
-
 export function HotelCard({ hotel }: HotelCardProps) {
-  const palette = FAVORITE_PALETTE[Math.abs(hotel.id) % FAVORITE_PALETTE.length];
   const { isAuthenticated } = useAuth();
   const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
@@ -83,10 +71,10 @@ export function HotelCard({ hotel }: HotelCardProps) {
             <Button
               variant="secondary"
               size="icon"
-              className={`h-8 w-8 rounded-full backdrop-blur-sm ${palette.bg}`}
+              className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white text-foreground"
               onClick={toggleFavorite}
             >
-              <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : `${palette.icon} stroke-2`}`} />
+              <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-gray-800 stroke-2"}`} />
             </Button>
           </div>
           {hotel.stars >= 4 && (
