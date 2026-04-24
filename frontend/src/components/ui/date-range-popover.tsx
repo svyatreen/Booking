@@ -71,19 +71,25 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
                 {value.to ? format(value.to, "EEE, LLL dd") : "Select date"}
               </p>
             </div>
+            {nights > 0 && (
+              <>
+                <div>
+                  <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Nights</p>
+                  <p className="font-semibold text-lg">
+                    {nights} night{nights > 1 ? "s" : ""} stay
+                  </p>
+                </div>
+                {typeof pricePerNight === "number" && (
+                  <div>
+                    <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Total</p>
+                    <p className="font-semibold text-lg">
+                      {formatPrice(pricePerNight * nights)}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-          {nights > 0 && (
-            <div className="flex items-center justify-between mt-3 text-sm">
-              <span className="text-muted-foreground">
-                {nights} night{nights > 1 ? "s" : ""} stay
-              </span>
-              {typeof pricePerNight === "number" && (
-                <span className="font-semibold text-foreground">
-                  {formatPrice(pricePerNight * nights)}
-                </span>
-              )}
-            </div>
-          )}
         </div>
         <Calendar
           initialFocus
