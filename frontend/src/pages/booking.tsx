@@ -279,9 +279,13 @@ export default function BookingDetail() {
                                   {card.brand.toUpperCase().slice(0, 4)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-semibold truncate">
-                                    {card.brand} •••• {card.last4}
-                                    {card.isDefault && <span className="ml-2 text-[10px] font-medium text-primary uppercase tracking-wider">Default</span>}
+                                  <div className="text-sm font-semibold flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span className="truncate">{card.brand} •••• {card.last4}</span>
+                                    {card.isDefault && (
+                                      <span className="shrink-0 text-[10px] font-medium text-primary uppercase tracking-wider border border-primary/40 rounded px-1.5 py-0.5">
+                                        Default
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-xs text-muted-foreground truncate">
                                     {card.cardholderName} · Exp {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}
