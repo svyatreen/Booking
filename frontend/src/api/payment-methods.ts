@@ -58,8 +58,26 @@ export function useSetDefaultPaymentMethod() {
   return useMutation({
     mutationFn: (id: number) =>
       customFetch<PaymentMethod>(`/api/payment-methods/${id}/default`, { method: "PATCH" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: paymentMethodsQueryKey }),
+    onSuccess: (_data, id) => {
+      // Optimistic cache update so the badge moves immediately
+      qc.setQueryData<PaymentMethod[]>(paymentMethodsQueryKey, (prev) => {
+        if (!prev) return prev;
+        return prev
+          .map((c) => ({ ...c, isDefault: c.id === id }))
+          .sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
+      });
+      qc.invalidateQueries({ queryKey: paymentMethodsQueryKey });
+    },
   });
+}
+
+export function toTitleCase(s: string): string {
+  return s
+    .trim()
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+    .join(" ");
 }
 
 export function brandIcon(brand: string): string {

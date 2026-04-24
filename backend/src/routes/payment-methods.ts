@@ -25,6 +25,15 @@ function detectBrand(cardNumber: string): string {
   return "Card";
 }
 
+function toTitleCase(s: string): string {
+  return s
+    .trim()
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+    .join(" ");
+}
+
 function parseExpiry(expiryDate: string): { expMonth: number; expYear: number } | null {
   const m = expiryDate.replace(/\s/g, "").match(/^(\d{2})\/(\d{2,4})$/);
   if (!m) return null;
@@ -86,7 +95,7 @@ router.post("/payment-methods", requireAuth, async (req, res): Promise<void> => 
       last4,
       expMonth: exp.expMonth,
       expYear: exp.expYear,
-      cardholderName: cardholderName.trim(),
+      cardholderName: toTitleCase(cardholderName),
       isDefault,
     })
     .returning();

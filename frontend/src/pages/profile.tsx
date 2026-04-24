@@ -13,6 +13,8 @@ import {
   useCreatePaymentMethod,
   useDeletePaymentMethod,
   useSetDefaultPaymentMethod,
+  toTitleCase,
+  type PaymentMethod,
 } from "@/api/payment-methods";
 import { CardForm, emptyCardForm, type CardFormValue } from "@/components/payment/CardForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -804,6 +806,7 @@ function PaymentMethodsCard() {
 
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState<CardFormValue>(emptyCardForm);
+  const [cardToDelete, setCardToDelete] = useState<PaymentMethod | null>(null);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -816,7 +819,7 @@ function PaymentMethodsCard() {
         cardNumber: form.cardNumber,
         expiryDate: form.expiryDate,
         cvv: form.cvv,
-        cardholderName: form.cardholderName,
+        cardholderName: toTitleCase(form.cardholderName),
       },
       {
         onSuccess: () => {
@@ -829,6 +832,20 @@ function PaymentMethodsCard() {
         },
       }
     );
+  };
+
+  const confirmDelete = () => {
+    if (!cardToDelete) return;
+    deleteCard.mutate(cardToDelete.id, {
+      onSuccess: () => {
+        toast.success("Card removed");
+        setCardToDelete(null);
+      },
+      onError: (err: any) => {
+        toast.error(err?.data?.error || err?.message || "Failed to remove card");
+        setCardToDelete(null);
+      },
+    });
   };
 
   return (
@@ -869,7 +886,7 @@ function PaymentMethodsCard() {
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {card.cardholderName} · Exp {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}
+                    {toTitleCase(card.cardholderName)} · Exp {String(card.expMonth).padStart(2, "0")}/{String(card.expYear).slice(-2)}
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -892,14 +909,7 @@ function PaymentMethodsCard() {
                     variant="ghost"
                     size="icon"
                     className="text-destructive hover:text-destructive"
-                    onClick={() => {
-                      if (confirm("Remove this card from your account?")) {
-                        deleteCard.mutate(card.id, {
-                          onSuccess: () => toast.success("Card removed"),
-                          onError: () => toast.error("Failed to remove card"),
-                        });
-                      }
-                    }}
+                    onClick={() => setCardToDelete(card)}
                     disabled={deleteCard.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -939,6 +949,38 @@ function PaymentMethodsCard() {
           </Button>
         )}
       </CardContent>
+
+      <AlertDialog open={!!cardToDelete} onOpenChange={(open) => !open && setCardToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this card?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {cardToDelete && (
+                <>
+                  This will permanently remove{" "}
+                  <span className="font-semibold text-foreground">
+                    {cardToDelete.brand} •••• {cardToDelete.last4}
+                  </span>{" "}
+                  from your account. You can always add it back later.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteCard.isPending}>Keep card</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={deleteCard.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteCard.isPending ? "Removing..." : "Yes, remove card"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
