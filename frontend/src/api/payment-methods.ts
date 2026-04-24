@@ -56,17 +56,18 @@ export function useDeletePaymentMethod() {
 export function useSetDefaultPaymentMethod() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) =>
-      customFetch<PaymentMethod>(`/api/payment-methods/${id}/default`, { method: "PATCH" }),
-    onSuccess: (_data, id) => {
-      // Optimistic cache update so the badge moves immediately
-      qc.setQueryData<PaymentMethod[]>(paymentMethodsQueryKey, (prev) => {
-        if (!prev) return prev;
-        return prev
-          .map((c) => ({ ...c, isDefault: c.id === id }))
-          .sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
+    mutationFn: async (id: number) => {
+      await customFetch<PaymentMethod>(`/api/payment-methods/${id}/default`, {
+        method: "PATCH",
       });
-      qc.invalidateQueries({ queryKey: paymentMethodsQueryKey });
+      // Refetch the canonical list right away so caller sees fresh data
+      const fresh = await customFetch<PaymentMethod[]>("/api/payment-methods", {
+        method: "GET",
+      });
+      return fresh;
+    },
+    onSuccess: (fresh) => {
+      qc.setQueryData<PaymentMethod[]>(paymentMethodsQueryKey, fresh);
     },
   });
 }
