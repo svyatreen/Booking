@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ru as ruLocale } from "date-fns/locale";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -106,6 +108,8 @@ interface UserStats {
 }
 
 export default function Profile() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "ru" ? ruLocale : undefined;
   const { user, logout } = useAuth();
   const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
@@ -167,7 +171,7 @@ export default function Profile() {
     if ((bio || "") !== (user?.bio || "")) updates.bio = bio || null;
 
     if (Object.keys(updates).length === 0) {
-      toast.info("No changes to save.");
+      toast.info(t("profile.personal.noChanges"));
       return;
     }
 
@@ -176,10 +180,10 @@ export default function Profile() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-          toast.success("Profile updated successfully");
+          toast.success(t("profile.personal.saved"));
         },
         onError: (err: any) => {
-          const msg = err?.payload?.error || err?.message || "Failed to update profile";
+          const msg = err?.payload?.error || err?.message || t("profile.personal.saveFailed");
           toast.error(msg);
         },
       }
@@ -191,11 +195,11 @@ export default function Profile() {
     e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Please choose an image file");
+      toast.error(t("profile.avatar.imageOnly"));
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Image is too large (max 5MB)");
+      toast.error(t("profile.avatar.tooLarge"));
       return;
     }
     setAvatarUploading(true);
@@ -207,11 +211,11 @@ export default function Profile() {
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-              toast.success("Avatar updated");
+              toast.success(t("profile.avatar.updated"));
               resolve();
             },
             onError: (err: any) => {
-              const msg = err?.payload?.error || err?.message || "Failed to upload avatar";
+              const msg = err?.payload?.error || err?.message || t("profile.avatar.uploadFailed");
               toast.error(msg);
               reject(err);
             },
@@ -231,9 +235,9 @@ export default function Profile() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-          toast.success("Avatar removed");
+          toast.success(t("profile.avatar.removed"));
         },
-        onError: () => toast.error("Failed to remove avatar"),
+        onError: () => toast.error(t("profile.avatar.removeFailed")),
       }
     );
   };
@@ -241,15 +245,15 @@ export default function Profile() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error(t("profile.password.tooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("profile.password.noMatch"));
       return;
     }
     if (currentPassword === newPassword) {
-      toast.error("New password must be different from current");
+      toast.error(t("profile.password.sameAsOld"));
       return;
     }
     setPwSubmitting(true);
@@ -259,7 +263,7 @@ export default function Profile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-      toast.success("Password changed. Please sign in again.");
+      toast.success(t("profile.password.changed"));
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -272,7 +276,7 @@ export default function Profile() {
         err?.data?.error ||
         err?.payload?.error ||
         err?.message ||
-        "Failed to change password";
+        t("profile.password.failed");
       toast.error(msg);
       setPwSubmitting(false);
     }
@@ -280,7 +284,7 @@ export default function Profile() {
 
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
-      toast.error("Please enter your password to confirm");
+      toast.error(t("profile.delete.needPassword"));
       return;
     }
     setDeleteSubmitting(true);
@@ -290,14 +294,14 @@ export default function Profile() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: deletePassword }),
       });
-      toast.success("Your account has been deleted");
+      toast.success(t("profile.delete.deleted"));
       setDeleteOpen(false);
       setTimeout(() => {
         logout();
         navigate("/");
       }, 500);
     } catch (err: any) {
-      const msg = err?.payload?.error || err?.message || "Failed to delete account";
+      const msg = err?.payload?.error || err?.message || t("profile.delete.failed");
       toast.error(msg);
     } finally {
       setDeleteSubmitting(false);
@@ -339,7 +343,7 @@ export default function Profile() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={avatarUploading}
                 className="absolute bottom-0 right-0 h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:scale-105 transition-transform disabled:opacity-60"
-                aria-label="Change avatar"
+                aria-label={t("profile.avatar.change")}
               >
                 {avatarUploading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -357,7 +361,7 @@ export default function Profile() {
             </div>
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl font-serif font-bold text-foreground mb-2">
-                Hello, {user?.name}
+                {t("profile.greeting", { name: user?.name })}
               </h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-muted-foreground">
                 <div className="flex items-center gap-1.5">
@@ -373,7 +377,7 @@ export default function Profile() {
                 {user?.role === "ADMIN" && (
                   <Badge variant="outline" className="border-primary/50 text-primary">
                     <Shield className="h-3 w-3 mr-1" />
-                    Admin
+                    {t("profile.adminBadge")}
                   </Badge>
                 )}
               </div>
@@ -386,17 +390,17 @@ export default function Profile() {
                 <div className="bg-background rounded-lg p-3 border text-center">
                   <CalendarCheck className="h-4 w-4 text-primary mx-auto mb-1" />
                   <div className="text-xl font-bold">{stats?.totalBookings ?? 0}</div>
-                  <div className="text-xs text-muted-foreground">Bookings</div>
+                  <div className="text-xs text-muted-foreground">{t("profile.stat.bookings")}</div>
                 </div>
                 <div className="bg-background rounded-lg p-3 border text-center">
                   <DollarSign className="h-4 w-4 text-primary mx-auto mb-1" />
                   <div className="text-xl font-bold">{formatPrice(Number(stats?.totalSpent ?? 0), { decimals: 0 })}</div>
-                  <div className="text-xs text-muted-foreground">Spent</div>
+                  <div className="text-xs text-muted-foreground">{t("profile.stat.spent")}</div>
                 </div>
                 <div className="bg-background rounded-lg p-3 border text-center">
                   <Compass className="h-4 w-4 text-primary mx-auto mb-1" />
                   <div className="text-xl font-bold">{stats?.citiesCount ?? 0}</div>
-                  <div className="text-xs text-muted-foreground">Cities</div>
+                  <div className="text-xs text-muted-foreground">{t("profile.stat.cities")}</div>
                 </div>
               </div>
             </div>
@@ -407,8 +411,8 @@ export default function Profile() {
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs defaultValue="bookings" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md mb-8">
-            <TabsTrigger value="bookings">My Bookings</TabsTrigger>
-            <TabsTrigger value="settings">Account Settings</TabsTrigger>
+            <TabsTrigger value="bookings">{t("profile.tabs.bookings")}</TabsTrigger>
+            <TabsTrigger value="settings">{t("profile.tabs.settings")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -440,7 +444,7 @@ export default function Profile() {
                         <Badge
                           className={`absolute top-3 left-3 ${getStatusColor(booking.status)} capitalize`}
                         >
-                          {booking.status}
+                          {t(`booking.status.${booking.status}`, { defaultValue: booking.status })}
                         </Badge>
                       </div>
                       <div className="p-6 flex-1 flex flex-col">
@@ -464,7 +468,7 @@ export default function Profile() {
                               {formatPrice(Number(booking.totalPrice) * 1.1)}
                             </div>
                             <div className="text-sm text-muted-foreground capitalize">
-                              {booking.room?.type} Room
+                              {t("profile.bookings.roomTypeLine", { type: t(`room.type.${booking.room?.type}`, { defaultValue: booking.room?.type ?? "" }) })}
                             </div>
                           </div>
                         </div>
@@ -472,29 +476,31 @@ export default function Profile() {
                         <div className="grid grid-cols-2 gap-4 mb-6 bg-secondary/30 p-4 rounded-lg">
                           <div>
                             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                              Check-in
+                              {t("profile.bookings.checkIn")}
                             </div>
                             <div className="font-medium flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-primary" />
-                              {format(new Date(booking.checkIn), "MMM dd, yyyy")}
+                              {format(new Date(booking.checkIn), "MMM dd, yyyy", { locale: dateLocale })}
                             </div>
                           </div>
                           <div>
                             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                              Check-out
+                              {t("profile.bookings.checkOut")}
                             </div>
                             <div className="font-medium flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-primary" />
-                              {format(new Date(booking.checkOut), "MMM dd, yyyy")}
+                              {format(new Date(booking.checkOut), "MMM dd, yyyy", { locale: dateLocale })}
                             </div>
                           </div>
                         </div>
 
                         <div className="mt-auto flex justify-between items-center pt-4 border-t border-border/50">
                           <span className="text-sm text-muted-foreground">
-                            Booked{" "}
-                            {formatDistanceToNow(new Date(booking.createdAt), {
-                              addSuffix: true,
+                            {t("profile.bookings.bookedAgo", {
+                              ago: formatDistanceToNow(new Date(booking.createdAt), {
+                                addSuffix: true,
+                                locale: dateLocale,
+                              }),
                             })}
                           </span>
                           <Button
@@ -503,8 +509,8 @@ export default function Profile() {
                           >
                             <Link href={`/booking/${booking.id}`}>
                               {booking.status === "pending"
-                                ? "Complete Payment"
-                                : "View Details"}
+                                ? t("profile.bookings.completePayment")
+                                : t("profile.bookings.viewDetails")}
                             </Link>
                           </Button>
                         </div>
@@ -516,12 +522,12 @@ export default function Profile() {
             ) : (
               <div className="text-center py-20 bg-secondary/20 rounded-2xl border border-dashed border-border">
                 <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No bookings yet</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("profile.bookings.noneTitle")}</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                  When you book a hotel, your itinerary and details will appear here.
+                  {t("profile.bookings.noneBody")}
                 </p>
                 <Button asChild>
-                  <Link href="/hotels">Find a Hotel</Link>
+                  <Link href="/hotels">{t("profile.bookings.findHotel")}</Link>
                 </Button>
               </div>
             )}
@@ -530,9 +536,9 @@ export default function Profile() {
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Picture</CardTitle>
+                <CardTitle>{t("profile.avatar.title")}</CardTitle>
                 <CardDescription>
-                  Upload a photo from your computer. It will be cropped to a square.
+                  {t("profile.avatar.subtitle")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -556,11 +562,11 @@ export default function Profile() {
                     >
                       {avatarUploading ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("profile.avatar.uploading")}
                         </>
                       ) : (
                         <>
-                          <Camera className="mr-2 h-4 w-4" /> Upload Photo
+                          <Camera className="mr-2 h-4 w-4" /> {t("profile.avatar.upload")}
                         </>
                       )}
                     </Button>
@@ -571,7 +577,7 @@ export default function Profile() {
                         onClick={handleRemoveAvatar}
                         disabled={updateMe.isPending}
                       >
-                        Remove
+                        {t("profile.avatar.remove")}
                       </Button>
                     )}
                   </div>
@@ -581,16 +587,16 @@ export default function Profile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+                <CardTitle>{t("profile.personal.title")}</CardTitle>
                 <CardDescription>
-                  Update your name, contact details, and a short bio.
+                  {t("profile.personal.subtitle")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleUpdateProfile} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="name">{t("profile.personal.fullName")}</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -598,12 +604,12 @@ export default function Profile() {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           className="pl-10"
-                          placeholder="Your full name"
+                          placeholder={t("profile.personal.fullNamePlaceholder")}
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
+                      <Label htmlFor="email">{t("profile.personal.email")}</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -612,12 +618,12 @@ export default function Profile() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="pl-10"
-                          placeholder="your@email.com"
+                          placeholder={t("profile.personal.emailPlaceholder")}
                         />
                       </div>
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">{t("profile.personal.phone")}</Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -626,18 +632,18 @@ export default function Profile() {
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           className="pl-10"
-                          placeholder="+1 (555) 000-0000"
+                          placeholder={t("profile.personal.phonePlaceholder")}
                         />
                       </div>
                     </div>
                     <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="bio">About You</Label>
+                      <Label htmlFor="bio">{t("profile.personal.bio")}</Label>
                       <Textarea
                         id="bio"
                         value={bio}
                         maxLength={500}
                         onChange={(e) => setBio(e.target.value)}
-                        placeholder="Tell us a little about yourself and your travel preferences..."
+                        placeholder={t("profile.personal.bioPlaceholder")}
                         rows={4}
                       />
                       <div className="text-xs text-muted-foreground text-right">
@@ -646,7 +652,7 @@ export default function Profile() {
                     </div>
                   </div>
                   <Button type="submit" disabled={updateMe.isPending}>
-                    {updateMe.isPending ? "Saving..." : "Save Changes"}
+                    {updateMe.isPending ? t("profile.personal.saving") : t("profile.personal.save")}
                   </Button>
                 </form>
               </CardContent>
@@ -658,16 +664,16 @@ export default function Profile() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5" /> Change Password
+                  <Lock className="h-5 w-5" /> {t("profile.password.title")}
                 </CardTitle>
                 <CardDescription>
-                  After changing your password you will be signed out and must sign in again.
+                  {t("profile.password.subtitle")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Label htmlFor="currentPassword">{t("profile.password.current")}</Label>
                     <div className="relative">
                       <Input
                         id="currentPassword"
@@ -675,7 +681,7 @@ export default function Profile() {
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         className="pr-10"
-                        placeholder="Enter current password"
+                        placeholder={t("profile.password.currentPlaceholder")}
                       />
                       <button
                         type="button"
@@ -687,7 +693,7 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
+                    <Label htmlFor="newPassword">{t("profile.password.new")}</Label>
                     <div className="relative">
                       <Input
                         id="newPassword"
@@ -695,7 +701,7 @@ export default function Profile() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         className="pr-10"
-                        placeholder="At least 6 characters"
+                        placeholder={t("profile.password.newPlaceholder")}
                       />
                       <button
                         type="button"
@@ -707,22 +713,22 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">{t("profile.password.confirm")}</Label>
                     <Input
                       id="confirmPassword"
                       type={showNew ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Repeat new password"
+                      placeholder={t("profile.password.confirmPlaceholder")}
                     />
                   </div>
                   <Button type="submit" disabled={pwSubmitting}>
                     {pwSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("profile.password.updating")}
                       </>
                     ) : (
-                      "Update Password"
+                      t("profile.password.update")
                     )}
                   </Button>
                 </form>
@@ -732,11 +738,10 @@ export default function Profile() {
             <Card className="border-destructive/40">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
-                  <Trash2 className="h-5 w-5" /> Delete Account
+                  <Trash2 className="h-5 w-5" /> {t("profile.delete.title")}
                 </CardTitle>
                 <CardDescription>
-                  Permanently delete your account, bookings, reviews, favorites and all
-                  associated data. This action cannot be undone.
+                  {t("profile.delete.subtitle")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -744,25 +749,24 @@ export default function Profile() {
                 <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive">
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete My Account
+                      <Trash2 className="mr-2 h-4 w-4" /> {t("profile.delete.button")}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                      <AlertDialogTitle>{t("profile.delete.dialogTitle")}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will permanently remove your profile, bookings, reviews and
-                        favorites. Enter your password to confirm.
+                        {t("profile.delete.dialogBody")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="space-y-2 py-2">
-                      <Label htmlFor="deletePassword">Password</Label>
+                      <Label htmlFor="deletePassword">{t("profile.delete.passwordLabel")}</Label>
                       <Input
                         id="deletePassword"
                         type="password"
                         value={deletePassword}
                         onChange={(e) => setDeletePassword(e.target.value)}
-                        placeholder="Enter your password"
+                        placeholder={t("profile.delete.passwordPlaceholder")}
                       />
                     </div>
                     <AlertDialogFooter>
@@ -771,7 +775,7 @@ export default function Profile() {
                           setDeletePassword("");
                         }}
                       >
-                        Cancel
+                        {t("profile.delete.cancel")}
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={(e) => {
@@ -783,10 +787,10 @@ export default function Profile() {
                       >
                         {deleteSubmitting ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("profile.delete.deleting")}
                           </>
                         ) : (
-                          "Delete Account"
+                          t("profile.delete.confirm")
                         )}
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -802,6 +806,7 @@ export default function Profile() {
 }
 
 function PaymentMethodsCard() {
+  const { t } = useTranslation();
   const { data: cards = [], isLoading } = usePaymentMethods(true);
   const cardColorMap = buildCardColorMap(cards);
   const createCard = useCreatePaymentMethod();
@@ -815,7 +820,7 @@ function PaymentMethodsCard() {
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.cardholderName.trim() || !form.cardNumber || !form.expiryDate || !form.cvv) {
-      toast.error("Please fill in all card details");
+      toast.error(t("profile.payments.fillCard"));
       return;
     }
     createCard.mutate(
@@ -827,12 +832,12 @@ function PaymentMethodsCard() {
       },
       {
         onSuccess: () => {
-          toast.success("Card added");
+          toast.success(t("profile.payments.added"));
           setForm(emptyCardForm);
           setShowAdd(false);
         },
         onError: (err: any) => {
-          toast.error(err?.data?.error || err?.message || "Failed to add card");
+          toast.error(err?.data?.error || err?.message || t("profile.payments.addFailed"));
         },
       }
     );
@@ -842,11 +847,11 @@ function PaymentMethodsCard() {
     if (!cardToDelete) return;
     deleteCard.mutate(cardToDelete.id, {
       onSuccess: () => {
-        toast.success("Card removed");
+        toast.success(t("profile.payments.removed"));
         setCardToDelete(null);
       },
       onError: (err: any) => {
-        toast.error(err?.data?.error || err?.message || "Failed to remove card");
+        toast.error(err?.data?.error || err?.message || t("profile.payments.removeFailed"));
         setCardToDelete(null);
       },
     });
@@ -856,11 +861,10 @@ function PaymentMethodsCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" /> Payment Methods
+          <CreditCard className="h-5 w-5" /> {t("profile.payments.title")}
         </CardTitle>
         <CardDescription>
-          Cards you save here are kept securely on your account and can be used to pay for any future booking.
-          Only the last 4 digits and expiry are stored — never the full number or CVV.
+          {t("profile.payments.subtitle")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -868,7 +872,7 @@ function PaymentMethodsCard() {
           <div className="h-20 bg-muted animate-pulse rounded-lg" />
         ) : cards.length === 0 ? (
           <div className="text-sm text-muted-foreground border border-dashed rounded-lg p-6 text-center">
-            You don't have any saved cards yet.
+            {t("profile.payments.none")}
           </div>
         ) : (
           <div className="space-y-2">
@@ -885,7 +889,7 @@ function PaymentMethodsCard() {
                     <span>{card.brand} •••• {card.last4}</span>
                     {card.isDefault && (
                       <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-                        <Star className="h-3 w-3 mr-1 fill-current" /> Default
+                        <Star className="h-3 w-3 mr-1 fill-current" /> {t("profile.payments.default")}
                       </Badge>
                     )}
                   </div>
@@ -900,12 +904,12 @@ function PaymentMethodsCard() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setDefault.mutate(card.id, {
-                        onSuccess: () => toast.success("Default card updated"),
-                        onError: () => toast.error("Failed to set default"),
+                        onSuccess: () => toast.success(t("profile.payments.defaultUpdated")),
+                        onError: () => toast.error(t("profile.payments.setDefaultFailed")),
                       })}
                       disabled={setDefault.isPending}
                     >
-                      Set default
+                      {t("profile.payments.setDefault")}
                     </Button>
                   )}
                   <Button
@@ -927,7 +931,7 @@ function PaymentMethodsCard() {
         {showAdd ? (
           <form onSubmit={handleAdd} className="space-y-4 border rounded-lg p-4 bg-secondary/20">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold">Add a new card</h4>
+              <h4 className="font-semibold">{t("profile.payments.addTitle")}</h4>
               <Button
                 type="button"
                 variant="ghost"
@@ -940,16 +944,16 @@ function PaymentMethodsCard() {
             <CardForm value={form} onChange={setForm} />
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setForm(emptyCardForm); }}>
-                Cancel
+                {t("profile.payments.cancel")}
               </Button>
               <Button type="submit" disabled={createCard.isPending}>
-                {createCard.isPending ? "Saving..." : "Save Card"}
+                {createCard.isPending ? t("profile.payments.saving") : t("profile.payments.save")}
               </Button>
             </div>
           </form>
         ) : (
           <Button type="button" variant="outline" onClick={() => setShowAdd(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add new card
+            <Plus className="mr-2 h-4 w-4" /> {t("profile.payments.addNew")}
           </Button>
         )}
       </CardContent>
@@ -957,21 +961,13 @@ function PaymentMethodsCard() {
       <AlertDialog open={!!cardToDelete} onOpenChange={(open) => !open && setCardToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove this card?</AlertDialogTitle>
+            <AlertDialogTitle>{t("profile.payments.removeTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {cardToDelete && (
-                <>
-                  This will permanently remove{" "}
-                  <span className="font-semibold text-foreground">
-                    {cardToDelete.brand} •••• {cardToDelete.last4}
-                  </span>{" "}
-                  from your account. You can always add it back later.
-                </>
-              )}
+              {cardToDelete && t("profile.payments.removeBody", { brand: cardToDelete.brand, last4: cardToDelete.last4 })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteCard.isPending}>Keep card</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteCard.isPending}>{t("profile.payments.keep")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -980,7 +976,7 @@ function PaymentMethodsCard() {
               disabled={deleteCard.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteCard.isPending ? "Removing..." : "Yes, remove card"}
+              {deleteCard.isPending ? t("profile.payments.removing") : t("profile.payments.yesRemove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

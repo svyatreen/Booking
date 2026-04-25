@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, X } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useTranslation } from "react-i18next";
 
 const AMENITIES_LIST = [
   "WiFi", "Pool", "Indoor Pool", "Spa", "Gym", "Sauna", "Hot Tub",
@@ -99,6 +100,7 @@ function toggleArr<T>(arr: T[], value: T): T[] {
 }
 
 export default function Hotels() {
+  const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const searchString = useSearch();
   const cityFromUrl = new URLSearchParams(searchString).get("city") || "";
@@ -223,11 +225,11 @@ export default function Hotels() {
     <Layout>
       <div className="bg-secondary/30 py-8 border-b">
         <div className="container mx-auto px-4 max-w-7xl">
-          <h1 className="text-3xl font-serif font-bold text-foreground mb-4">Discover Extraordinary Stays</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-4">{t("hotels.pageTitle")}</h1>
           <div className="relative max-w-2xl">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search by city, hotel name, or landmark..."
+              placeholder={t("hotels.searchPlaceholder")}
               className="pl-10 h-12 bg-background text-base"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -242,10 +244,10 @@ export default function Hotels() {
           <div className="lg:hidden flex items-center justify-between mb-4">
             <Button variant="outline" onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}>
               <Filter className="mr-2 h-4 w-4" />
-              Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+              {t("hotels.filters")} {activeFiltersCount > 0 && `(${activeFiltersCount})`}
             </Button>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort by:</span>
+              <span className="text-sm text-muted-foreground">{t("hotels.sortBy")}</span>
               <Select
                 value={`${sortBy}-${sortOrder}`}
                 onValueChange={(val) => {
@@ -258,10 +260,10 @@ export default function Hotels() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popularity-desc">Most Popular</SelectItem>
-                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                  <SelectItem value="rating-desc">Highest Rated</SelectItem>
+                  <SelectItem value="popularity-desc">{t("hotels.sort.popular")}</SelectItem>
+                  <SelectItem value="price-asc">{t("hotels.sort.priceAsc")}</SelectItem>
+                  <SelectItem value="price-desc">{t("hotels.sort.priceDesc")}</SelectItem>
+                  <SelectItem value="rating-desc">{t("hotels.sort.ratingDesc")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -274,7 +276,7 @@ export default function Hotels() {
             <div className="lg:sticky lg:top-24 rounded-xl border bg-card">
               <div className="flex items-center justify-between px-4 py-3 border-b">
                 <div className="flex items-center gap-2">
-                  <h2 className="font-semibold">Filters</h2>
+                  <h2 className="font-semibold">{t("hotels.filters")}</h2>
                   {activeFiltersCount > 0 && (
                     <Badge variant="secondary" className="h-5 px-1.5 text-xs">
                       {activeFiltersCount}
@@ -284,7 +286,7 @@ export default function Hotels() {
                 {activeFiltersCount > 0 && (
                   <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2 text-xs">
                     <X className="h-3 w-3 mr-1" />
-                    Clear all
+                    {t("hotels.clearAll")}
                   </Button>
                 )}
               </div>
@@ -297,7 +299,7 @@ export default function Hotels() {
                 >
                   {/* Price */}
                   <AccordionItem value="price">
-                    <AccordionTrigger className="text-sm font-semibold">Price per night</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.price")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-3 px-1">
                         <Slider
@@ -321,7 +323,7 @@ export default function Hotels() {
 
                   {/* Popular facilities */}
                   <AccordionItem value="popular">
-                    <AccordionTrigger className="text-sm font-semibold">Popular facilities</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.popular")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {POPULAR_FACILITIES.map((f) => (
@@ -330,7 +332,7 @@ export default function Hotels() {
                               checked={popularFacilities.includes(f.label)}
                               onCheckedChange={() => setPopularFacilities((p) => toggleArr(p, f.label))}
                             />
-                            <span className="text-sm">{f.label}</span>
+                            <span className="text-sm">{t(`hotels.facility.${f.label}`, { defaultValue: f.label })}</span>
                           </label>
                         ))}
                       </div>
@@ -339,7 +341,7 @@ export default function Hotels() {
 
                   {/* Stars */}
                   <AccordionItem value="stars">
-                    <AccordionTrigger className="text-sm font-semibold">Hotel class</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.stars")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {[5, 4, 3, 2, 1].map((s) => (
@@ -348,7 +350,7 @@ export default function Hotels() {
                               checked={stars.includes(s)}
                               onCheckedChange={() => setStars((p) => toggleArr(p, s))}
                             />
-                            <span className="text-sm">{s} star{s > 1 ? "s" : ""}</span>
+                            <span className="text-sm">{t("hotels.stars", { count: s })}</span>
                           </label>
                         ))}
                       </div>
@@ -357,16 +359,16 @@ export default function Hotels() {
 
                   {/* Property type */}
                   <AccordionItem value="type">
-                    <AccordionTrigger className="text-sm font-semibold">Property type</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.type")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
-                        {PROPERTY_TYPES.map((t) => (
-                          <label key={t} className="flex items-center gap-2 cursor-pointer">
+                        {PROPERTY_TYPES.map((pt) => (
+                          <label key={pt} className="flex items-center gap-2 cursor-pointer">
                             <Checkbox
-                              checked={propertyTypes.includes(t)}
-                              onCheckedChange={() => setPropertyTypes((p) => toggleArr(p, t))}
+                              checked={propertyTypes.includes(pt)}
+                              onCheckedChange={() => setPropertyTypes((p) => toggleArr(p, pt))}
                             />
-                            <span className="text-sm">{t}</span>
+                            <span className="text-sm">{t(`hotels.propertyType.${pt}`, { defaultValue: pt })}</span>
                           </label>
                         ))}
                       </div>
@@ -376,7 +378,7 @@ export default function Hotels() {
                   {/* City */}
                   {availableCities.length > 0 && (
                     <AccordionItem value="city">
-                      <AccordionTrigger className="text-sm font-semibold">City / Destination</AccordionTrigger>
+                      <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.city")}</AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-2 pt-1 max-h-56 overflow-y-auto pr-1">
                           {availableCities.map((c) => (
@@ -395,7 +397,7 @@ export default function Hotels() {
 
                   {/* Distance */}
                   <AccordionItem value="distance">
-                    <AccordionTrigger className="text-sm font-semibold">Distance from center</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.distance")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {DISTANCE_OPTIONS.map((d) => (
@@ -404,7 +406,7 @@ export default function Hotels() {
                               checked={maxDistance === d.max}
                               onCheckedChange={(checked) => setMaxDistance(checked ? d.max : undefined)}
                             />
-                            <span className="text-sm">{d.label}</span>
+                            <span className="text-sm">{t(`hotels.distance.lt${d.max}`, { defaultValue: d.label })}</span>
                           </label>
                         ))}
                       </div>
@@ -413,7 +415,7 @@ export default function Hotels() {
 
                   {/* Meals */}
                   <AccordionItem value="meals">
-                    <AccordionTrigger className="text-sm font-semibold">Meals</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.meals")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {MEAL_PLANS.map((m) => (
@@ -422,7 +424,7 @@ export default function Hotels() {
                               checked={mealPlans.includes(m.label)}
                               onCheckedChange={() => setMealPlans((p) => toggleArr(p, m.label))}
                             />
-                            <span className="text-sm">{m.label}</span>
+                            <span className="text-sm">{t(`hotels.facility.${m.label}`, { defaultValue: m.label })}</span>
                           </label>
                         ))}
                       </div>
@@ -431,7 +433,7 @@ export default function Hotels() {
 
                   {/* Room features */}
                   <AccordionItem value="rooms">
-                    <AccordionTrigger className="text-sm font-semibold">Room features</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.rooms")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {ROOM_FEATURES.map((m) => (
@@ -440,7 +442,7 @@ export default function Hotels() {
                               checked={roomFeatures.includes(m.label)}
                               onCheckedChange={() => setRoomFeatures((p) => toggleArr(p, m.label))}
                             />
-                            <span className="text-sm">{m.label}</span>
+                            <span className="text-sm">{t(`hotels.facility.${m.label}`, { defaultValue: m.label })}</span>
                           </label>
                         ))}
                       </div>
@@ -449,7 +451,7 @@ export default function Hotels() {
 
                   {/* Accessibility */}
                   <AccordionItem value="access">
-                    <AccordionTrigger className="text-sm font-semibold">Accessibility</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.access")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pt-1">
                         {ACCESSIBILITY.map((m) => (
@@ -458,7 +460,7 @@ export default function Hotels() {
                               checked={accessibility.includes(m.label)}
                               onCheckedChange={() => setAccessibility((p) => toggleArr(p, m.label))}
                             />
-                            <span className="text-sm">{m.label}</span>
+                            <span className="text-sm">{t(`hotels.facility.${m.label}`, { defaultValue: m.label })}</span>
                           </label>
                         ))}
                       </div>
@@ -467,7 +469,7 @@ export default function Hotels() {
 
                   {/* All amenities */}
                   <AccordionItem value="amenities" className="border-b-0">
-                    <AccordionTrigger className="text-sm font-semibold">All amenities</AccordionTrigger>
+                    <AccordionTrigger className="text-sm font-semibold">{t("hotels.filter.amenities")}</AccordionTrigger>
                     <AccordionContent>
                       <div className="pt-1 space-y-2 max-h-64 overflow-y-auto pr-1">
                         {AMENITIES_LIST.map((a) => (
@@ -476,7 +478,7 @@ export default function Hotels() {
                               checked={selectedAmenities.includes(a)}
                               onCheckedChange={() => setSelectedAmenities((p) => toggleArr(p, a))}
                             />
-                            <span className="text-sm">{a}</span>
+                            <span className="text-sm">{t(`hotels.facility.${a}`, { defaultValue: a })}</span>
                           </label>
                         ))}
                       </div>
@@ -491,10 +493,10 @@ export default function Hotels() {
           <div className="flex-1 min-w-0">
             <div className="hidden lg:flex items-center justify-between mb-6 pb-4 border-b">
               <p className="text-muted-foreground">
-                {isLoading ? "Searching..." : `Showing ${filteredHotels.length} of ${rawHotels?.length || 0} properties`}
+                {isLoading ? t("hotels.searching") : t("hotels.showing", { count: filteredHotels.length, total: rawHotels?.length || 0 })}
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
+                <span className="text-sm text-muted-foreground">{t("hotels.sortBy")}</span>
                 <Select
                   value={`${sortBy}-${sortOrder}`}
                   onValueChange={(val) => {
@@ -507,10 +509,10 @@ export default function Hotels() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="popularity-desc">Most Popular</SelectItem>
-                    <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                    <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                    <SelectItem value="rating-desc">Highest Rated</SelectItem>
+                    <SelectItem value="popularity-desc">{t("hotels.sort.popular")}</SelectItem>
+                    <SelectItem value="price-asc">{t("hotels.sort.priceAsc")}</SelectItem>
+                    <SelectItem value="price-desc">{t("hotels.sort.priceDesc")}</SelectItem>
+                    <SelectItem value="rating-desc">{t("hotels.sort.ratingDesc")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -531,45 +533,45 @@ export default function Hotels() {
                     <button onClick={() => setCities((p) => toggleArr(p, c))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
-                {propertyTypes.map((t) => (
-                  <Badge key={`t-${t}`} variant="secondary" className="gap-1">
-                    {t}
-                    <button onClick={() => setPropertyTypes((p) => toggleArr(p, t))}><X className="h-3 w-3" /></button>
+                {propertyTypes.map((pt) => (
+                  <Badge key={`t-${pt}`} variant="secondary" className="gap-1">
+                    {t(`hotels.propertyType.${pt}`, { defaultValue: pt })}
+                    <button onClick={() => setPropertyTypes((p) => toggleArr(p, pt))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {popularFacilities.map((f) => (
                   <Badge key={`p-${f}`} variant="secondary" className="gap-1">
-                    {f}
+                    {t(`hotels.facility.${f}`, { defaultValue: f })}
                     <button onClick={() => setPopularFacilities((p) => toggleArr(p, f))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {mealPlans.map((m) => (
                   <Badge key={`m-${m}`} variant="secondary" className="gap-1">
-                    {m}
+                    {t(`hotels.facility.${m}`, { defaultValue: m })}
                     <button onClick={() => setMealPlans((p) => toggleArr(p, m))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {roomFeatures.map((m) => (
                   <Badge key={`rf-${m}`} variant="secondary" className="gap-1">
-                    {m}
+                    {t(`hotels.facility.${m}`, { defaultValue: m })}
                     <button onClick={() => setRoomFeatures((p) => toggleArr(p, m))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {accessibility.map((m) => (
                   <Badge key={`a-${m}`} variant="secondary" className="gap-1">
-                    {m}
+                    {t(`hotels.facility.${m}`, { defaultValue: m })}
                     <button onClick={() => setAccessibility((p) => toggleArr(p, m))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {selectedAmenities.map((a) => (
                   <Badge key={`am-${a}`} variant="secondary" className="gap-1">
-                    {a}
+                    {t(`hotels.facility.${a}`, { defaultValue: a })}
                     <button onClick={() => setSelectedAmenities((p) => toggleArr(p, a))}><X className="h-3 w-3" /></button>
                   </Badge>
                 ))}
                 {maxDistance != null && (
                   <Badge variant="secondary" className="gap-1">
-                    &lt;{maxDistance}km from center
+                    {t("hotels.withinKm", { km: maxDistance })}
                     <button onClick={() => setMaxDistance(undefined)}><X className="h-3 w-3" /></button>
                   </Badge>
                 )}
@@ -591,11 +593,11 @@ export default function Hotels() {
             ) : (
               <div className="text-center py-20 bg-muted/30 rounded-2xl border border-dashed border-border mt-4">
                 <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No hotels match your filters</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("hotels.noMatchTitle")}</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                  Try removing some filters or expanding your price and review ranges.
+                  {t("hotels.noMatchHelp")}
                 </p>
-                <Button onClick={clearFilters} variant="outline">Clear all filters</Button>
+                <Button onClick={clearFilters} variant="outline">{t("hotels.clearAllFilters")}</Button>
               </div>
             )}
           </div>

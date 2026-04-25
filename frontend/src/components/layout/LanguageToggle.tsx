@@ -10,24 +10,28 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Check, Search } from "lucide-react";
-import { CURRENCIES, useCurrency } from "@/contexts/CurrencyContext";
+import { Check, Search, Globe } from "lucide-react";
+import { SUPPORTED_LANGUAGES } from "@/i18n";
 import { cn } from "@/lib/utils";
 
-export function CurrencyToggle() {
-  const { t } = useTranslation();
-  const { currency, setCurrencyCode, isLoadingRates } = useCurrency();
+export function LanguageToggle() {
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
+  const currentLang =
+    SUPPORTED_LANGUAGES.find((l) => l.code === i18n.resolvedLanguage) ||
+    SUPPORTED_LANGUAGES.find((l) => l.code === i18n.language) ||
+    SUPPORTED_LANGUAGES[0];
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return CURRENCIES;
-    return CURRENCIES.filter(
-      (c) =>
-        c.code.toLowerCase().includes(q) ||
-        c.name.toLowerCase().includes(q) ||
-        c.symbol.toLowerCase().includes(q)
+    if (!q) return SUPPORTED_LANGUAGES;
+    return SUPPORTED_LANGUAGES.filter(
+      (l) =>
+        l.code.toLowerCase().includes(q) ||
+        l.name.toLowerCase().includes(q) ||
+        l.nativeName.toLowerCase().includes(q),
     );
   }, [search]);
 
@@ -44,18 +48,17 @@ export function CurrencyToggle() {
           variant="ghost"
           size="sm"
           className="h-10 gap-1.5 px-3 font-medium text-base"
-          aria-label={t("currency.ariaChange")}
+          aria-label={t("nav.changeLanguage")}
         >
-          <span className="hidden sm:inline">{currency.code}</span>
-          <span className="text-muted-foreground hidden md:inline">{currency.symbol}</span>
+          <Globe className="h-4 w-4" />
+          <span className="hidden sm:inline uppercase">{currentLang.code}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle>{t("currency.title")}</DialogTitle>
+          <DialogTitle>{t("languageDialog.title")}</DialogTitle>
           <DialogDescription>
-            {t("currency.description")}
-            {isLoadingRates ? t("currency.loading") : ""}
+            {t("languageDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="px-6 pb-3">
@@ -63,7 +66,7 @@ export function CurrencyToggle() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               autoFocus
-              placeholder={t("currency.searchPlaceholder")}
+              placeholder={t("languageDialog.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -73,38 +76,40 @@ export function CurrencyToggle() {
         <div className="max-h-[55vh] overflow-y-auto border-t">
           {filtered.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              {t("currency.noResults", { query: search })}
+              {t("languageDialog.noResults", { query: search })}
             </div>
           ) : (
             <ul className="py-1">
-              {filtered.map((c) => {
-                const selected = c.code === currency.code;
+              {filtered.map((l) => {
+                const selected = l.code === currentLang.code;
                 return (
-                  <li key={c.code}>
+                  <li key={l.code}>
                     <button
                       type="button"
                       onClick={() => {
-                        setCurrencyCode(c.code);
+                        i18n.changeLanguage(l.code);
                         setOpen(false);
                         setSearch("");
                       }}
                       className={cn(
                         "w-full flex items-center gap-3 px-6 py-3 text-left hover:bg-secondary/60 transition-colors",
-                        selected && "bg-secondary/40"
+                        selected && "bg-secondary/40",
                       )}
                     >
-                      <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm shrink-0">
-                        {c.symbol}
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
+                        {l.flag}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm flex items-center gap-2">
-                          <span className="truncate">{c.name}</span>
+                        <div className="font-medium text-sm truncate">
+                          {l.nativeName}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {c.code} · {c.symbol}
+                          {l.name} · {l.code.toUpperCase()}
                         </div>
                       </div>
-                      {selected && <Check className="h-4 w-4 text-primary shrink-0" />}
+                      {selected && (
+                        <Check className="h-4 w-4 text-primary shrink-0" />
+                      )}
                     </button>
                   </li>
                 );

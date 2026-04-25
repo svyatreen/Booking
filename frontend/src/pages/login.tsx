@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,13 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -31,16 +25,14 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { login: setAuth } = useAuth();
   const loginMutation = useLogin();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
@@ -49,11 +41,11 @@ export default function Login() {
       {
         onSuccess: (data) => {
           setAuth(data.token, data.user);
-          toast.success('Welcome back!');
+          toast.success(t('loginPage.welcomeBack'));
           setLocation('/');
         },
-        onError: (error) => {
-          toast.error(error?.error || 'Failed to login. Please try again.');
+        onError: (error: any) => {
+          toast.error(error?.error || t('loginPage.failed'));
         },
       },
     );
@@ -69,15 +61,15 @@ export default function Login() {
           </span>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-serif font-bold tracking-tight text-foreground">
-          Sign in to your account
+          {t('loginPage.heading')}
         </h2>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          Or{' '}
+          {t('loginPage.or')}{' '}
           <Link
             href="/register"
             className="font-medium text-primary hover:text-primary/80"
           >
-            create a new account
+            {t('loginPage.createAccount')}
           </Link>
         </p>
       </div>
@@ -95,7 +87,7 @@ export default function Login() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email address</FormLabel>
+                      <FormLabel>{t('loginPage.emailLabel')}</FormLabel>
                       <FormControl>
                         <Input placeholder="you@example.com" {...field} />
                       </FormControl>
@@ -109,7 +101,7 @@ export default function Login() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('loginPage.passwordLabel')}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -127,7 +119,9 @@ export default function Login() {
                   className="w-full"
                   disabled={loginMutation.isPending}
                 >
-                  {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
+                  {loginMutation.isPending
+                    ? t('loginPage.submitting')
+                    : t('loginPage.submit')}
                 </Button>
               </form>
             </Form>

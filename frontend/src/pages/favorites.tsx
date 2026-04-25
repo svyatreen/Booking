@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { useTranslation } from "react-i18next";
 import { HotelCard } from "@/components/ui/hotel-card";
 import { useGetFavorites, getGetFavoritesQueryKey } from "@/api";
 import { Building2 } from "lucide-react";
@@ -6,6 +7,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
 export default function Favorites() {
+  const { t } = useTranslation();
   const { data: favorites, isLoading } = useGetFavorites({
     query: { queryKey: getGetFavoritesQueryKey() }
   });
@@ -14,8 +16,8 @@ export default function Favorites() {
     <Layout>
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="mb-10">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Your Saved Hotels</h1>
-          <p className="text-muted-foreground text-lg">Keep track of the places you'd love to stay.</p>
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">{t('favoritesPage.headerTitle')}</h1>
+          <p className="text-muted-foreground text-lg">{t('favoritesPage.headerSubtitle')}</p>
         </div>
 
         {isLoading ? (
@@ -33,12 +35,12 @@ export default function Favorites() {
         ) : (
           <div className="text-center py-20 bg-muted/30 rounded-2xl border border-dashed border-border">
             <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No favorites yet</h3>
+            <h3 className="text-xl font-semibold mb-2">{t('favoritesPage.empty')}</h3>
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              Start exploring our collection of premium hotels and save your favorites for later.
+              {t('favoritesPage.emptyHelp')}
             </p>
             <Button asChild>
-              <Link href="/hotels">Explore Hotels</Link>
+              <Link href="/hotels">{t('favoritesPage.explore')}</Link>
             </Button>
           </div>
         )}

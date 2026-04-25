@@ -16,177 +16,63 @@ import {
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const perks = [
-  {
-    icon: Plane,
-    title: 'Travel Stipend',
-    description:
-      "€3,000 per year to stay at hotels in our collection — because you can't curate what you haven't experienced.",
-  },
-  {
-    icon: Globe2,
-    title: 'Remote-First',
-    description:
-      'Work from wherever you do your best thinking. We have team members across 12 countries and four time zones.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Growth & Learning',
-    description:
-      '€1,500 annual budget for courses, conferences, and books. We invest in your development as much as you do.',
-  },
-  {
-    icon: HeartHandshake,
-    title: 'Generous Leave',
-    description:
-      '35 days of paid leave per year — including your birthday off, no questions asked.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Equity for Everyone',
-    description:
-      'All full-time employees receive stock options. When Selora grows, everyone benefits.',
-  },
-  {
-    icon: Users,
-    title: 'Diverse & Inclusive',
-    description:
-      'Our team spans 18 nationalities and speaks 24 languages. Different perspectives make us stronger.',
-  },
+const PERK_ICONS = [
+  Plane,
+  Globe2,
+  TrendingUp,
+  HeartHandshake,
+  Sparkles,
+  Users,
 ];
 
-type Department =
-  | 'All'
-  | 'Curation'
-  | 'Engineering'
-  | 'Design'
-  | 'Marketing'
-  | 'Operations';
+const DEPT_COLORS: Record<number, string> = {
+  0: '',
+  1: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  2: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  3: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  4: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+  5: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+};
 
-const openings: {
+interface Stat {
+  value: string;
+  label: string;
+}
+interface Perk {
   title: string;
-  department: Department;
+  description: string;
+}
+interface Opening {
+  id: string;
+  title: string;
+  department: string;
   location: string;
   type: string;
   description: string;
   requirements: string[];
-}[] = [
-  {
-    title: 'Senior Hotel Curator — Asia Pacific',
-    department: 'Curation',
-    location: 'Remote (APAC)',
-    type: 'Full-time',
-    description:
-      "You'll scout, evaluate, and onboard new properties across Southeast and East Asia. Expect frequent travel, deep relationships with GMs, and the satisfaction of finding hidden gems before anyone else does.",
-    requirements: [
-      '5+ years in luxury hospitality (hotel management, travel media, or similar)',
-      'Fluency in English + one Asian language',
-      'Willingness to travel up to 50% of the time',
-      'Sharp eye for authentic luxury vs. superficial opulence',
-    ],
-  },
-  {
-    title: 'Full-Stack Engineer (React / Node)',
-    department: 'Engineering',
-    location: 'Remote (Global)',
-    type: 'Full-time',
-    description:
-      "Join the team building the platform that thousands of travellers trust to plan their most important trips. You'll work on search, personalisation, booking flows, and the internal tools our curation team relies on.",
-    requirements: [
-      '3+ years with React and TypeScript',
-      'Solid Node.js / Express experience',
-      'Comfort with PostgreSQL and RESTful API design',
-      'Appreciation for clean, maintainable code',
-    ],
-  },
-  {
-    title: 'Lead Product Designer',
-    department: 'Design',
-    location: 'Paris or Remote',
-    type: 'Full-time',
-    description:
-      "Own the end-to-end design of Selora — from first impression to post-checkout. You'll define our design language, lead user research, and work shoulder-to-shoulder with engineering to ship beautiful, functional experiences.",
-    requirements: [
-      'Portfolio showing strong interaction and visual design',
-      'Experience with Figma and modern design systems',
-      'User research and usability testing experience',
-      'Luxury or travel category experience is a bonus',
-    ],
-  },
-  {
-    title: 'Content & SEO Strategist',
-    department: 'Marketing',
-    location: 'Remote (EU)',
-    type: 'Full-time',
-    description:
-      "You'll own our editorial calendar, grow organic traffic, and ensure every word on Selora reflects our voice — authoritative, warm, and never stuffy. Our blog reaches 200k monthly readers and we want to double that.",
-    requirements: [
-      'Proven track record growing organic search traffic',
-      'Exceptional writing and editing in English',
-      'Experience with content strategy for travel or lifestyle brands',
-      'Familiarity with SEO tools (Ahrefs, Semrush, etc.)',
-    ],
-  },
-  {
-    title: 'Hotel Partnerships Manager',
-    department: 'Operations',
-    location: 'London or Remote',
-    type: 'Full-time',
-    description:
-      "You'll manage relationships with 40+ hotel partners — negotiating rates, resolving issues, and ensuring every property in our collection continues to meet our standards. You're the bridge between hoteliers and our guests.",
-    requirements: [
-      '3+ years in hotel partnerships, revenue management, or OTA relations',
-      'Strong negotiation and relationship-building skills',
-      'Data-comfortable — you can analyse booking performance and spot trends',
-      'European language skills are a strong plus',
-    ],
-  },
-  {
-    title: 'Junior Curator (Internship)',
-    department: 'Curation',
-    location: 'Paris (Hybrid)',
-    type: 'Internship · 6 months',
-    description:
-      "A rare opportunity to learn hotel curation from the inside. You'll assist senior curators, conduct desk research on new markets, write property briefs, and occasionally join inspection trips.",
-    requirements: [
-      'Passion for travel and luxury hospitality',
-      'Strong research and writing skills in English',
-      'Based in or able to relocate to Paris for the duration',
-      'Currently enrolled in a relevant degree programme',
-    ],
-  },
-];
-
-const deptColors: Record<Department, string> = {
-  All: '',
-  Curation:
-    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  Engineering:
-    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  Design:
-    'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  Marketing: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  Operations:
-    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-};
-
-const departments: Department[] = [
-  'All',
-  'Curation',
-  'Engineering',
-  'Design',
-  'Marketing',
-  'Operations',
-];
+}
 
 export default function Careers() {
-  const [activedept, setActivedept] = useState<Department>('All');
+  const { t } = useTranslation();
+
+  const stats = t('static.careers.stats', { returnObjects: true }) as Stat[];
+  const perks = t('static.careers.perks', { returnObjects: true }) as Perk[];
+  const departments = t('static.careers.departments', {
+    returnObjects: true,
+  }) as string[];
+  const openings = t('static.careers.openings', {
+    returnObjects: true,
+  }) as Opening[];
+
+  const [activedept, setActivedept] = useState<string>(departments[0]);
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = openings.filter((job) => {
-    const matchDept = activedept === 'All' || job.department === activedept;
+    const matchDept =
+      activedept === departments[0] || job.department === activedept;
     const matchSearch =
       job.title.toLowerCase().includes(search.toLowerCase()) ||
       job.department.toLowerCase().includes(search.toLowerCase()) ||
@@ -196,7 +82,7 @@ export default function Careers() {
 
   return (
     <Layout>
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="relative min-h-[440px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -209,32 +95,26 @@ export default function Careers() {
         <div className="relative z-10 container mx-auto px-4 text-center text-white max-w-3xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
             <Briefcase className="h-4 w-4 text-amber-300" />
-            Join the Team
+            {t('static.careers.heroBadge')}
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight mb-5 drop-shadow-lg">
-            Build the Future of Luxury Travel
+            {t('static.careers.heroTitle')}
           </h1>
           <p className="text-lg text-white/85 leading-relaxed max-w-2xl mx-auto">
-            We're a small, ambitious team obsessed with making exceptional hotel
-            stays accessible to every discerning traveller. Come help us do it.
+            {t('static.careers.heroSubtitle')}
           </p>
         </div>
       </section>
 
-      {/* ── Stats ─────────────────────────────────────────────────────── */}
+      {/* Stats */}
       <section className="bg-primary text-primary-foreground py-12">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '42', label: 'Team Members' },
-              { value: '18', label: 'Nationalities' },
-              { value: '12', label: 'Countries' },
-              { value: '4.9★', label: 'Glassdoor Rating' },
-            ].map(({ value, label }) => (
-              <div key={label}>
-                <p className="font-serif text-4xl font-bold">{value}</p>
+            {stats.map((s) => (
+              <div key={s.label}>
+                <p className="font-serif text-4xl font-bold">{s.value}</p>
                 <p className="text-sm font-medium opacity-75 uppercase tracking-wide mt-1">
-                  {label}
+                  {s.label}
                 </p>
               </div>
             ))}
@@ -242,43 +122,45 @@ export default function Careers() {
         </div>
       </section>
 
-      {/* ── Perks ─────────────────────────────────────────────────────── */}
+      {/* Perks */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-14">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Why Selora
+              {t('static.careers.whySelora')}
             </p>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">
-              Life at Selora
+              {t('static.careers.lifeAtSelora')}
             </h2>
             <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-lg">
-              We believe the people who build the best travel platform deserve
-              the best experience too.
+              {t('static.careers.perksLead')}
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
-            {perks.map(({ icon: Icon, title, description }) => (
-              <div
-                key={title}
-                className="bg-background border border-border/50 rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow group"
-              >
-                <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="h-5 w-5 text-primary" />
+            {perks.map((perk, i) => {
+              const Icon = PERK_ICONS[i] ?? Sparkles;
+              return (
+                <div
+                  key={perk.title}
+                  className="bg-background border border-border/50 rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow group"
+                >
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground text-base mb-2">
+                    {perk.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {perk.description}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
-                  {title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── Team Photo ────────────────────────────────────────────────── */}
+      {/* Team Photo */}
       <section className="py-0">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-3 gap-3 rounded-2xl overflow-hidden">
@@ -309,15 +191,15 @@ export default function Careers() {
         </div>
       </section>
 
-      {/* ── Open Positions ────────────────────────────────────────────── */}
+      {/* Open Positions */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-12">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Now Hiring
+              {t('static.careers.nowHiring')}
             </p>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">
-              Open Positions
+              {t('static.careers.openPositions')}
             </h2>
           </div>
 
@@ -341,7 +223,7 @@ export default function Careers() {
             <div className="relative w-full sm:w-56">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search roles…"
+                placeholder={t('static.careers.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-9 text-sm"
@@ -354,36 +236,40 @@ export default function Careers() {
             <div className="text-center py-16">
               <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-30" />
               <p className="text-muted-foreground text-lg">
-                No positions match your search.
+                {t('static.careers.noResults')}
               </p>
               <Button
                 variant="ghost"
                 className="mt-4"
                 onClick={() => {
                   setSearch('');
-                  setActivedept('All');
+                  setActivedept(departments[0]);
                 }}
               >
-                Clear filters
+                {t('static.careers.clearFilters')}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
               {filtered.map((job) => {
-                const isOpen = expanded === job.title;
+                const isOpen = expanded === job.id;
+                const deptIdx = departments.indexOf(job.department);
+                const colorClass =
+                  DEPT_COLORS[deptIdx] ??
+                  'bg-muted text-muted-foreground';
                 return (
                   <div
-                    key={job.title}
+                    key={job.id}
                     className="bg-background border border-border/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
                     <button
                       className="w-full text-left px-6 py-5 flex items-start gap-4"
-                      onClick={() => setExpanded(isOpen ? null : job.title)}
+                      onClick={() => setExpanded(isOpen ? null : job.id)}
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           <span
-                            className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${deptColors[job.department]}`}
+                            className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${colorClass}`}
                           >
                             {job.department}
                           </span>
@@ -413,7 +299,7 @@ export default function Careers() {
                           {job.description}
                         </p>
                         <h4 className="text-sm font-semibold text-foreground mb-3">
-                          What we're looking for:
+                          {t('static.careers.whatWereLookingFor')}
                         </h4>
                         <ul className="space-y-2 mb-6">
                           {job.requirements.map((req) => (
@@ -427,7 +313,7 @@ export default function Careers() {
                           ))}
                         </ul>
                         <Button className="rounded-full px-7">
-                          Apply for this role
+                          {t('static.careers.applyForRole')}
                         </Button>
                       </div>
                     )}
@@ -439,7 +325,7 @@ export default function Careers() {
         </div>
       </section>
 
-      {/* ── Open Application ──────────────────────────────────────────── */}
+      {/* Open Application */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <div className="bg-primary/5 border border-primary/20 rounded-3xl p-12">
@@ -447,15 +333,13 @@ export default function Careers() {
               <Briefcase className="h-7 w-7 text-primary" />
             </div>
             <h2 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Don't See Your Role?
+              {t('static.careers.openApplicationTitle')}
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
-              We're always interested in exceptional people, even when we don't
-              have a specific opening. Send us your CV and tell us how you'd
-              contribute to Selora.
+              {t('static.careers.openApplicationText')}
             </p>
             <Button size="lg" className="rounded-full px-10 text-base">
-              Send an Open Application
+              {t('static.careers.sendOpenApplication')}
             </Button>
           </div>
         </div>

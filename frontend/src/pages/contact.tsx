@@ -15,48 +15,26 @@ import {
   Building2,
   Globe2,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const topics = [
-  'Booking enquiry',
-  'Payment issue',
-  'Cancellation request',
-  'Existing reservation',
-  'Room upgrade request',
-  'Corporate / group booking',
-  'Partnership enquiry',
-  'Press & media',
-  'Technical issue',
-  'Other',
-];
-
-const offices = [
-  {
-    city: 'Paris',
-    flag: '🇫🇷',
-    address: '14 Rue du Faubourg Saint-Honoré, 75008 Paris, France',
-    phone: '+33 1 23 45 67 89',
-    email: 'paris@selora.com',
-    hours: 'Mon – Fri, 09:00 – 18:00 CET',
-  },
-  {
-    city: 'London',
-    flag: '🇬🇧',
-    address: '42 Berkeley Square, Mayfair, London W1J 5AW, UK',
-    phone: '+44 20 7946 0123',
-    email: 'london@selora.com',
-    hours: 'Mon – Fri, 09:00 – 18:00 GMT',
-  },
-  {
-    city: 'New York',
-    flag: '🇺🇸',
-    address: '350 Fifth Avenue, Suite 4100, New York, NY 10118, USA',
-    phone: '+1 212 555 0147',
-    email: 'newyork@selora.com',
-    hours: 'Mon – Fri, 09:00 – 18:00 EST',
-  },
-];
+interface Office {
+  city: string;
+  flag: string;
+  address: string;
+  phone: string;
+  email: string;
+  hours: string;
+}
 
 export default function Contact() {
+  const { t } = useTranslation();
+  const topics = t('static.contact.topics', {
+    returnObjects: true,
+  }) as string[];
+  const offices = t('static.contact.offices', {
+    returnObjects: true,
+  }) as Office[];
+
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -87,7 +65,7 @@ export default function Contact() {
 
   return (
     <Layout>
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="relative min-h-[360px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -100,19 +78,18 @@ export default function Contact() {
         <div className="relative z-10 container mx-auto px-4 text-center text-white max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
             <Mail className="h-4 w-4 text-amber-300" />
-            Get in Touch
+            {t('static.contact.heroBadge')}
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight mb-4 drop-shadow-lg">
-            Contact Us
+            {t('static.contact.heroTitle')}
           </h1>
           <p className="text-lg text-white/85 leading-relaxed">
-            We'd love to hear from you. Our team is here to help with anything
-            you need.
+            {t('static.contact.heroSubtitle')}
           </p>
         </div>
       </section>
 
-      {/* ── Quick Contact Cards ───────────────────────────────────────── */}
+      {/* Quick Contact Cards */}
       <section className="py-14 bg-muted/30 border-b border-border/50">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid sm:grid-cols-3 gap-5">
@@ -121,16 +98,18 @@ export default function Contact() {
               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground mb-1">Live Chat</h3>
+              <h3 className="font-semibold text-foreground mb-1">
+                {t('static.contact.liveChat')}
+              </h3>
               <div className="flex items-center justify-center gap-1.5 text-xs text-green-600 dark:text-green-400 font-medium mb-2">
                 <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                Available now
+                {t('static.contact.availableNow')}
               </div>
               <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                Instant help from a specialist.
+                {t('static.contact.liveChatDesc')}
               </p>
               <Button size="sm" className="w-full rounded-lg">
-                Start Chat
+                {t('static.contact.startChat')}
               </Button>
             </div>
 
@@ -139,16 +118,18 @@ export default function Contact() {
               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground mb-1">Email</h3>
+              <h3 className="font-semibold text-foreground mb-1">
+                {t('static.contact.email')}
+              </h3>
               <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-medium mb-2">
                 <Clock className="h-3.5 w-3.5" />
-                Reply within 4 hours
+                {t('static.contact.emailReply')}
               </div>
               <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                support@selora.com
+                {t('static.contact.emailDesc')}
               </p>
               <Button size="sm" variant="outline" className="w-full rounded-lg">
-                Send Email
+                {t('static.contact.sendEmail')}
               </Button>
             </div>
 
@@ -157,38 +138,38 @@ export default function Contact() {
               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Phone className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground mb-1">Phone</h3>
+              <h3 className="font-semibold text-foreground mb-1">
+                {t('static.contact.phone')}
+              </h3>
               <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-medium mb-2">
                 <Clock className="h-3.5 w-3.5" />
-                08:00 – 22:00 CET
+                {t('static.contact.phoneHours')}
               </div>
               <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                +33 1 23 45 67 89
+                {t('static.contact.phoneNumber')}
               </p>
               <Button size="sm" variant="outline" className="w-full rounded-lg">
-                Call Now
+                {t('static.contact.callNow')}
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Contact Form ──────────────────────────────────────────────── */}
+      {/* Contact Form */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid lg:grid-cols-5 gap-14 items-start">
             {/* Left — Info */}
             <div className="lg:col-span-2">
               <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-                Write to Us
+                {t('static.contact.formEyebrow')}
               </p>
               <h2 className="font-serif text-4xl font-bold text-foreground mb-5 leading-tight">
-                Send Us a Message
+                {t('static.contact.formTitle')}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-8">
-                Fill in the form and our team will get back to you within a few
-                hours. For urgent booking matters, we recommend calling or using
-                live chat.
+                {t('static.contact.formIntro')}
               </p>
 
               <div className="space-y-5">
@@ -198,12 +179,10 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Response Time
+                      {t('static.contact.responseTime')}
                     </p>
-                    <p className="text-muted-foreground text-sm">
-                      General enquiries: within 4 hours
-                      <br />
-                      Urgent bookings: within 1 hour
+                    <p className="text-muted-foreground text-sm whitespace-pre-line">
+                      {t('static.contact.responseTimeText')}
                     </p>
                   </div>
                 </div>
@@ -213,10 +192,10 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Languages
+                      {t('static.contact.languages')}
                     </p>
                     <p className="text-muted-foreground text-sm">
-                      English, French, Spanish, Italian, German, Japanese
+                      {t('static.contact.languagesText')}
                     </p>
                   </div>
                 </div>
@@ -226,17 +205,17 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">
-                      Before You Write
+                      {t('static.contact.beforeYouWrite')}
                     </p>
                     <p className="text-muted-foreground text-sm">
-                      Check our{' '}
+                      {t('static.contact.beforeYouWriteText')}{' '}
                       <Link
                         href="/help-center"
                         className="text-primary hover:underline"
                       >
-                        Help Center
+                        {t('static.contact.helpCenter')}
                       </Link>{' '}
-                      — most answers are already there.
+                      {t('static.contact.beforeYouWriteText2')}
                     </p>
                   </div>
                 </div>
@@ -249,18 +228,18 @@ export default function Contact() {
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-10 text-center">
                   <CheckCircle2 className="h-14 w-14 text-green-500 mx-auto mb-5" />
                   <h3 className="font-serif text-2xl font-bold text-foreground mb-3">
-                    Message Sent!
+                    {t('static.contact.messageSent')}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    Thank you,{' '}
+                    {t('static.contact.thankYou')}{' '}
                     <span className="font-medium text-foreground">
                       {form.name}
                     </span>
-                    . We've received your message and will reply to{' '}
+                    . {t('static.contact.receivedAndReply')}{' '}
                     <span className="font-medium text-foreground">
                       {form.email}
                     </span>{' '}
-                    within 4 hours.
+                    {t('static.contact.withinHours')}
                   </p>
                   <Button
                     variant="outline"
@@ -276,7 +255,7 @@ export default function Contact() {
                       });
                     }}
                   >
-                    Send Another Message
+                    {t('static.contact.sendAnother')}
                   </Button>
                 </div>
               ) : (
@@ -287,20 +266,21 @@ export default function Contact() {
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Full Name <span className="text-destructive">*</span>
+                        {t('static.contact.fullName')}{' '}
+                        <span className="text-destructive">*</span>
                       </label>
                       <Input
                         name="name"
                         value={form.name}
                         onChange={handleChange}
-                        placeholder="Isabelle Fontaine"
+                        placeholder={t('static.contact.fullNamePlaceholder')}
                         required
                         className="h-11"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Email Address{' '}
+                        {t('static.contact.emailAddress')}{' '}
                         <span className="text-destructive">*</span>
                       </label>
                       <Input
@@ -308,7 +288,7 @@ export default function Contact() {
                         type="email"
                         value={form.email}
                         onChange={handleChange}
-                        placeholder="you@example.com"
+                        placeholder={t('static.contact.emailPlaceholder')}
                         required
                         className="h-11"
                       />
@@ -318,7 +298,7 @@ export default function Contact() {
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Topic
+                        {t('static.contact.topic')}
                       </label>
                       <select
                         name="topic"
@@ -326,27 +306,29 @@ export default function Contact() {
                         onChange={handleChange}
                         className="w-full h-11 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                       >
-                        <option value="">Select a topic…</option>
-                        {topics.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
+                        <option value="">
+                          {t('static.contact.selectTopic')}
+                        </option>
+                        {topics.map((topic) => (
+                          <option key={topic} value={topic}>
+                            {topic}
                           </option>
                         ))}
                       </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Booking Reference
+                        {t('static.contact.bookingRef')}
                         <span className="text-muted-foreground font-normal">
                           {' '}
-                          (optional)
+                          {t('static.contact.optional')}
                         </span>
                       </label>
                       <Input
                         name="bookingRef"
                         value={form.bookingRef}
                         onChange={handleChange}
-                        placeholder="e.g. SL-2025-00412"
+                        placeholder={t('static.contact.bookingRefPlaceholder')}
                         className="h-11"
                       />
                     </div>
@@ -354,14 +336,15 @@ export default function Contact() {
 
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">
-                      Message <span className="text-destructive">*</span>
+                      {t('static.contact.message')}{' '}
+                      <span className="text-destructive">*</span>
                     </label>
                     <textarea
                       name="message"
                       value={form.message}
                       onChange={handleChange}
                       rows={6}
-                      placeholder="Tell us how we can help…"
+                      placeholder={t('static.contact.messagePlaceholder')}
                       required
                       className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                     />
@@ -369,8 +352,9 @@ export default function Contact() {
 
                   <div className="flex items-center justify-between pt-1">
                     <p className="text-xs text-muted-foreground">
-                      Fields marked <span className="text-destructive">*</span>{' '}
-                      are required.
+                      {t('static.contact.requiredHint')}{' '}
+                      <span className="text-destructive">*</span>{' '}
+                      {t('static.contact.requiredHintEnd')}
                     </p>
                     <Button
                       type="submit"
@@ -380,12 +364,12 @@ export default function Contact() {
                       {loading ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
-                          Sending…
+                          {t('static.contact.sending')}
                         </span>
                       ) : (
                         <span className="flex items-center gap-2">
                           <Send className="h-4 w-4" />
-                          Send Message
+                          {t('static.contact.sendMessage')}
                         </span>
                       )}
                     </Button>
@@ -397,50 +381,51 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ── Offices ───────────────────────────────────────────────────── */}
+      {/* Offices */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-12">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Our Offices
+              {t('static.contact.officesEyebrow')}
             </p>
             <h2 className="font-serif text-4xl font-bold text-foreground">
-              Find Us Around the World
+              {t('static.contact.officesTitle')}
             </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6">
-            {offices.map(({ city, flag, address, phone, email, hours }) => (
+            {offices.map((office) => (
               <div
-                key={city}
+                key={office.city}
                 className="bg-background border border-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">{flag}</span>
+                  <span className="text-2xl">{office.flag}</span>
                   <div>
                     <p className="font-semibold text-foreground text-base">
-                      {city}
+                      {office.city}
                     </p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Building2 className="h-3 w-3" /> Regional Office
+                      <Building2 className="h-3 w-3" />{' '}
+                      {t('static.contact.regionalOffice')}
                     </p>
                   </div>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex gap-2.5 items-start text-muted-foreground">
                     <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary/60" />
-                    <span className="leading-relaxed">{address}</span>
+                    <span className="leading-relaxed">{office.address}</span>
                   </div>
                   <div className="flex gap-2.5 items-center text-muted-foreground">
                     <Phone className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span>{phone}</span>
+                    <span>{office.phone}</span>
                   </div>
                   <div className="flex gap-2.5 items-center text-muted-foreground">
                     <Mail className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span>{email}</span>
+                    <span>{office.email}</span>
                   </div>
                   <div className="flex gap-2.5 items-center text-muted-foreground">
                     <Clock className="h-4 w-4 flex-shrink-0 text-primary/60" />
-                    <span>{hours}</span>
+                    <span>{office.hours}</span>
                   </div>
                 </div>
               </div>

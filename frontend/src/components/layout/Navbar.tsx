@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Building2, User, LogOut, Menu, Sun, Moon } from 'lucide-react';
 import { CurrencyToggle } from '@/components/layout/CurrencyToggle';
+import { LanguageToggle } from '@/components/layout/LanguageToggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +17,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function Navbar() {
+  const { t } = useTranslation();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [, setLocation] = useLocation();
@@ -30,14 +33,14 @@ export function Navbar() {
         href="/hotels"
         className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Find a Hotel
+        {t('nav.findHotel')}
       </Link>
       {isAuthenticated && (
         <Link
           href="/favorites"
           className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          Favorites
+          {t('nav.favorites')}
         </Link>
       )}
       {isAdmin && (
@@ -45,7 +48,7 @@ export function Navbar() {
           href="/admin"
           className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          Admin Dashboard
+          {t('nav.adminDashboard')}
         </Link>
       )}
     </>
@@ -67,12 +70,13 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <LanguageToggle />
           <CurrencyToggle />
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            aria-label="Toggle theme"
+            aria-label={t('nav.toggleTheme')}
             className="h-10 w-10"
           >
             {theme === 'dark' ? (
@@ -86,11 +90,11 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               <Link href="/login">
                 <Button variant="ghost" size="lg" className="hidden sm:inline-flex text-base">
-                  Log in
+                  {t('nav.login')}
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="lg" className="text-base">Sign up</Button>
+                <Button size="lg" className="text-base">{t('nav.signup')}</Button>
               </Link>
             </div>
           ) : (
@@ -129,7 +133,7 @@ export function Navbar() {
                     className="flex w-full cursor-pointer items-center"
                   >
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile & Bookings</span>
+                    <span>{t('nav.profile')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -138,7 +142,7 @@ export function Navbar() {
                   onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>{t('nav.logout')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -148,7 +152,7 @@ export function Navbar() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden h-10 w-10">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle menu</span>
+                <span className="sr-only">{t('nav.toggleMenu')}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="flex flex-col gap-4 pt-10">

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Cookie, X } from 'lucide-react';
 
 const SESSION_KEY = 'selora_cookie_consent_session';
 
 export function CookieConsent() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -40,26 +42,24 @@ export function CookieConsent() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                  Мы используем файлы cookie
+                  {t('cookieConsent.title')}
                 </h3>
                 <button
                   onClick={declineNonEssential}
                   className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                  aria-label="Закрыть"
+                  aria-label={t('cookieConsent.close')}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                Мы используем файлы cookie для улучшения вашего опыта, анализа
-                трафика и персонализации контента. Нажимая «Принять все», вы
-                соглашаетесь на использование всех файлов cookie.{' '}
+                {t('cookieConsent.body')}{' '}
                 <Link
                   href="/cookie-policy"
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  Политика использования cookie
+                  {t('cookieConsent.policyLink')}
                 </Link>
               </p>
 
@@ -69,7 +69,7 @@ export function CookieConsent() {
                   size="sm"
                   className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5"
                 >
-                  Принять все
+                  {t('cookieConsent.acceptAll')}
                 </Button>
                 <Button
                   onClick={declineNonEssential}
@@ -77,7 +77,7 @@ export function CookieConsent() {
                   size="sm"
                   className="rounded-lg px-5 border-gray-300 dark:border-gray-600"
                 >
-                  Только необходимые
+                  {t('cookieConsent.essentialOnly')}
                 </Button>
               </div>
             </div>

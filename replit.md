@@ -58,3 +58,13 @@ backend/           Express API server
 ## Seeded Data
 
 33 hotels across Paris, London, Tokyo, Bali, Barcelona, New York, Zurich, Singapore, and more — with 132 rooms total.
+
+## Internationalization (i18n)
+
+- **Library**: `react-i18next` with browser language detector
+- **Languages**: English (`en`) and Russian (`ru`) only — Russian is the primary user language
+- **Persistence**: Selected language stored in `localStorage` under key `selora_language`
+- **Switcher**: Globe icon in header (`Layout`) toggles language with full app reactivity
+- **Locale files**: `frontend/src/i18n/locales/{en,ru}.json`
+- **Static page keys**: All static/policy pages use the `static.*` namespace (about, blog, press, careers, contact, help, cancellation, safety, privacy, terms, cookies, accessibility)
+- **Pattern for arrays of objects**: Translatable text lives in JSON; icons, colors, and href URLs live as external TS arrays in the page (e.g. `SECTION_ICONS`, `COMMITMENT_ICONS`, `RELATED_META`) and are zipped by index with the i18n array. This keeps the JSON portable and avoids serializing React components.

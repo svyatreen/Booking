@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "@/api/custom-fetch";
 import { useAuth } from "@/contexts/AuthContext";
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type RecentHotel = {
   id: number;
@@ -28,6 +29,7 @@ type RecentHotel = {
 };
 
 export default function Home() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const { isAuthenticated } = useAuth();
@@ -66,10 +68,10 @@ export default function Home() {
 
         <div className="relative z-10 container mx-auto px-4 text-center text-white mt-20">
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 drop-shadow-lg">
-            Find Your Next Perfect Stay
+            {t("home.heroTitle")}
           </h1>
           <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-12 drop-shadow">
-            Experience exceptional comfort and service at our handpicked selection of premium hotels worldwide.
+            {t("home.heroSubtitle")}
           </p>
 
           <div className="max-w-4xl mx-auto bg-background/95 backdrop-blur-md p-4 rounded-2xl shadow-xl">
@@ -77,7 +79,7 @@ export default function Home() {
               <div className="flex-1 relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input 
-                  placeholder="Where are you going?" 
+                  placeholder={t("home.searchPlaceholder")}
                   className="pl-10 h-12 bg-white text-neutral-900 placeholder:text-neutral-500 text-lg border-none"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -85,7 +87,7 @@ export default function Home() {
               </div>
               <Button type="submit" size="lg" className="h-12 px-8 text-lg w-full md:w-auto">
                 <Search className="mr-2 h-5 w-5" />
-                Search
+                {t("common.search")}
               </Button>
             </form>
           </div>
@@ -100,23 +102,23 @@ export default function Home() {
               <p className="text-4xl font-serif font-bold text-primary mb-2">
                 {stats?.totalHotels || "100+"}
               </p>
-              <p className="text-sm text-muted-foreground uppercase tracking-wider">Premium Hotels</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">{t("home.stats.premiumHotels")}</p>
             </div>
             <div className="px-4">
               <p className="text-4xl font-serif font-bold text-primary mb-2">
                 {stats?.featuredCities?.length || "50+"}
               </p>
-              <p className="text-sm text-muted-foreground uppercase tracking-wider">Cities</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">{t("home.stats.cities")}</p>
             </div>
             <div className="px-4">
               <p className="text-4xl font-serif font-bold text-primary mb-2">
                 {stats?.totalBookings || "10K+"}
               </p>
-              <p className="text-sm text-muted-foreground uppercase tracking-wider">Happy Guests</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">{t("home.stats.happyGuests")}</p>
             </div>
             <div className="px-4">
               <p className="text-4xl font-serif font-bold text-primary mb-2">4.8</p>
-              <p className="text-sm text-muted-foreground uppercase tracking-wider">Average Rating</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">{t("home.stats.averageRating")}</p>
             </div>
           </div>
         </div>
@@ -130,11 +132,11 @@ export default function Home() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="h-6 w-6 text-primary" />
-                  <h2 className="text-3xl font-serif font-bold">Recently Viewed</h2>
+                  <h2 className="text-3xl font-serif font-bold">{t("home.recentlyViewed")}</h2>
                 </div>
-                <p className="text-muted-foreground">Pick up where you left off</p>
+                <p className="text-muted-foreground">{t("home.recentlyViewedSubtitle")}</p>
               </div>
-              <Button variant="outline" onClick={() => setLocation('/hotels')}>Browse all hotels</Button>
+              <Button variant="outline" onClick={() => setLocation('/hotels')}>{t("home.browseAll")}</Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -151,10 +153,10 @@ export default function Home() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl font-serif font-bold mb-3">Popular Destinations</h2>
-              <p className="text-muted-foreground">Explore hotels in our most sought-after cities</p>
+              <h2 className="text-3xl font-serif font-bold mb-3">{t("home.popularDestinations")}</h2>
+              <p className="text-muted-foreground">{t("home.popularSubtitle")}</p>
             </div>
-            <Button variant="outline" onClick={() => setLocation('/hotels')}>View all cities</Button>
+            <Button variant="outline" onClick={() => setLocation('/hotels')}>{t("home.viewAllCities")}</Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -180,7 +182,7 @@ export default function Home() {
                   <div className="absolute bottom-5 left-5 text-white">
                     <h3 className="text-xl font-serif font-bold mb-0.5">{city}</h3>
                     {count !== undefined && (
-                      <p className="text-white/80 text-sm">{count} properties</p>
+                      <p className="text-white/80 text-sm">{t("home.properties", { count })}</p>
                     )}
                   </div>
                 </div>
@@ -195,10 +197,10 @@ export default function Home() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl font-serif font-bold mb-3">Top Rated Properties</h2>
-              <p className="text-muted-foreground">Discover our guests' favorite accommodations</p>
+              <h2 className="text-3xl font-serif font-bold mb-3">{t("home.topRated")}</h2>
+              <p className="text-muted-foreground">{t("home.topRatedSubtitle")}</p>
             </div>
-            <Button variant="outline" onClick={() => setLocation('/hotels')}>View all hotels</Button>
+            <Button variant="outline" onClick={() => setLocation('/hotels')}>{t("home.viewAllHotels")}</Button>
           </div>
 
           {isLoading ? (

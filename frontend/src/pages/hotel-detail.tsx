@@ -19,8 +19,12 @@ import { toast } from "sonner";
 import { HotelCard } from "@/components/ui/hotel-card";
 import { Textarea } from "@/components/ui/textarea";
 import { customFetch } from "@/api/custom-fetch";
+import { useTranslation } from "react-i18next";
+import { ru as ruLocale } from "date-fns/locale";
 
 export default function HotelDetail() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "ru" ? ruLocale : undefined;
   const { id } = useParams<{ id: string }>();
   const hotelId = parseInt(id, 10);
   const [, setLocation] = useLocation();
@@ -80,13 +84,13 @@ export default function HotelDetail() {
 
   const handleBookRoom = (roomId: number) => {
     if (!isAuthenticated) {
-      toast.error("Please log in to book a room");
+      toast.error(t("hotel.loginToBook"));
       setLocation("/login");
       return;
     }
 
     if (!date.from || !date.to) {
-      toast.error("Please select check-in and check-out dates");
+      toast.error(t("hotel.selectDatesError"));
       return;
     }
 
@@ -100,8 +104,8 @@ export default function HotelDetail() {
       onSuccess: (booking) => {
         setLocation(`/booking/${booking.id}`);
       },
-      onError: (error) => {
-        toast.error(error?.error || "Failed to initiate booking");
+      onError: (error: any) => {
+        toast.error(error?.error || t("hotel.bookFailed"));
       }
     });
   };
@@ -118,14 +122,14 @@ export default function HotelDetail() {
       }
     }, {
       onSuccess: () => {
-        toast.success("Review submitted successfully");
+        toast.success(t("hotel.reviewSuccess"));
         setReviewComment("");
         setReviewRating(5);
         queryClient.invalidateQueries({ queryKey: getGetHotelReviewsQueryKey(hotelId) });
         queryClient.invalidateQueries({ queryKey: getGetHotelQueryKey(hotelId) });
       },
       onError: (error: any) => {
-        toast.error(error?.error || "Failed to submit review");
+        toast.error(error?.error || t("hotel.reviewFailed"));
       }
     });
   };
@@ -165,12 +169,12 @@ export default function HotelDetail() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
-                  {hotel.stars} Star Hotel
+                  {t("hotel.starHotel", { count: hotel.stars, defaultValue: `${hotel.stars} Star Hotel` })}
                 </Badge>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-primary text-primary" />
                   <span className="font-medium">{hotel.rating.toFixed(1)}</span>
-                  <span className="text-muted-foreground text-sm">({hotel.reviewCount} reviews)</span>
+                  <span className="text-muted-foreground text-sm">({t("hotel.reviewsCount", { count: hotel.reviewCount, defaultValue: `${hotel.reviewCount} reviews` })})</span>
                 </div>
               </div>
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-3 tracking-tight">
@@ -183,10 +187,10 @@ export default function HotelDetail() {
             </div>
             
             <div className="flex flex-col items-end gap-3 bg-secondary/50 p-4 rounded-xl border border-border">
-              <div className="text-sm text-muted-foreground">Starting from</div>
+              <div className="text-sm text-muted-foreground">{t("hotel.startingFrom")}</div>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-bold">{formatPrice(hotel.minPrice || 0)}</span>
-                <span className="text-muted-foreground">/night</span>
+                <span className="text-muted-foreground">{t("hotel.perNight")}</span>
               </div>
             </div>
           </div>
@@ -224,7 +228,7 @@ export default function HotelDetail() {
             <div className="lg:col-span-2 space-y-12">
               {/* About */}
               <section>
-                <h2 className="text-2xl font-serif font-bold mb-4">About this property</h2>
+                <h2 className="text-2xl font-serif font-bold mb-4">{t("hotel.aboutProperty")}</h2>
                 <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-line">
                   {hotel.description}
                 </p>
@@ -232,14 +236,14 @@ export default function HotelDetail() {
 
               {/* Amenities */}
               <section>
-                <h2 className="text-2xl font-serif font-bold mb-6">Popular Amenities</h2>
+                <h2 className="text-2xl font-serif font-bold mb-6">{t("hotel.popularAmenities")}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
                   {hotel.amenities.map(amenity => (
                     <div key={amenity} className="flex items-center gap-3 text-foreground">
                       <div className="bg-secondary p-2 rounded-lg text-primary">
                         {getAmenityIcon(amenity)}
                       </div>
-                      <span className="font-medium">{amenity}</span>
+                      <span className="font-medium">{t(`hotels.facility.${amenity}`, { defaultValue: amenity })}</span>
                     </div>
                   ))}
                 </div>
@@ -248,7 +252,7 @@ export default function HotelDetail() {
               {/* Reviews */}
               <section className="pt-8 border-t">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-serif font-bold">Guest Reviews</h2>
+                  <h2 className="text-2xl font-serif font-bold">{t("hotel.guestReviews")}</h2>
                   <div className="flex items-center gap-2">
                     <Star className="h-6 w-6 fill-primary text-primary" />
                     <span className="text-2xl font-bold">{hotel.rating.toFixed(1)}</span>
@@ -266,7 +270,7 @@ export default function HotelDetail() {
                           </div>
                           <div>
                             <p className="font-semibold">{review.user?.name}</p>
-                            <p className="text-xs text-muted-foreground">{format(new Date(review.createdAt), 'MMM d, yyyy')}</p>
+                            <p className="text-xs text-muted-foreground">{format(new Date(review.createdAt), 'MMM d, yyyy', { locale: dateLocale })}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 bg-background px-2 py-1 rounded-md shadow-sm">
@@ -278,13 +282,13 @@ export default function HotelDetail() {
                     </div>
                   ))}
                   {!reviews?.length && (
-                    <p className="text-muted-foreground italic">No reviews yet. Be the first to leave a review!</p>
+                    <p className="text-muted-foreground italic">{t("hotel.noReviews")}</p>
                   )}
                 </div>
 
                 {isAuthenticated && (
                   <div className="mt-8 bg-secondary/20 p-6 rounded-xl border border-border">
-                    <h3 className="font-semibold mb-4">Leave a review</h3>
+                    <h3 className="font-semibold mb-4">{t("hotel.leaveReview")}</h3>
                     <form onSubmit={handleSubmitReview} className="space-y-4">
                       <div>
                         <div className="flex items-center gap-2 mb-2">
@@ -300,14 +304,14 @@ export default function HotelDetail() {
                           ))}
                         </div>
                         <Textarea 
-                          placeholder="Tell us about your experience..." 
+                          placeholder={t("hotel.reviewPlaceholder")}
                           value={reviewComment}
                           onChange={e => setReviewComment(e.target.value)}
                           className="resize-none"
                         />
                       </div>
                       <Button type="submit" disabled={createReview.isPending || !reviewComment.trim()}>
-                        {createReview.isPending ? "Submitting..." : "Submit Review"}
+                        {createReview.isPending ? t("hotel.submitting") : t("hotel.submitReview")}
                       </Button>
                     </form>
                   </div>
@@ -318,16 +322,16 @@ export default function HotelDetail() {
             {/* Sidebar / Room Picker */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 bg-card border border-border rounded-2xl shadow-lg p-6 flex flex-col gap-6">
-                <h3 className="text-xl font-serif font-bold">Select Dates</h3>
+                <h3 className="text-xl font-serif font-bold">{t("hotel.selectDates")}</h3>
                 
                 <div className="grid gap-2">
                   <DateRangePopover value={date} onChange={setDate} />
                 </div>
 
                 <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-xl font-serif font-bold">Available Rooms</h3>
+                  <h3 className="text-xl font-serif font-bold">{t("hotel.availableRooms")}</h3>
                   {nights > 0 ? (
-                    <p className="text-sm text-muted-foreground mb-4">Prices shown for {nights} night{nights > 1 ? 's' : ''}</p>
+                    <p className="text-sm text-muted-foreground mb-4">{t("hotel.pricesShownFor", { count: nights })}</p>
                   ) : null}
 
                   {isLoadingRooms ? (
@@ -354,16 +358,16 @@ export default function HotelDetail() {
                           )}
                           <div className="p-4">
                             <div className="flex justify-between items-start mb-2">
-                              <h4 className="font-bold capitalize text-base">{room.type} Room</h4>
+                              <h4 className="font-bold capitalize text-base">{t(`room.type.${room.type}`, { defaultValue: t("hotel.roomTypeName", { type: room.type }) })}</h4>
                               <div className="text-right">
                                 <span className="font-bold">{formatPrice(room.price * (nights || 1))}</span>
-                                {nights > 0 && <div className="text-xs text-muted-foreground">{formatPrice(room.price)}/night</div>}
+                                {nights > 0 && <div className="text-xs text-muted-foreground">{t("hotel.perNightSmall", { price: formatPrice(room.price) })}</div>}
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                               <Users className="h-3.5 w-3.5" />
-                              <span>Up to {room.guests} guests</span>
+                              <span>{t("hotel.guestsUpTo", { count: room.guests })}</span>
                             </div>
                             
                             <p className="text-xs text-muted-foreground mb-4 line-clamp-2">
@@ -373,7 +377,7 @@ export default function HotelDetail() {
                             <div className="flex gap-2">
                               <Link href={`/hotels/${hotelId}/rooms/${room.id}`} className="flex-1">
                                 <Button variant="outline" className="w-full text-xs h-8 gap-1">
-                                  View Details <ArrowRight className="h-3 w-3" />
+                                  {t("hotel.viewDetails")} <ArrowRight className="h-3 w-3" />
                                 </Button>
                               </Link>
                               <Button 
@@ -382,7 +386,7 @@ export default function HotelDetail() {
                                 onClick={() => handleBookRoom(room.id)}
                                 variant={room.isAvailable ? "default" : "secondary"}
                               >
-                                {createBooking.isPending ? "…" : room.isAvailable ? "Book Now" : "Unavailable"}
+                                {createBooking.isPending ? "…" : room.isAvailable ? t("hotel.bookNow") : t("hotel.unavailable")}
                               </Button>
                             </div>
                           </div>
@@ -390,7 +394,7 @@ export default function HotelDetail() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground text-center py-4">No rooms available for selected dates.</p>
+                    <p className="text-muted-foreground text-center py-4">{t("hotel.noRooms")}</p>
                   )}
                 </div>
               </div>
@@ -403,7 +407,7 @@ export default function HotelDetail() {
       {similarHotels && similarHotels.length > 0 && (
         <section className="py-16 bg-secondary/30 border-t">
           <div className="container mx-auto px-4 max-w-7xl">
-            <h2 className="text-3xl font-serif font-bold mb-8">You might also like</h2>
+            <h2 className="text-3xl font-serif font-bold mb-8">{t("hotel.youMightAlsoLike")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {similarHotels.slice(0, 3).map((similarHotel) => (
                 <HotelCard key={similarHotel.id} hotel={similarHotel} />

@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
+import { ru as ruLocale } from "date-fns/locale";
 import { Layout } from "@/components/layout/Layout";
 import { useGetBooking, getGetBookingQueryKey, usePayBooking, useCancelBooking } from "@/api";
 import { usePaymentMethods } from "@/api/payment-methods";
@@ -27,6 +29,8 @@ export default function BookingDetail() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { formatPrice } = useCurrency();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "ru" ? ruLocale : undefined;
 
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cardForm, setCardForm] = useState<CardFormValue>(emptyCardForm);
@@ -59,7 +63,7 @@ export default function BookingDetail() {
       payload = { savedCardId: parseInt(selectedCardId, 10) };
     } else {
       if (!cardForm.cardholderName.trim() || !cardForm.cardNumber || !cardForm.expiryDate || !cardForm.cvv) {
-        toast.error("Please fill in all card details");
+        toast.error(t("booking.fillCardDetails"));
         return;
       }
       payload = {
@@ -73,13 +77,13 @@ export default function BookingDetail() {
 
     payBooking.mutate({ id: bookingId, data: payload as any }, {
       onSuccess: () => {
-        toast.success("Payment successful! Your booking is confirmed.");
+        toast.success(t("booking.paymentSuccess"));
         queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
         queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
         setCardForm(emptyCardForm);
       },
       onError: (error: any) => {
-        toast.error(error?.data?.error || error?.message || "Payment failed. Please try again.");
+        toast.error(error?.data?.error || error?.message || t("booking.paymentFailed"));
       }
     });
   };
@@ -87,12 +91,12 @@ export default function BookingDetail() {
   const handleCancel = () => {
     cancelBooking.mutate({ id: bookingId }, {
       onSuccess: () => {
-        toast.success("Booking cancelled successfully.");
+        toast.success(t("booking.cancelSuccess"));
         queryClient.invalidateQueries({ queryKey: getGetBookingQueryKey(bookingId) });
         setCancelOpen(false);
       },
       onError: (error: any) => {
-        toast.error(error?.data?.error || error?.message || "Failed to cancel booking.");
+        toast.error(error?.data?.error || error?.message || t("booking.cancelFailed"));
         setCancelOpen(false);
       }
     });
@@ -129,11 +133,11 @@ export default function BookingDetail() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-serif font-bold text-foreground flex items-center gap-3">
-                Booking Reference #{booking.id}
+                {t("booking.reference", { id: booking.id })}
                 {booking.status === 'confirmed' && <CheckCircle2 className="h-6 w-6 text-green-500" />}
                 {booking.status === 'cancelled' && <AlertCircle className="h-6 w-6 text-red-500" />}
               </h1>
-              <p className="text-muted-foreground mt-1">Created on {format(new Date(booking.createdAt), 'MMMM dd, yyyy')}</p>
+              <p className="text-muted-foreground mt-1">{t("booking.createdOn", { date: format(new Date(booking.createdAt), 'MMMM dd, yyyy', { locale: dateLocale }) })}</p>
             </div>
             <Badge
               variant="outline"
@@ -143,7 +147,7 @@ export default function BookingDetail() {
                 'bg-yellow-500/10 text-yellow-700 border-yellow-200'
               }`}
             >
-              {booking.status}
+              {t(`booking.status.${booking.status}`, { defaultValue: booking.status })}
             </Badge>
           </div>
         </div>
@@ -172,26 +176,26 @@ export default function BookingDetail() {
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground uppercase tracking-wider">Check In</span>
-                    <p className="font-semibold">{format(new Date(booking.checkIn), 'MMM dd, yyyy')}</p>
-                    <p className="text-sm text-muted-foreground">After 3:00 PM</p>
+                    <span className="text-sm text-muted-foreground uppercase tracking-wider">{t("booking.checkIn")}</span>
+                    <p className="font-semibold">{format(new Date(booking.checkIn), 'MMM dd, yyyy', { locale: dateLocale })}</p>
+                    <p className="text-sm text-muted-foreground">{t("booking.after3pm")}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground uppercase tracking-wider">Check Out</span>
-                    <p className="font-semibold">{format(new Date(booking.checkOut), 'MMM dd, yyyy')}</p>
-                    <p className="text-sm text-muted-foreground">Before 11:00 AM</p>
+                    <span className="text-sm text-muted-foreground uppercase tracking-wider">{t("booking.checkOut")}</span>
+                    <p className="font-semibold">{format(new Date(booking.checkOut), 'MMM dd, yyyy', { locale: dateLocale })}</p>
+                    <p className="text-sm text-muted-foreground">{t("booking.before11am")}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground uppercase tracking-wider">Room Type</span>
-                    <p className="font-semibold capitalize">{booking.room?.type}</p>
+                    <span className="text-sm text-muted-foreground uppercase tracking-wider">{t("booking.roomType")}</span>
+                    <p className="font-semibold">{booking.room?.type ? t(`room.type.${booking.room.type}`, { defaultValue: booking.room.type }) : ""}</p>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Users className="mr-1 h-3.5 w-3.5" />
-                      Up to {booking.room?.guests} guests
+                      {t("room.upToGuests", { count: booking.room?.guests || 0 })}
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground uppercase tracking-wider">Duration</span>
-                    <p className="font-semibold">{nights} Night{nights !== 1 ? 's' : ''}</p>
+                    <span className="text-sm text-muted-foreground uppercase tracking-wider">{t("booking.duration")}</span>
+                    <p className="font-semibold">{t("booking.nights", { count: nights })}</p>
                   </div>
                 </div>
               </CardContent>
@@ -199,22 +203,22 @@ export default function BookingDetail() {
 
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Cancellation Policy</CardTitle>
+                <CardTitle>{t("booking.cancellationPolicy")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
-                  Free cancellation up to 48 hours before check-in. Cancellations made within 48 hours of check-in will be subject to a one-night fee. If you fail to check in (no-show), you will be charged the full amount of your reservation.
+                  {t("booking.cancellationFull")}
                 </p>
                 {booking.status === 'confirmed' && (
                   <p className="mt-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
-                    This booking has already been paid. Cancellation may result in a partial or full refund depending on the timing.
+                    {t("booking.alreadyPaid")}
                   </p>
                 )}
               </CardContent>
               {(booking.status === 'pending' || booking.status === 'confirmed') && (
                 <CardFooter className="bg-secondary/30 border-t flex justify-end p-4">
                   <Button variant="destructive" onClick={() => setCancelOpen(true)} disabled={cancelBooking.isPending}>
-                    {cancelBooking.isPending ? "Cancelling..." : "Cancel Reservation"}
+                    {cancelBooking.isPending ? t("booking.cancelling") : t("booking.cancelReservation")}
                   </Button>
                 </CardFooter>
               )}
@@ -225,7 +229,7 @@ export default function BookingDetail() {
           <div className="lg:col-span-1 space-y-6">
             <Card className="border-border/50 bg-secondary/10">
               <CardHeader>
-                <CardTitle>Price Summary</CardTitle>
+                <CardTitle>{t("booking.priceSummary")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {(() => {
@@ -235,16 +239,16 @@ export default function BookingDetail() {
                   return (
                     <>
                       <div className="flex justify-between text-muted-foreground">
-                        <span>{formatPrice(pricePerNight)} × {nights} night{nights !== 1 ? 's' : ''}</span>
+                        <span>{t("room.perNights", { count: nights, price: formatPrice(pricePerNight) })}</span>
                         <span>{formatPrice(subtotal)}</span>
                       </div>
                       <div className="flex justify-between text-muted-foreground">
-                        <span>Taxes & Fees (10%)</span>
+                        <span>{t("booking.taxesFees")}</span>
                         <span>{formatPrice(taxes)}</span>
                       </div>
                       <Separator className="my-2" />
                       <div className="flex justify-between font-bold text-lg text-foreground">
-                        <span>Total</span>
+                        <span>{t("booking.total")}</span>
                         <span className="text-primary">{formatPrice(grandTotal)}</span>
                       </div>
                     </>
@@ -258,15 +262,15 @@ export default function BookingDetail() {
                 <CardHeader className="bg-primary/5 border-b pb-4">
                   <CardTitle className="flex items-center gap-2">
                     <CreditCard className="h-5 w-5 text-primary" />
-                    Payment Details
+                    {t("booking.paymentDetails")}
                   </CardTitle>
-                  <CardDescription>Complete your booking securely</CardDescription>
+                  <CardDescription>{t("booking.paymentSubtitle")}</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                   <form onSubmit={handlePayment} className="space-y-4">
                     {savedCards.length > 0 && (
                       <div className="space-y-2">
-                        <div className="text-sm font-medium text-foreground">Choose payment method</div>
+                        <div className="text-sm font-medium text-foreground">{t("booking.choosePayment")}</div>
                         <div className="space-y-2">
                           {savedCards.map((card) => {
                             const isSel = selectedCardId === String(card.id);
@@ -287,7 +291,7 @@ export default function BookingDetail() {
                                     {card.brand} •••• {card.last4}
                                     {card.isDefault && (
                                       <span className="ml-2 text-[10px] font-medium text-primary uppercase tracking-wider">
-                                        Default
+                                        {t("booking.default")}
                                       </span>
                                     )}
                                   </div>
@@ -310,7 +314,7 @@ export default function BookingDetail() {
                             <div className="h-9 w-12 rounded-md bg-secondary flex items-center justify-center">
                               <Plus className="h-4 w-4 text-muted-foreground" />
                             </div>
-                            <div className="flex-1 text-sm font-medium">Use new card</div>
+                            <div className="flex-1 text-sm font-medium">{t("booking.useNewCard")}</div>
                             {selectedCardId === NEW_CARD && <Check className="h-4 w-4 text-primary" />}
                           </button>
                         </div>
@@ -324,7 +328,7 @@ export default function BookingDetail() {
                     )}
 
                     <Button type="submit" className="w-full mt-4 h-12 text-lg" disabled={payBooking.isPending}>
-                      {payBooking.isPending ? "Processing..." : `Pay ${formatPrice(grandTotal)}`}
+                      {payBooking.isPending ? t("booking.processing") : t("booking.pay", { amount: formatPrice(grandTotal) })}
                     </Button>
                   </form>
                 </CardContent>
@@ -336,10 +340,10 @@ export default function BookingDetail() {
                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                   <CheckCircle2 className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Payment Completed</h3>
-                <p className="text-sm opacity-90 mb-4">A confirmation email has been sent to your inbox with your itinerary.</p>
+                <h3 className="font-bold text-lg mb-2">{t("booking.completed")}</h3>
+                <p className="text-sm opacity-90 mb-4">{t("booking.completedBody")}</p>
                 <Button variant="outline" className="w-full bg-white border-green-200 text-green-700 hover:bg-green-50" asChild>
-                  <Link href="/profile">View All Bookings</Link>
+                  <Link href="/profile">{t("booking.viewAllBookings")}</Link>
                 </Button>
               </div>
             )}
@@ -350,20 +354,20 @@ export default function BookingDetail() {
       <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel this reservation?</AlertDialogTitle>
+            <AlertDialogTitle>{t("booking.cancelDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. Your booking will be cancelled and the room will be released.
-              {booking.status === 'confirmed' && ' Refund eligibility depends on our cancellation policy.'}
+              {t("booking.cancelDialog.body")}
+              {booking.status === 'confirmed' && t("booking.cancelDialog.refundNote")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelBooking.isPending}>Keep reservation</AlertDialogCancel>
+            <AlertDialogCancel disabled={cancelBooking.isPending}>{t("booking.cancelDialog.keep")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => { e.preventDefault(); handleCancel(); }}
               disabled={cancelBooking.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {cancelBooking.isPending ? "Cancelling..." : "Yes, cancel booking"}
+              {cancelBooking.isPending ? t("booking.cancelling") : t("booking.cancelDialog.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,17 +26,14 @@ const registerSchema = z.object({
 });
 
 export default function Register() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { login: setAuth } = useAuth();
   const registerMutation = useRegister();
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-    },
+    defaultValues: { name: '', email: '', password: '' },
   });
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
@@ -45,13 +42,11 @@ export default function Register() {
       {
         onSuccess: (data) => {
           setAuth(data.token, data.user);
-          toast.success('Account created successfully!');
+          toast.success(t('registerPage.success'));
           setLocation('/');
         },
-        onError: (error) => {
-          toast.error(
-            error?.error || 'Failed to create account. Please try again.',
-          );
+        onError: (error: any) => {
+          toast.error(error?.error || t('registerPage.failed'));
         },
       },
     );
@@ -67,15 +62,15 @@ export default function Register() {
           </span>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-serif font-bold tracking-tight text-foreground">
-          Create an account
+          {t('registerPage.heading')}
         </h2>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          Or{' '}
+          {t('registerPage.or')}{' '}
           <Link
             href="/login"
             className="font-medium text-primary hover:text-primary/80"
           >
-            sign in to your existing account
+            {t('registerPage.signInExisting')}
           </Link>
         </p>
       </div>
@@ -93,9 +88,9 @@ export default function Register() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel>{t('registerPage.nameLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder={t('registerPage.namePlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -107,7 +102,7 @@ export default function Register() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email address</FormLabel>
+                      <FormLabel>{t('registerPage.emailLabel')}</FormLabel>
                       <FormControl>
                         <Input placeholder="you@example.com" {...field} />
                       </FormControl>
@@ -121,7 +116,7 @@ export default function Register() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('registerPage.passwordLabel')}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -140,8 +135,8 @@ export default function Register() {
                   disabled={registerMutation.isPending}
                 >
                   {registerMutation.isPending
-                    ? 'Creating account...'
-                    : 'Sign up'}
+                    ? t('registerPage.submitting')
+                    : t('registerPage.submit')}
                 </Button>
               </form>
             </Form>

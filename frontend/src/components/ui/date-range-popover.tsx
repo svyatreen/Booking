@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format, differenceInCalendarDays, startOfDay } from "date-fns";
+import { ru as ruLocale } from "date-fns/locale";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,9 +20,12 @@ interface DateRangePopoverProps {
 }
 
 export function DateRangePopover({ value, onChange, triggerClassName, align = "center", pricePerNight }: DateRangePopoverProps) {
+  const { t, i18n } = useTranslation();
   const { formatPrice } = useCurrency();
   const [open, setOpen] = useState(false);
   const nights = value.from && value.to ? differenceInCalendarDays(value.to, value.from) : 0;
+
+  const dateLocale = i18n.resolvedLanguage === "ru" ? ruLocale : undefined;
 
   const handleSelect = (v: any) => {
     if (!v) {
@@ -47,12 +52,12 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
           <CalendarDays className="mr-2 h-5 w-5 text-primary" />
           {value.from ? (
             value.to ? (
-              <>{format(value.from, "LLL dd, y")} — {format(value.to, "LLL dd, y")}</>
+              <>{format(value.from, "LLL dd, y", { locale: dateLocale })} — {format(value.to, "LLL dd, y", { locale: dateLocale })}</>
             ) : (
-              format(value.from, "LLL dd, y")
+              format(value.from, "LLL dd, y", { locale: dateLocale })
             )
           ) : (
-            <span>Pick your dates</span>
+            <span>{t("dateRange.pickDates")}</span>
           )}
         </Button>
       </PopoverTrigger>
@@ -60,28 +65,28 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
         <div className="p-7 border-b bg-secondary/30 rounded-t-2xl">
           <div className="grid grid-cols-2 gap-6 text-sm">
             <div>
-              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Check-in</p>
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">{t("dateRange.checkIn")}</p>
               <p className="font-semibold text-lg">
-                {value.from ? format(value.from, "EEE, LLL dd") : "Select date"}
+                {value.from ? format(value.from, "EEE, LLL dd", { locale: dateLocale }) : t("dateRange.selectDate")}
               </p>
             </div>
             <div>
-              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Check-out</p>
+              <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">{t("dateRange.checkOut")}</p>
               <p className="font-semibold text-lg">
-                {value.to ? format(value.to, "EEE, LLL dd") : "Select date"}
+                {value.to ? format(value.to, "EEE, LLL dd", { locale: dateLocale }) : t("dateRange.selectDate")}
               </p>
             </div>
             {nights > 0 && (
               <>
                 <div>
-                  <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Nights</p>
+                  <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">{t("dateRange.nights")}</p>
                   <p className="font-semibold text-lg">
-                    {nights} night{nights > 1 ? "s" : ""} stay
+                    {t("dateRange.stay", { count: nights })}
                   </p>
                 </div>
                 {typeof pricePerNight === "number" && (
                   <div>
-                    <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">Total</p>
+                    <p className="text-muted-foreground uppercase text-xs tracking-wider mb-2">{t("dateRange.total")}</p>
                     <p className="font-semibold text-lg">
                       {formatPrice(pricePerNight * nights)}
                     </p>
@@ -100,6 +105,7 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
           numberOfMonths={2}
           showOutsideDays={false}
           weekStartsOn={1}
+          locale={dateLocale}
           disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
           className="[--cell-size:4rem] p-7 gap-6 [&_.rdp-months]:gap-10 [&_button]:text-base [&_.rdp-weekday]:text-sm [&_.rdp-caption_label]:text-lg [&_.rdp-month_caption]:mb-2"
         />
@@ -109,10 +115,10 @@ export function DateRangePopover({ value, onChange, triggerClassName, align = "c
             size="lg"
             onClick={() => onChange({ from: undefined, to: undefined })}
           >
-            Clear
+            {t("dateRange.clear")}
           </Button>
           <Button size="lg" onClick={() => setOpen(false)}>
-            Close
+            {t("dateRange.close")}
           </Button>
         </div>
       </PopoverContent>

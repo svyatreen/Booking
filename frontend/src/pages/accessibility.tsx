@@ -19,170 +19,38 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const lastUpdated = '1 April 2026';
-
-const commitments = [
-  {
-    icon: Eye,
-    title: 'Visual Accessibility',
-    description:
-      'All text meets WCAG AA contrast ratios. Images include descriptive alt text. Our interface supports zoom up to 200% without loss of content or functionality. We offer a light and dark theme to reduce eye strain.',
-    features: [
-      'AA contrast compliance',
-      'Full alt text coverage',
-      '200% zoom support',
-      'Dark mode',
-    ],
-  },
-  {
-    icon: Ear,
-    title: 'Auditory Accessibility',
-    description:
-      'Our platform does not rely solely on audio cues to convey information. All interactive feedback is also provided visually. We do not use auto-playing audio or video with sound.',
-    features: [
-      'No audio-only content',
-      'Visual alert alternatives',
-      'No auto-play sound',
-      'Captions on video',
-    ],
-  },
-  {
-    icon: MousePointer2,
-    title: 'Motor & Navigation',
-    description:
-      'Every feature on Selora is accessible via keyboard navigation alone. We use logical tab order, visible focus indicators, and skip-to-content links. All interactive elements have a minimum touch target of 44×44px.',
-    features: [
-      'Full keyboard navigation',
-      'Visible focus rings',
-      'Skip-to-content links',
-      '44px touch targets',
-    ],
-  },
-  {
-    icon: Brain,
-    title: 'Cognitive Accessibility',
-    description:
-      'We write in plain, clear language and keep our interfaces uncluttered. Important actions are labelled explicitly, and we avoid time-limited interactions wherever possible. Error messages are descriptive and suggest next steps.',
-    features: [
-      'Plain language',
-      'Descriptive error messages',
-      'No time pressure',
-      'Consistent layouts',
-    ],
-  },
-  {
-    icon: Monitor,
-    title: 'Screen Reader Support',
-    description:
-      'Selora is built with semantic HTML and ARIA landmarks so screen readers can interpret every page correctly. We test regularly with NVDA, JAWS, and VoiceOver across desktop and mobile platforms.',
-    features: [
-      'Semantic HTML',
-      'ARIA landmarks',
-      'NVDA & JAWS tested',
-      'VoiceOver compatible',
-    ],
-  },
-  {
-    icon: Smartphone,
-    title: 'Mobile Accessibility',
-    description:
-      'Our responsive design works seamlessly with iOS VoiceOver and Android TalkBack. Text reflows correctly at any screen size, and gestures are never the only way to perform an action.',
-    features: [
-      'iOS VoiceOver ready',
-      'Android TalkBack ready',
-      'Responsive text reflow',
-      'No gesture-only actions',
-    ],
-  },
+const STAT_ICONS = [CheckCircle2, Monitor, Globe2, HeartHandshake];
+const COMMITMENT_ICONS = [Eye, Ear, MousePointer2, Brain, Monitor, Smartphone];
+const STANDARD_STATUS_COLORS = [
+  'text-primary bg-primary/10',
+  'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
+  'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
+  'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
 ];
 
-const standards = [
-  {
-    code: 'WCAG 2.1 AA',
-    title: 'Web Content Accessibility Guidelines',
-    description:
-      'Our target conformance level for all new and updated features on the Selora platform.',
-    status: 'Target standard',
-    statusColor: 'text-primary bg-primary/10',
-  },
-  {
-    code: 'EN 301 549',
-    title: 'European Accessibility Standard',
-    description:
-      'The EU standard for ICT accessibility, aligned with WCAG 2.1 AA, applicable to our EU user base.',
-    status: 'Compliant',
-    statusColor:
-      'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
-  },
-  {
-    code: 'ARIA 1.2',
-    title: 'Accessible Rich Internet Applications',
-    description:
-      'We follow WAI-ARIA 1.2 specifications for dynamic and interactive content throughout the platform.',
-    status: 'Implemented',
-    statusColor:
-      'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
-  },
-  {
-    code: 'Section 508',
-    title: 'US Federal Accessibility Standard',
-    description:
-      'We align with Section 508 requirements to serve users in the United States, including those using assistive technologies.',
-    status: 'Aligned',
-    statusColor:
-      'text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
-  },
-];
+interface Stat {
+  value: string;
+  label: string;
+}
+interface Commitment {
+  title: string;
+  description: string;
+  features: string[];
+}
+interface Standard {
+  code: string;
+  title: string;
+  description: string;
+  status: string;
+}
+interface Faq {
+  question: string;
+  answer: string;
+}
 
-const hotelFeatures = [
-  { icon: CheckCircle2, text: 'Wheelchair-accessible rooms and public areas' },
-  { icon: CheckCircle2, text: 'Step-free entrances and lifts' },
-  {
-    icon: CheckCircle2,
-    text: 'Accessible bathrooms with grab rails and roll-in showers',
-  },
-  { icon: CheckCircle2, text: 'Visual fire alarms and vibrating bed alerts' },
-  { icon: CheckCircle2, text: 'Text telephone (TTY) or video relay services' },
-  { icon: CheckCircle2, text: 'Hearing loops in public areas' },
-  { icon: CheckCircle2, text: 'Braille or large-print menus on request' },
-  { icon: CheckCircle2, text: 'Service animal-friendly rooms and facilities' },
-];
-
-const faqs = [
-  {
-    question: 'How do I request an accessible room?',
-    answer:
-      'On any hotel detail page, look for the Accessibility section which lists all available features. When booking, use the Special Requests field to specify your needs. You can also contact our support team directly and we will liaise with the hotel on your behalf.',
-  },
-  {
-    question: 'Are accessibility features verified?',
-    answer:
-      'Yes. Our curation team verifies accessibility information provided by hotel partners. We visit properties in person and cross-reference claims with guest reviews. Where information is unverified, we clearly mark it as self-reported by the hotel.',
-  },
-  {
-    question: 'What if I need help completing a booking?',
-    answer:
-      'Our support team is available by phone, live chat, and email to assist with any booking. If you need help navigating the website, we can complete the booking on your behalf — just call us or start a live chat session.',
-  },
-  {
-    question: 'Can I filter hotels by accessibility features?',
-    answer:
-      'Yes. On the Hotels search page, use the Accessibility filter to show only properties with specific features — such as wheelchair access, accessible bathrooms, or hearing loops. We are continually expanding our filter options.',
-  },
-  {
-    question: 'How do you test for accessibility?',
-    answer:
-      'We conduct accessibility testing at multiple stages: automated scans using axe-core during development, manual keyboard and screen reader testing with NVDA, JAWS, and VoiceOver, and periodic third-party accessibility audits. Issues are logged and prioritised in our bug tracking system.',
-  },
-  {
-    question: 'How do I report an accessibility problem?',
-    answer:
-      'Please use our Accessibility Feedback form below or email us at accessibility@selora.com. Include a description of the issue, the page or feature affected, and the assistive technology you are using. We aim to acknowledge all reports within 2 business days and resolve critical issues within 14 days.',
-  },
-];
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
+function FaqItem({ question, answer }: Faq) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border border-border/50 rounded-xl overflow-hidden">
@@ -207,9 +75,26 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export default function AccessibilityPage() {
+  const { t } = useTranslation();
+  const stats = t('static.accessibility.stats', {
+    returnObjects: true,
+  }) as Stat[];
+  const commitments = t('static.accessibility.commitments', {
+    returnObjects: true,
+  }) as Commitment[];
+  const standards = t('static.accessibility.standards', {
+    returnObjects: true,
+  }) as Standard[];
+  const hotelFeatures = t('static.accessibility.hotelFeatures', {
+    returnObjects: true,
+  }) as string[];
+  const faqs = t('static.accessibility.faqs', {
+    returnObjects: true,
+  }) as Faq[];
+
   return (
     <Layout>
-      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="relative min-h-[380px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -222,77 +107,61 @@ export default function AccessibilityPage() {
         <div className="relative z-10 container mx-auto px-4 text-center text-white max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
             <Accessibility className="h-4 w-4 text-amber-300" />
-            Inclusive by Design
+            {t('static.accessibility.heroBadge')}
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold tracking-tight mb-4 drop-shadow-lg">
-            Accessibility
+            {t('static.accessibility.heroTitle')}
           </h1>
           <p className="text-lg text-white/85 leading-relaxed">
-            Selora is built for everyone. We are committed to making luxury
-            travel accessible to all guests, regardless of disability or
-            assistive technology.
+            {t('static.accessibility.heroSubtitle')}
           </p>
         </div>
       </section>
 
-      {/* ── Stats Bar ─────────────────────────────────────────────────── */}
+      {/* Stats Bar */}
       <section className="bg-primary text-primary-foreground py-12">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              {
-                icon: CheckCircle2,
-                value: 'WCAG 2.1',
-                label: 'Target AA level',
-              },
-              { icon: Monitor, value: '3', label: 'Screen readers tested' },
-              { icon: Globe2, value: 'EN 301 549', label: 'EU compliant' },
-              {
-                icon: HeartHandshake,
-                value: '24/7',
-                label: 'Accessibility support',
-              },
-            ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex flex-col items-center gap-2">
-                <Icon className="h-7 w-7 opacity-80" />
-                <span className="font-serif text-2xl md:text-3xl font-bold">
-                  {value}
-                </span>
-                <span className="text-sm font-medium opacity-75 uppercase tracking-wide">
-                  {label}
-                </span>
-              </div>
-            ))}
+            {stats.map((s, i) => {
+              const Icon = STAT_ICONS[i] ?? CheckCircle2;
+              return (
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <Icon className="h-7 w-7 opacity-80" />
+                  <span className="font-serif text-2xl md:text-3xl font-bold">
+                    {s.value}
+                  </span>
+                  <span className="text-sm font-medium opacity-75 uppercase tracking-wide">
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── Commitment Statement ──────────────────────────────────────── */}
+      {/* Commitment Statement */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-14 items-center">
             <div>
               <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-                Our Commitment
+                {t('static.accessibility.commitmentEyebrow')}
               </p>
               <h2 className="font-serif text-4xl font-bold text-foreground mb-5 leading-tight">
-                Travel without barriers
+                {t('static.accessibility.commitmentTitle')}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-5">
-                We believe that exceptional hospitality must be inclusive.
-                Whether you use a screen reader, navigate by keyboard, or
-                require specific hotel facilities, Selora is designed to support
-                you at every step.
+                {t('static.accessibility.commitmentP1')}
               </p>
               <p className="text-muted-foreground leading-relaxed mb-5">
-                Our engineering and design teams follow accessibility best
-                practices from the first line of code. We test with real
-                assistive technologies and consult with users who have
-                disabilities to continuously improve our platform.
+                {t('static.accessibility.commitmentP2')}
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                This is an ongoing commitment. If something doesn't work for
-                you, we want to know — and we will fix it.
+                {t('static.accessibility.commitmentP3')}
               </p>
             </div>
             <div className="relative">
@@ -307,11 +176,11 @@ export default function AccessibilityPage() {
                     <HeartHandshake className="h-4 w-4 text-primary" />
                   </div>
                   <span className="font-semibold text-foreground text-sm">
-                    Inclusive First
+                    {t('static.accessibility.inclusiveFirstTitle')}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Accessibility is a core design principle, not an afterthought.
+                  {t('static.accessibility.inclusiveFirstText')}
                 </p>
               </div>
             </div>
@@ -319,72 +188,75 @@ export default function AccessibilityPage() {
         </div>
       </section>
 
-      {/* ── Accessibility Features ────────────────────────────────────── */}
+      {/* Accessibility Features */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-14">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Platform Features
+              {t('static.accessibility.featuresEyebrow')}
             </p>
             <h2 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Built for Every User
+              {t('static.accessibility.featuresTitle')}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              From screen readers to motor navigation, we've addressed the full
-              spectrum of accessibility needs across our platform.
+              {t('static.accessibility.featuresSubtitle')}
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {commitments.map(({ icon: Icon, title, description, features }) => (
-              <div
-                key={title}
-                className="bg-background rounded-2xl p-7 border border-border/50 shadow-sm hover:shadow-md transition-shadow group flex flex-col"
-              >
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="h-6 w-6 text-primary" />
+            {commitments.map((c, i) => {
+              const Icon = COMMITMENT_ICONS[i] ?? Eye;
+              return (
+                <div
+                  key={c.title}
+                  className="bg-background rounded-2xl p-7 border border-border/50 shadow-sm hover:shadow-md transition-shadow group flex flex-col"
+                >
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground text-base mb-2">
+                    {c.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-1">
+                    {c.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {c.features.map((f) => (
+                      <span
+                        key={f}
+                        className="text-xs bg-primary/8 text-primary font-medium px-2.5 py-1 rounded-full border border-primary/15"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
-                  {title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-1">
-                  {description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {features.map((f) => (
-                    <span
-                      key={f}
-                      className="text-xs bg-primary/8 text-primary font-medium px-2.5 py-1 rounded-full border border-primary/15"
-                    >
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── Standards ─────────────────────────────────────────────────── */}
+      {/* Standards */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-14">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Compliance
+              {t('static.accessibility.standardsEyebrow')}
             </p>
             <h2 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Standards We Follow
+              {t('static.accessibility.standardsTitle')}
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Our accessibility programme is benchmarked against the leading
-              international standards for digital inclusion.
+              {t('static.accessibility.standardsSubtitle')}
             </p>
           </div>
           <div className="grid sm:grid-cols-2 gap-5">
-            {standards.map(
-              ({ code, title, description, status, statusColor }) => (
+            {standards.map((s, i) => {
+              const statusColor =
+                STANDARD_STATUS_COLORS[i] ?? STANDARD_STATUS_COLORS[0];
+              return (
                 <div
-                  key={code}
+                  key={s.code}
                   className="bg-muted/30 border border-border/50 rounded-2xl p-6 flex gap-5 items-start hover:shadow-sm transition-shadow"
                 >
                   <div className="h-12 w-12 rounded-xl bg-background border border-border/50 flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -392,64 +264,60 @@ export default function AccessibilityPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="font-bold text-foreground">{code}</span>
+                      <span className="font-bold text-foreground">
+                        {s.code}
+                      </span>
                       <span
                         className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${statusColor}`}
                       >
-                        {status}
+                        {s.status}
                       </span>
                     </div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">
-                      {title}
+                      {s.title}
                     </p>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      {description}
+                      {s.description}
                     </p>
                   </div>
                 </div>
-              ),
-            )}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── Hotel Accessibility ───────────────────────────────────────── */}
+      {/* Hotel Accessibility */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-14 items-start">
             <div>
               <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-                At Our Hotels
+                {t('static.accessibility.hotelsEyebrow')}
               </p>
               <h2 className="font-serif text-4xl font-bold text-foreground mb-5 leading-tight">
-                Accessible Hotel Features
+                {t('static.accessibility.hotelsTitle')}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-5">
-                We clearly display accessibility information for every hotel in
-                our collection. Our hotel partners provide details on physical
-                access, assistive facilities, and services available to guests
-                with disabilities.
+                {t('static.accessibility.hotelsP1')}
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                If you need specific facilities not listed on a hotel page,
-                contact our support team before booking. We will verify directly
-                with the property and help you find the best match for your
-                needs.
+                {t('static.accessibility.hotelsP2')}
               </p>
               <Link href="/contact">
                 <Button className="rounded-full px-8 gap-2">
                   <MessageCircle className="h-4 w-4" />
-                  Talk to Our Team
+                  {t('static.accessibility.talkToTeam')}
                 </Button>
               </Link>
             </div>
             <div className="space-y-3">
-              {hotelFeatures.map(({ icon: Icon, text }) => (
+              {hotelFeatures.map((text) => (
                 <div
                   key={text}
                   className="flex items-center gap-3 bg-background border border-border/50 rounded-xl px-5 py-3.5 shadow-sm"
                 >
-                  <Icon className="h-4 w-4 text-primary flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
                   <span className="text-sm text-foreground">{text}</span>
                 </div>
               ))}
@@ -458,7 +326,7 @@ export default function AccessibilityPage() {
         </div>
       </section>
 
-      {/* ── Known Limitations ─────────────────────────────────────────── */}
+      {/* Known Limitations */}
       <section className="py-16 bg-background border-y border-border/50">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-8">
@@ -468,20 +336,13 @@ export default function AccessibilityPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground text-lg mb-2">
-                  Known Limitations & Ongoing Work
+                  {t('static.accessibility.limitationsTitle')}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                  While we strive for full WCAG 2.1 AA compliance, some areas of
-                  our platform are still being improved. Current known
-                  limitations include: complex date picker interactions on older
-                  browsers, some third-party map embeds that lack full screen
-                  reader support, and certain PDF documents that are not yet
-                  screen-reader optimised.
+                  {t('static.accessibility.limitationsP1')}
                 </p>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  We are actively working to resolve all known issues. If you
-                  encounter a barrier not listed here, please report it — your
-                  feedback directly shapes our accessibility roadmap.
+                  {t('static.accessibility.limitationsP2')}
                 </p>
               </div>
             </div>
@@ -489,19 +350,18 @@ export default function AccessibilityPage() {
         </div>
       </section>
 
-      {/* ── FAQs ──────────────────────────────────────────────────────── */}
+      {/* FAQs */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="text-center mb-14">
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-3">
-              Common Questions
+              {t('static.accessibility.faqEyebrow')}
             </p>
             <h2 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Accessibility FAQs
+              {t('static.accessibility.faqTitle')}
             </h2>
             <p className="text-muted-foreground">
-              Answers to the most common questions about accessibility on our
-              platform and at our hotels.
+              {t('static.accessibility.faqSubtitle')}
             </p>
           </div>
           <div className="space-y-3">
@@ -512,7 +372,7 @@ export default function AccessibilityPage() {
         </div>
       </section>
 
-      {/* ── Feedback ──────────────────────────────────────────────────── */}
+      {/* Feedback */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="bg-background border border-border/50 rounded-2xl p-8 md:p-10 shadow-sm">
@@ -523,29 +383,27 @@ export default function AccessibilityPage() {
                     <MessageCircle className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="font-semibold text-foreground text-lg">
-                    Send Us Accessibility Feedback
+                    {t('static.accessibility.feedbackTitle')}
                   </h3>
                 </div>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                  Found a barrier? Something that doesn't work with your
-                  assistive technology? We want to hear from you. Every report
-                  helps us build a more inclusive platform for everyone.
+                  {t('static.accessibility.feedbackText')}
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center md:justify-start text-sm text-foreground font-medium">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                    accessibility@selora.com
+                    {t('static.accessibility.feedbackEmail')}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                    Response within 2 business days
+                    {t('static.accessibility.feedbackResponse')}
                   </span>
                 </div>
               </div>
               <div className="flex justify-center">
                 <Link href="/contact">
                   <Button size="lg" className="rounded-full px-8">
-                    Contact Us
+                    {t('static.accessibility.contactUs')}
                   </Button>
                 </Link>
               </div>
@@ -554,22 +412,21 @@ export default function AccessibilityPage() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────────────────── */}
+      {/* CTA */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <div className="bg-primary/5 border border-primary/20 rounded-3xl p-12">
             <Building2 className="h-12 w-12 text-primary mx-auto mb-6" />
             <h2 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Luxury Travel for Everyone
+              {t('static.accessibility.ctaTitle')}
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Browse our collection of 43+ verified luxury hotels, filtered by
-              the accessibility features that matter most to you.
+              {t('static.accessibility.ctaSubtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/hotels">
                 <Button size="lg" className="rounded-full px-10 text-base">
-                  Explore Hotels
+                  {t('static.accessibility.exploreHotels')}
                 </Button>
               </Link>
               <Link href="/contact">
@@ -578,7 +435,7 @@ export default function AccessibilityPage() {
                   variant="outline"
                   className="rounded-full px-10 text-base"
                 >
-                  Get Personal Help
+                  {t('static.accessibility.getHelp')}
                 </Button>
               </Link>
             </div>

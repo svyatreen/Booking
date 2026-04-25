@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
+import { ru as ruLocale } from "date-fns/locale";
 import { Layout } from "@/components/layout/Layout";
 import {
   useGetRoom, getGetRoomQueryKey,
@@ -8,7 +10,7 @@ import {
   useGetRoomsByHotel, getGetRoomsByHotelQueryKey,
   useCreateBooking,
 } from "@/api";
-import { format, addDays, differenceInCalendarDays, startOfDay } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Star, Users, BedDouble, Bath, Maximize2, Wifi, Coffee,
@@ -24,95 +26,11 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { useStayDates } from "@/hooks/use-stay-dates";
 import { toast } from "sonner";
 
-const ROOM_TYPE_INFO: Record<string, {
-  label: string;
-  size: string;
-  beds: string;
-  bathroom: string;
-  floor: string;
-  color: string;
-  features: string[];
-}> = {
-  single: {
-    label: "Single Room",
-    size: "22–28 m²",
-    beds: "1 Single Bed",
-    bathroom: "Private bathroom with shower",
-    floor: "Standard floor",
-    color: "bg-blue-500/10 text-blue-700 border-blue-200",
-    features: [
-      "Work desk & ergonomic chair",
-      "High-speed Wi-Fi",
-      "Flat-screen TV with streaming",
-      "Mini-fridge",
-      "Electronic safe",
-      "Premium toiletries",
-      "Daily housekeeping",
-      "Tea & coffee facilities",
-    ],
-  },
-  double: {
-    label: "Double Room",
-    size: "32–40 m²",
-    beds: "1 King or 2 Twin Beds",
-    bathroom: "Ensuite bathroom with bath & shower",
-    floor: "Standard or upper floor",
-    color: "bg-green-500/10 text-green-700 border-green-200",
-    features: [
-      "Sitting area with sofa",
-      "High-speed Wi-Fi",
-      "55\" flat-screen TV",
-      "Mini-bar",
-      "Electronic safe",
-      "Pillow menu",
-      "Bathrobes & slippers",
-      "Tea & coffee facilities",
-      "Daily housekeeping",
-    ],
-  },
-  deluxe: {
-    label: "Deluxe Room",
-    size: "45–55 m²",
-    beds: "1 King Bed",
-    bathroom: "Luxury marble bathroom with rain shower & bathtub",
-    floor: "Upper floor with city/garden views",
-    color: "bg-amber-500/10 text-amber-700 border-amber-200",
-    features: [
-      "Separate sitting lounge",
-      "Ultra-fast Wi-Fi",
-      "65\" OLED flat-screen TV",
-      "Premium mini-bar",
-      "Nespresso machine",
-      "Electronic safe",
-      "Plush bathrobes & slippers",
-      "Luxury pillow menu",
-      "Evening turndown service",
-      "Daily housekeeping",
-      "Welcome fruit basket",
-    ],
-  },
-  suite: {
-    label: "Suite",
-    size: "80–150 m²",
-    beds: "1 King Bed + Sofa Bed",
-    bathroom: "Dual marble bathrooms with jacuzzi",
-    floor: "Top floor or exclusive suite wing",
-    color: "bg-purple-500/10 text-purple-700 border-purple-200",
-    features: [
-      "Separate bedroom & living room",
-      "Private dining area",
-      "Dedicated butler service",
-      "Ultra-fast Wi-Fi throughout",
-      "Multiple 65\" OLED TVs",
-      "Full-size premium bar",
-      "Nespresso & premium teas",
-      "Jacuzzi & rain shower",
-      "Plush bathrobes & designer slippers",
-      "Signature turndown service",
-      "Complimentary breakfast & evening cocktails",
-      "Airport transfers included",
-    ],
-  },
+const ROOM_TYPE_COLORS: Record<string, string> = {
+  single: "bg-blue-500/10 text-blue-700 border-blue-200",
+  double: "bg-green-500/10 text-green-700 border-green-200",
+  deluxe: "bg-amber-500/10 text-amber-700 border-amber-200",
+  suite: "bg-purple-500/10 text-purple-700 border-purple-200",
 };
 
 export default function RoomDetail() {
@@ -120,6 +38,8 @@ export default function RoomDetail() {
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   const { formatPrice } = useCurrency();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "ru" ? ruLocale : undefined;
   const hId = parseInt(hotelId, 10);
   const rId = parseInt(roomId, 10);
 
@@ -156,19 +76,19 @@ export default function RoomDetail() {
 
   const handleBook = () => {
     if (!isAuthenticated) {
-      toast.error("Please log in to book a room");
+      toast.error(t("room.loginToBook"));
       setLocation("/login");
       return;
     }
     if (!date.from || !date.to) {
-      toast.error("Please select check-in and check-out dates");
+      toast.error(t("room.selectDatesError"));
       return;
     }
     createBooking.mutate(
       { data: { roomId: rId, checkIn: format(date.from, "yyyy-MM-dd"), checkOut: format(date.to, "yyyy-MM-dd") } },
       {
         onSuccess: (booking) => { setLocation(`/booking/${booking.id}`); },
-        onError: (err: any) => { toast.error(err?.error || "Failed to create booking"); },
+        onError: (err: any) => { toast.error(err?.error || t("room.bookingFailed")); },
       }
     );
   };
@@ -187,7 +107,16 @@ export default function RoomDetail() {
     );
   }
 
-  const typeInfo = ROOM_TYPE_INFO[room.type] || ROOM_TYPE_INFO.single;
+  const roomType = room.type in ROOM_TYPE_COLORS ? room.type : "single";
+  const typeColor = ROOM_TYPE_COLORS[roomType];
+  const typeLabel = t(`room.type.${roomType}`);
+  const typeSize = t(`room.info.${roomType}.size`);
+  const typeBeds = t(`room.info.${roomType}.beds`);
+  const typeBathroom = t(`room.info.${roomType}.bathroom`);
+  const typeFloor = t(`room.info.${roomType}.floor`);
+  const typeFeatures = t(`room.info.${roomType}.features`, { returnObjects: true }) as string[];
+  const typePurpose = t(`room.purpose.${roomType}`);
+
   const images = room.images?.length ? room.images : [
     "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80",
   ];
@@ -202,11 +131,11 @@ export default function RoomDetail() {
       <div className="border-b bg-background">
         <div className="container mx-auto px-4 max-w-7xl py-4">
           <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/hotels" className="hover:text-foreground transition-colors">Hotels</Link>
+            <Link href="/hotels" className="hover:text-foreground transition-colors">{t("room.hotelsBreadcrumb")}</Link>
             <span>/</span>
             <Link href={`/hotels/${hId}`} className="hover:text-foreground transition-colors">{hotel.name}</Link>
             <span>/</span>
-            <span className="text-foreground font-medium">{typeInfo.label}</span>
+            <span className="text-foreground font-medium">{typeLabel}</span>
           </nav>
         </div>
       </div>
@@ -216,25 +145,25 @@ export default function RoomDetail() {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>
             <Button variant="ghost" size="sm" className="-ml-2 mb-3 text-muted-foreground" onClick={() => setLocation(`/hotels/${hId}`)}>
-              <ArrowLeft className="mr-1 h-4 w-4" /> Back to {hotel.name}
+              <ArrowLeft className="mr-1 h-4 w-4" /> {t("room.back", { hotel: hotel.name })}
             </Button>
             <div className="flex items-center gap-3 flex-wrap mb-2">
-              <Badge variant="outline" className={`${typeInfo.color} font-semibold px-3 py-1`}>
-                {typeInfo.label}
+              <Badge variant="outline" className={`${typeColor} font-semibold px-3 py-1`}>
+                {typeLabel}
               </Badge>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Star className="h-4 w-4 fill-primary text-primary" />
                 <span className="font-medium">{hotel.rating.toFixed(1)}</span>
-                <span>({hotel.reviewCount} reviews)</span>
+                <span>({t("hotel.reviewsCount", { count: hotel.reviewCount })})</span>
               </div>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-              {typeInfo.label} — {hotel.name}
+              {typeLabel} — {hotel.name}
             </h1>
             <p className="text-muted-foreground mt-1">{hotel.city}, {hotel.address}</p>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-sm text-muted-foreground">Per night from</span>
+            <span className="text-sm text-muted-foreground">{t("room.perNightFrom")}</span>
             <span className="text-4xl font-bold text-primary">{formatPrice(room.price)}</span>
           </div>
         </div>
@@ -244,7 +173,7 @@ export default function RoomDetail() {
           <div className="relative aspect-[16/7] rounded-2xl overflow-hidden group mb-3 bg-muted shadow-lg">
             <img
               src={images[activeImage]}
-              alt={`${typeInfo.label} photo ${activeImage + 1}`}
+              alt={`${typeLabel} ${activeImage + 1}`}
               className="w-full h-full object-cover transition-all duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -279,7 +208,7 @@ export default function RoomDetail() {
                     i === activeImage ? "border-primary shadow-md scale-105" : "border-transparent opacity-70 hover:opacity-100"
                   )}
                 >
-                  <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`${typeLabel} ${i + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -294,41 +223,41 @@ export default function RoomDetail() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-secondary/40 rounded-xl p-4 text-center">
                 <BedDouble className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground mb-1">Bed Type</p>
-                <p className="font-semibold text-sm">{typeInfo.beds}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("room.bedType")}</p>
+                <p className="font-semibold text-sm">{typeBeds}</p>
               </div>
               <div className="bg-secondary/40 rounded-xl p-4 text-center">
                 <Maximize2 className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground mb-1">Room Size</p>
-                <p className="font-semibold text-sm">{typeInfo.size}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("room.roomSize")}</p>
+                <p className="font-semibold text-sm">{typeSize}</p>
               </div>
               <div className="bg-secondary/40 rounded-xl p-4 text-center">
                 <Users className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground mb-1">Max Guests</p>
-                <p className="font-semibold text-sm">Up to {room.guests}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("room.maxGuests")}</p>
+                <p className="font-semibold text-sm">{t("room.upToGuestsShort", { count: room.guests })}</p>
               </div>
               <div className="bg-secondary/40 rounded-xl p-4 text-center">
                 <Bath className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground mb-1">Bathroom</p>
-                <p className="font-semibold text-sm">Private</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("room.bathroom")}</p>
+                <p className="font-semibold text-sm">{t("room.private")}</p>
               </div>
             </div>
 
             {/* Description */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-4">About this room</h2>
+              <h2 className="text-2xl font-serif font-bold mb-4">{t("room.aboutRoom")}</h2>
               <p className="text-muted-foreground leading-relaxed text-lg">{room.description}</p>
               <p className="text-muted-foreground leading-relaxed mt-3">
-                {typeInfo.bathroom}. Located on the {typeInfo.floor}.
-                Perfect for guests seeking {room.type === 'suite' ? 'the ultimate luxury experience' : room.type === 'deluxe' ? 'elevated comfort and style' : 'comfortable and well-appointed accommodation'} during their stay at {hotel.name}.
+                {t("room.aboutFloorAndBath", { bathroom: typeBathroom, floor: typeFloor })}{" "}
+                {t("room.perfectFor", { purpose: typePurpose, hotel: hotel.name })}
               </p>
             </section>
 
             {/* What's Included */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6">What's included</h2>
+              <h2 className="text-2xl font-serif font-bold mb-6">{t("room.whatsIncluded")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {typeInfo.features.map((feature) => (
+                {typeFeatures.map((feature) => (
                   <div key={feature} className="flex items-center gap-3 bg-secondary/30 rounded-lg px-4 py-3">
                     <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Check className="h-3.5 w-3.5 text-primary" />
@@ -341,23 +270,23 @@ export default function RoomDetail() {
 
             {/* In-room Amenities Icons */}
             <section>
-              <h2 className="text-2xl font-serif font-bold mb-6">In-Room Amenities</h2>
+              <h2 className="text-2xl font-serif font-bold mb-6">{t("room.inRoomAmenities")}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                  { icon: <Wifi className="h-6 w-6" />, label: "Free Wi-Fi" },
-                  { icon: <Tv className="h-6 w-6" />, label: "Smart TV" },
-                  { icon: <Wind className="h-6 w-6" />, label: "Air Conditioning" },
-                  { icon: <Coffee className="h-6 w-6" />, label: "Coffee Maker" },
-                  { icon: <Bath className="h-6 w-6" />, label: "Luxury Bathroom" },
-                  { icon: <Shield className="h-6 w-6" />, label: "Electronic Safe" },
-                  { icon: <Clock className="h-6 w-6" />, label: "24h Room Service" },
-                  { icon: <CreditCard className="h-6 w-6" />, label: "Express Checkout" },
-                ].map(({ icon, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-2 text-center">
+                  { icon: <Wifi className="h-6 w-6" />, key: "wifi" },
+                  { icon: <Tv className="h-6 w-6" />, key: "tv" },
+                  { icon: <Wind className="h-6 w-6" />, key: "ac" },
+                  { icon: <Coffee className="h-6 w-6" />, key: "coffee" },
+                  { icon: <Bath className="h-6 w-6" />, key: "bath" },
+                  { icon: <Shield className="h-6 w-6" />, key: "safe" },
+                  { icon: <Clock className="h-6 w-6" />, key: "service" },
+                  { icon: <CreditCard className="h-6 w-6" />, key: "checkout" },
+                ].map(({ icon, key }) => (
+                  <div key={key} className="flex flex-col items-center gap-2 text-center">
                     <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center text-primary">
                       {icon}
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">{label}</span>
+                    <span className="text-sm font-medium text-muted-foreground">{t(`room.amenity.${key}`)}</span>
                   </div>
                 ))}
               </div>
@@ -365,20 +294,20 @@ export default function RoomDetail() {
 
             {/* Policies */}
             <section className="border-t pt-8">
-              <h2 className="text-2xl font-serif font-bold mb-6">Policies</h2>
+              <h2 className="text-2xl font-serif font-bold mb-6">{t("room.policies")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <CalendarDays className="h-4 w-4 text-primary" /> Check-in / Check-out
+                    <CalendarDays className="h-4 w-4 text-primary" /> {t("room.checkInOut")}
                   </h3>
-                  <p className="text-sm text-muted-foreground">Check-in: from 3:00 PM</p>
-                  <p className="text-sm text-muted-foreground">Check-out: by 11:00 AM</p>
+                  <p className="text-sm text-muted-foreground">{t("room.checkInTime")}</p>
+                  <p className="text-sm text-muted-foreground">{t("room.checkOutTime")}</p>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-primary" /> Cancellation Policy
+                    <Shield className="h-4 w-4 text-primary" /> {t("room.cancellationPolicy")}
                   </h3>
-                  <p className="text-sm text-muted-foreground">Free cancellation up to 48 hours before check-in. Late cancellations are charged one night.</p>
+                  <p className="text-sm text-muted-foreground">{t("room.cancellationText")}</p>
                 </div>
               </div>
             </section>
@@ -388,19 +317,19 @@ export default function RoomDetail() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
               <div className="bg-primary p-6 text-white">
-                <div className="text-sm opacity-80 mb-1">Starting from</div>
+                <div className="text-sm opacity-80 mb-1">{t("hotel.startingFrom")}</div>
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-4xl font-bold">{formatPrice(room.price)}</span>
-                  <span className="opacity-80">/ night</span>
+                  <span className="opacity-80">{t("room.perNightSlash")}</span>
                 </div>
                 {!room.isAvailable && (
                   <Badge variant="secondary" className="bg-red-100 text-red-700 border-red-200 mt-2">
-                    Not available for selected dates
+                    {t("room.notAvailable")}
                   </Badge>
                 )}
                 {room.isAvailable && (
                   <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 mt-2">
-                    Available
+                    {t("room.available")}
                   </Badge>
                 )}
               </div>
@@ -408,7 +337,7 @@ export default function RoomDetail() {
               <div className="p-6 space-y-5">
                 {/* Date Picker */}
                 <div>
-                  <p className="text-sm font-semibold mb-2">Select Dates</p>
+                  <p className="text-sm font-semibold mb-2">{t("room.selectDates")}</p>
                   <DateRangePopover value={date} onChange={setDate} pricePerNight={room.price} />
                 </div>
 
@@ -416,16 +345,16 @@ export default function RoomDetail() {
                 {nights > 0 && (
                   <div className="bg-secondary/30 rounded-xl p-4 space-y-2">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>{formatPrice(room.price)} × {nights} night{nights !== 1 ? "s" : ""}</span>
+                      <span>{t("room.perNights", { count: nights, price: formatPrice(room.price) })}</span>
                       <span>{formatPrice(totalPrice)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>Taxes & Fees (10%)</span>
+                      <span>{t("room.taxesFees")}</span>
                       <span>{formatPrice(taxes)}</span>
                     </div>
                     <Separator className="my-1" />
                     <div className="flex justify-between font-bold">
-                      <span>Total</span>
+                      <span>{t("room.total")}</span>
                       <span className="text-primary">{formatPrice(totalPrice + taxes)}</span>
                     </div>
                   </div>
@@ -437,21 +366,21 @@ export default function RoomDetail() {
                   onClick={handleBook}
                 >
                   {createBooking.isPending
-                    ? "Processing…"
+                    ? t("room.processing")
                     : !date.from || !date.to
-                    ? "Select dates to book"
+                    ? t("room.selectToBook")
                     : room.isAvailable
-                    ? `Reserve — ${formatPrice(totalPrice + taxes)}`
-                    : "Not Available"}
+                    ? t("room.reserve", { price: formatPrice(totalPrice + taxes) })
+                    : t("room.notAvailableShort")}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You won't be charged yet · Free cancellation available
+                  {t("room.noChargeYet")}
                 </p>
 
                 <div className="flex items-center justify-center gap-6 pt-2 border-t text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Secure payment</div>
-                  <div className="flex items-center gap-1"><Check className="h-3.5 w-3.5" /> Best price guarantee</div>
+                  <div className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> {t("room.securePayment")}</div>
+                  <div className="flex items-center gap-1"><Check className="h-3.5 w-3.5" /> {t("room.bestPriceGuarantee")}</div>
                 </div>
               </div>
             </div>
@@ -461,31 +390,33 @@ export default function RoomDetail() {
         {/* Other Rooms in Hotel */}
         {otherRooms.length > 0 && (
           <section className="mt-16 pt-10 border-t">
-            <h2 className="text-2xl font-serif font-bold mb-6">Other rooms at {hotel.name}</h2>
+            <h2 className="text-2xl font-serif font-bold mb-6">{t("room.otherRooms", { hotel: hotel.name })}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {otherRooms.map((r) => {
-                const info = ROOM_TYPE_INFO[r.type] || ROOM_TYPE_INFO.single;
+                const rType = r.type in ROOM_TYPE_COLORS ? r.type : "single";
+                const rColor = ROOM_TYPE_COLORS[rType];
+                const rLabel = t(`room.type.${rType}`);
                 return (
                   <Link key={r.id} href={`/hotels/${hId}/rooms/${r.id}`}>
                     <div className="group border rounded-2xl overflow-hidden bg-card hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer">
                       <div className="h-48 overflow-hidden">
                         <img
                           src={r.images?.[0] || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80"}
-                          alt={info.label}
+                          alt={rLabel}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                       <div className="p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <Badge variant="outline" className={`${info.color} text-xs mb-1`}>{info.label}</Badge>
+                            <Badge variant="outline" className={`${rColor} text-xs mb-1`}>{rLabel}</Badge>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Users className="h-3 w-3" /> Up to {r.guests} guests
+                              <Users className="h-3 w-3" /> {t("room.upToGuests", { count: r.guests })}
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-lg">{formatPrice(r.price)}</p>
-                            <p className="text-xs text-muted-foreground">/ night</p>
+                            <p className="text-xs text-muted-foreground">{t("room.perNightSlash")}</p>
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>

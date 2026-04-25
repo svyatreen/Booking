@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import { MapPin, Star, Heart } from "lucide-react";
 import { Hotel } from "@/api/generated/api.schemas";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,11 +16,12 @@ interface HotelCardProps {
 }
 
 export function HotelCard({ hotel }: HotelCardProps) {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const { formatPrice } = useCurrency();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
-  
+
   const { data: favorites } = useGetFavorites({
     query: {
       enabled: isAuthenticated,
@@ -35,7 +37,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       setLocation("/login");
       return;
@@ -45,14 +47,14 @@ export function HotelCard({ hotel }: HotelCardProps) {
       removeFavorite.mutate({ hotelId: hotel.id }, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetFavoritesQueryKey() });
-          toast.success("Removed from favorites");
+          toast.success(t("favoritesPage.removed"));
         }
       });
     } else {
       addFavorite.mutate({ hotelId: hotel.id }, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetFavoritesQueryKey() });
-          toast.success("Added to favorites");
+          toast.success(t("favoritesPage.added"));
         }
       });
     }
@@ -73,13 +75,14 @@ export function HotelCard({ hotel }: HotelCardProps) {
               size="icon"
               className="h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white text-foreground"
               onClick={toggleFavorite}
+              aria-label={isFavorite ? t("hotelCard.removeFromFavorites") : t("hotelCard.addToFavorites")}
             >
               <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-gray-800 stroke-2"}`} />
             </Button>
           </div>
           {hotel.stars >= 4 && (
             <Badge className="absolute top-3 left-3 bg-primary/90 hover:bg-primary text-primary-foreground backdrop-blur-sm">
-              Luxury
+              {t("hotelCard.luxury", { defaultValue: "Luxury" })}
             </Badge>
           )}
         </div>
@@ -93,7 +96,7 @@ export function HotelCard({ hotel }: HotelCardProps) {
               <span className="text-sm font-medium">{hotel.stars}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center text-muted-foreground mb-4">
             <MapPin className="mr-1 h-3.5 w-3.5" />
             <span className="text-sm truncate">{hotel.city}</span>
@@ -101,14 +104,14 @@ export function HotelCard({ hotel }: HotelCardProps) {
 
           <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Starting from</span>
+              <span className="text-xs text-muted-foreground">{t("common.startingFrom")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-bold">{formatPrice(hotel.minPrice || 0)}</span>
-                <span className="text-sm text-muted-foreground">/night</span>
+                <span className="text-sm text-muted-foreground">{t("common.perNight")}</span>
               </div>
             </div>
             <span className="text-sm font-medium text-primary flex items-center group-hover:translate-x-1 transition-transform">
-              View details →
+              {t("common.viewDetails")} →
             </span>
           </div>
         </CardContent>
